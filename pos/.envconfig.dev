@@ -1,0 +1,21 @@
+APP_NAME=pospajak
+APP_STATUS=DEV
+
+DB_HOST=pos-ptpis-database-postgresql
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=pos-ptpis-database
+DB_NAME=pos_app
+PREFIX_DBPOS=pos_
+
+BASE_URL = https://pos-ptpis.skwn.dev/pos-v2/
+PORTAL_URL=https://pos-ptpis.skwn.dev/
+SOCKET_CONNECT=wss://pos-ptpis-socket.skwn.dev/
+
+PAJAK_URL=https://pos-ptpis.skwn.dev/dev/monitoringpajak-v2/
+PAJAK_DBNAME=pajak_app
+
+RMQ_HOST=rabbitmq.skwn.dev
+RMQ_PORT=5672
+RMQ_USERNAME=developer
+RMQ_PASSWORD=sekawan

@@ -1,0 +1,19 @@
+/db-postgresql
+/rabbitmq
+/nginx
+.DS_Store
+/nginx/.DS_Store
+
+# Composer
+/vendor
+
+# CI3
+/application/cache/*
+!/application/cache/index.html
+/application/logs/*
+!/application/logs/index.html
+
+# Environment
+.env
+*.env
+*.log

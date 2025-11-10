@@ -1,0 +1,21 @@
+APP_NAME=pospajak
+APP_STATUS=PROD
+
+DB_HOST=localhost
+DB_PORT=5433
+DB_USER=admin
+DB_PASS=admin123
+DB_NAME=pos_app
+PREFIX_DBPOS=posprod_
+
+BASE_URL = https://persada.malangkota.go.id/pos/
+PORTAL_URL=https://persada.malangkota.go.id/
+SOCKET_CONNECT=https://persada.malangkota.go.id/sc/
+
+PAJAK_URL=https://persada.malangkota.go.id/backoffice/
+PAJAK_DBNAME=pajak_app
+
+RMQ_HOST=rabbitmq.skwn.dev
+RMQ_PORT=5672
+RMQ_USERNAME=developer
+RMQ_PASSWORD=sekawan

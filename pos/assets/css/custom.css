@@ -1,0 +1,400 @@
+span.required {
+  color: red;
+}
+span.select2.select2-container.select2-container--default {
+  width: 100% !important;
+}
+input.datepicker {
+  width: 100%;
+}
+.thumbs-table,
+.thumbs-table-80,
+.thumbs-table-60,
+.thumbs-table-30 {
+  width: 100%;
+  text-align: center;
+}
+.thumbs-table img {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.thumbs-table-80 img {
+  max-width: 80%;
+  height: auto;
+  margin: 0 auto;
+}
+.thumbs-table-60 img {
+  max-width: 60%;
+  height: auto;
+  margin: 0 auto;
+}
+.thumbs-table-30 img {
+  max-width: 30%;
+  height: auto;
+  margin: 0 auto;
+}
+button.kv-file-remove.btn.btn-sm.btn-kv.btn-default.btn-outline-secondary {
+  display: none;
+}
+
+td.disabled.day {
+  text-decoration: line-through;
+}
+#floating-panel {
+  position: absolute;
+  top: 100px;
+  left: 1%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  text-align: left;
+  line-height: 30px;
+  padding-left: 10px;
+  background: transparent;
+  max-width: 30%;
+  min-width: 25%;
+}
+i.fas.fa-star {
+  color: #fde16d !important;
+}
+.rating-container.rating-lg.rating-animate {
+  margin-top: -2rem;
+}
+table.dataTable tbody > tr.selected,
+table.dataTable tbody > tr > .selected {
+  background-color: #ebedf3 !important;
+}
+.tooltip-geo {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: bold;
+}
+.color-fms-ungu {
+  color: #8950fc;
+}
+.color-fms-kuning {
+  color: #ffa800;
+}
+.color-fms-merah {
+  color: #f64e60;
+}
+.color-fms-cyan {
+  color: #1bc5bd;
+}
+.bootstrap-timepicker-widget table td > a {
+  width: unset;
+}
+.card-fullscreen {
+  display: block;
+  z-index: 99;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  overflow: auto;
+}
+.polyline_trip {
+  stroke-width: 5;
+}
+.polyline_route {
+  stroke-width: 5;
+}
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+div#dropdown-menu {
+  z-index: 2;
+}
+
+/*custom scrollbar*/
+.scrollbar {
+  scrollbar-color: #9a9a9a transparent;
+  scrollbar-width: thin;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  /*background-color: #F5F5F5;*/
+  background-color: transparent;
+}
+
+.scrollbar::-webkit-scrollbar {
+  height: 7px;
+  width: 5px;
+  /*background-color: #F5F5F5;*/
+  background-color: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #9a9a9a;
+  /*background-color: transparent;*/
+}
+
+.radius-5 {
+  border-radius: 5px !important;
+}
+.radius-10 {
+  border-radius: 10px !important;
+}
+.radius-15 {
+  border-radius: 15px !important;
+}
+.radius-20 {
+  border-radius: 20px !important;
+}
+.radius-25 {
+  border-radius: 25px !important;
+}
+.radius-50 {
+  border-radius: 50% !important;
+}
+
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid #428bca;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #428bca transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.header-fixed.subheader-fixed.subheader-enabled .wrapper {
+  padding-top: 50px;
+}
+.aside-minimize:not(.aside-minimize-hover) .brand .brand-logo h2 {
+  display: none;
+}
+.aside-minimize:not(.aside-minimize-hover) .div-input-search-menu {
+  display: none;
+}
+
+/*start select2 column view*/
+.bigdrop {
+  width: 600px !important;
+}
+.detail-barang-select {
+  display: inline-block;
+}
+
+/*end select2 column view*/
+
+.btn-primary:hover {
+  background-color: #003180 !important;
+  border-color: #003180 !important;
+}
+
+.aside,
+.aside-menu,
+.brand {
+  background-color: #0c3f9eff !important;
+  color: #ffffff !important;
+}
+
+.aside-menu .menu-nav > .menu-item.menu-item-active > .menu-heading,
+.aside-menu .menu-nav > .menu-item.menu-item-active > .menu-link,
+.aside-menu .menu-nav > .menu-item.menu-item-open > .menu-heading,
+.aside-menu .menu-nav > .menu-item.menu-item-open > .menu-link,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-active
+  > .menu-heading,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-active
+  > .menu-link {
+  background-color: #2060d8ff !important;
+  color: #ffffff !important;
+}
+
+.aside-menu .menu-nav > .menu-item.menu-item-here > .menu-heading,
+.aside-menu .menu-nav > .menu-item.menu-item-here > .menu-link,
+.aside-menu
+  .menu-nav
+  > .menu-item:not(.menu-item-parent):not(.menu-item-open):not(
+    .menu-item-here
+  ):not(.menu-item-active):hover
+  > .menu-heading,
+.aside-menu
+  .menu-nav
+  > .menu-item:not(.menu-item-parent):not(.menu-item-open):not(
+    .menu-item-here
+  ):not(.menu-item-active):hover
+  > .menu-link,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-open
+  > .menu-heading,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-open
+  > .menu-link,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-here
+  > .menu-heading,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item.menu-item-here
+  > .menu-link,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item:not(.menu-item-parent):not(.menu-item-open):not(
+    .menu-item-here
+  ):not(.menu-item-active):hover
+  > .menu-heading,
+.aside-menu
+  .menu-nav
+  > .menu-item
+  .menu-submenu
+  .menu-item:not(.menu-item-parent):not(.menu-item-open):not(
+    .menu-item-here
+  ):not(.menu-item-active):hover
+  > .menu-link {
+  background-color: #082c6eff !important;
+  color: #ffffff !important;
+}
+
+/* Ubah warna teks menu sidebar jadi putih */
+.aside-menu .menu-nav .menu-item > .menu-heading .menu-text,
+.aside-menu .menu-nav .menu-item > .menu-link .menu-text {
+  font-family: "Poppins", sans-serif !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Kalau mau beda saat hover */
+.aside-menu .menu-nav .menu-item > .menu-link:hover .menu-text {
+  color: #ffffff !important;
+}
+
+/* Kalau item active */
+.aside-menu .menu-nav .menu-item.menu-item-active > .menu-link .menu-text {
+  color: #ffffff !important;
+}
+
+.aside-menu .menu-nav .menu-item > .menu-heading .menu-icon,
+.aside-menu .menu-nav .menu-item > .menu-link .menu-icon {
+  color: #ffffff !important;
+  /* putih */
+  font-size: 1.2rem;
+  /* atur ukuran icon */
+}
+
+/* Target semua icon font awesome di aside-menu */
+.aside-menu .menu-nav .menu-item i.fa,
+i.fas,
+i.flaticon-psd,
+i.flaticon2 {
+  color: #ffffff !important;
+}
+
+aside-menu .menu-nav > .menu-item > .menu-heading .menu-arrow,
+.aside-menu .menu-nav > .menu-item > .menu-link .menu-arrow {
+  color: #fdfdfd !important;
+}
+
+.btn {
+  color: var(--color-black);
+}
+
+.btn-master,
+.btn-notification {
+  background-color: #e7edf8;
+}
+
+.btn-master:hover,
+.btn-notification:hover {
+  background-color: #dce6f7;
+}
+
+.label.label-light-danger {
+  color: var(--color-white);
+  background-color: var(--color-danger);
+}
+
+.breadcrumb {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+}
+
+.breadcrumb-item {
+  align-items: center;
+}
+
+.breadcrumb .breadcrumb-item:after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 11px;
+  background-image: url("data:image/svg+xml,%3Csvg width='7' height='11' viewBox='0 0 7 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.999999 10L5 5.5L1 1' stroke='%23101828' stroke-width='2'/%3E%3C/svg%3E%0A");
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+.breadcrumb-item a {
+  color: var(--black);
+  font-weight: 600;
+}
+
+.breadcrumb-item a:hover {
+  color: #393c41;
+}
+
+.svg-icon-white svg path {
+  fill: #fff !important;
+}
