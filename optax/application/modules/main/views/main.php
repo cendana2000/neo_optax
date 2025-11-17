@@ -50,11 +50,11 @@ License: You must have a valid license purchased only from themeforest(the above
 	<!--end::Vendor Stylesheets-->
 
 
-	<!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+	<!-- CSS custom template OPTAX -->
 	<!-- <link href="assets/assets_custom/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" /> -->
 	<link href="assets/assets_custom/css/style.bundle.css" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	<!--end::Global Stylesheets Bundle-->
+	<!--end::CSS custom-->
 
 	<!-- Google tag (gtag.js) -->
 
@@ -173,14 +173,6 @@ License: You must have a valid license purchased only from themeforest(the above
 				<!--end::Brand-->
 				<!--begin::Aside Menu-->
 				<div class="aside-menu-wrapper flex-column-fluid" id="kt_aside_menu_wrapper">
-					<!-- <div class="col-12 mt-5 div-input-search-menu">
-						<div class="input-icon input-icon-right">
-							<input type="text" name="cari" placeholder="Search Menu" id="cari-menu-sidebar" class="form-control form-control-sm" autocomplete="off">
-							<span>
-								<i class="fa fa-search icon-md"></i>
-							</span>
-						</div>
-					</div> -->
 					<!--begin::Menu Container-->
 					<div id="kt_aside_menu" class="aside-menu my-4 scrollbar" data-menu-vertical="1" data-menu-scroll="1" data-menu-dropdown-timeout="500" style="max-height: 85vh; overflow: auto; color: white;">
 						<!--begin::Menu Nav-->
@@ -204,9 +196,6 @@ License: You must have a valid license purchased only from themeforest(the above
 						<div class="header-menu-wrapper header-menu-wrapper-left" id="kt_header_menu_wrapper">
 							<!--begin::Header Menu-->
 							<div id="kt_header_menu" class="header-menu header-menu-mobile header-menu-layout-default align-items-center">
-								<!-- <div class="dropdown dropdown-inline" data-toggle="tooltip" data-placement="left">
-									<span class="menu-text font-weight-bold">DASHBOARD PEMERINTAH DAERAH</span>
-								</div> -->
 								<?php if (!check_superadmin()) : ?>
 									<span class="text-dark font-weight-bolder font-size-base d-none d-md-inline mt-7 mr-3 h5 project_header"></span>
 								<?php endif ?>
@@ -216,71 +205,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<!--end::Header Menu Wrapper-->
 						<!--begin::Topbar-->
 						<div class="topbar">
-							<!--begin::Notifications-->
-							<!-- <div class="dropdown" id="nav-notification">
-								<div class="topbar-item" data-toggle="dropdown" data-offset="10px,0px">
-									<div class="btn btn-icon btn-clean btn-dropdown btn-lg mr-1 pulse pulse-primary">
-										<span class="svg-icon svg-icon-xl svg-icon-primary">
-											<i class="fa fa-bell"></i>
-										</span>
-										<span class="pulse-ring d-none"></span>
-										<span class="label label-sm label-light-danger rounded-circle font-weight-bolder position-absolute d-none" id="badge-notif-top" style="top: -4px; right: -4px;">0</span>
-									</div>
-								</div>
-								<div class="dropdown-menu p-0 m-0 dropdown-menu-right dropdown-menu-anim-up dropdown-menu-lg">
-									<form>
-										<div class="d-flex flex-column pt-12 bgi-size-cover bgi-no-repeat rounded-top" style="background-color: #2f46ac;background-image: url(assets/media/misc/bg-1.jpg)">
-											<h4 class="d-flex flex-center rounded-top">
-												<span class="text-white">Notifikasi</span>
-											</h4>
-											<a href="javascript:void(0)" style="position: absolute;top: 10px;right: 10px;" onclick="showAllNotif()" title="Refresh Notifikasi"><i class="fa fa-sync text-white"></i></a>
-											<ul class="nav nav-bold nav-tabs nav-tabs-line nav-tabs-line-3x nav-tabs-line-transparent-white nav-tabs-line-active-border-success mt-3 px-8" role="tablist">
-												<li class="nav-item">
-													<a class="nav-link active show" data-toggle="tab" href="#topbar_notifications_unread">
-														Baru <span class="label label-sm label-light-danger label-rounded font-weight-bolder " id="badge-notif-unread" style="display: none;">0</span>
-													</a>
-												</li>
-												<li class="nav-item">
-													<a class="nav-link" data-toggle="tab" href="#topbar_notifications_read">
-														Dibaca
-													</a>
-												</li>
-												<li class="nav-item d-none">
-													<a class="nav-link" data-toggle="tab" href="#topbar_notifications_confirm">
-														Konfirmasi <span class="label label-sm label-light-danger label-rounded font-weight-bolder " id="badge-notif-confirm" style="display: none;">0</span>
-													</a>
-												</li>
-											</ul>
-										</div>
-										<div class="tab-content">
-											<div class="tab-pane active show p-8" id="topbar_notifications_unread" role="tabpanel">
-												<div class="scroll pr-7 mr-n7" data-scroll="true" data-height="300" data-mobile-height="200">
-													<div id="div_notif_unread">
 
-													</div>
-													<button type="button" class="btn btn-sm btn-primary" id="btn_notif_unread" style="display: none;">Load More <i class="fa fa-angle-double-down"></i></button>
-												</div>
-											</div>
-											<div class="tab-pane p-8" id="topbar_notifications_read" role="tabpanel">
-												<div class="scroll pr-7 mr-n7" data-scroll="true" data-height="300" data-mobile-height="200">
-													<div id="div_notif_read">
-
-													</div>
-													<button type="button" class="btn btn-sm btn-primary" id="btn_notif_read" style="display: none;">Load More <i class="fa fa-angle-double-down"></i></button>
-												</div>
-											</div>
-											<div class="tab-pane p-8" id="topbar_notifications_confirm" role="tabpanel">
-												<div class="scroll pr-7 mr-n7" data-scroll="true" data-height="300" data-mobile-height="200">
-													<div id="div_notif_confirm">
-
-													</div>
-													<button type="button" class="btn btn-sm btn-primary" id="btn_notif_confirm" style="display: none;">Load More <i class="fa fa-angle-double-down"></i></button>
-												</div>
-											</div>
-										</div>
-									</form>
-								</div>
-							</div> -->
 							<div class="topbar-item">
 								<div class="btn btn-icon btn-icon-mobile w-auto btn-clean d-flex align-items-center btn-lg px-2" id="kt_quick_user_toggle">
 									<!-- <span class="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Welcome back, </span> -->

@@ -1,6 +1,5 @@
 /db-postgresql
 /rabbitmq
-/nginx
 .DS_Store
 /nginx/.DS_Store
 
@@ -14,6 +13,5 @@
 !/application/logs/index.html
 
 # Environment
-.env
-*.env
+*.envconfig
 *.log

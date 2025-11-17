@@ -43,13 +43,6 @@
 					</ul>
 					<!--end::Breadcrumb-->
 				</div>
-				<!-- Custom Filters -->
-				<!-- <div class="menu-item p-0 m-0">					
-					<a href="https://preview.keenthemes.com/metronic8/demo1/asides/aside-1.html" class="menu-link ">
-						<span class="menu-bullet"><span class="bullet bullet-dot bg-gray-300i h-6px w-6px"></span></span>
-						<span class="menu-title">Filters</span>
-					</a>					
-				</div> -->
 				<div class="dropdown dropdown-inline dd-filter ms-auto" data-toggle="tooltip" title="Quick actions" data-placement="right">
 					<a href="#" class="btn btn-danger fw-semibold mb-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-calendar text-white px-4"></i>
@@ -527,142 +520,6 @@
 					</div>
 					<!--end::Col-->
 
-					<!-- Chart custom -->
-					<!-- <div class="col-lg-12 col-xl-12 col-xxl-6 mb-5 mb-xl-0">						
-						<div class="card card-flush overflow-hidden h-md-100">							
-							<div class="card-header py-5">								
-								<h3 class="card-title align-items-start flex-column">
-									<span class="card-label fw-bold text-gray-900">Grafik Transaksi Objek Pajak</span>
-									<span class="text-gray-500 mt-1 fw-semibold fs-5">Pertumbuhan grafik beberapa bulan terakhir</span>
-								</h3>								
-								
-								<div class="card-toolbar">									
-									<button class="btn btn-icon btn-color-gray-500 btn-active-color-primary justify-content-end" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">
-										<i class="ki-duotone ki-dots-square fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
-									</button>
-								</div>								
-							</div>							
-							
-							<div class="card-body d-flex justify-content-between flex-column pb-1 px-0">								
-								<div class="px-9 mb-5">									
-									<div class="d-flex mb-2">
-										<span id="total_pajak_masuk" class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">0</span>
-									</div>									
-								</div>								
-								
-								<div id="kt_charts_widget_3" class="min-h-auto ps-4 pe-6" style="height: 300px; min-height: 315px;">
-									<div id="apexchartsokxz9egx" class="apexcharts-canvas apexchartsokxz9egx apexcharts-theme-light" style="width: 991.5px; height: 300px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" class="apexcharts-svg apexcharts-zoomable" xmlns:data="ApexChartsNS" transform="translate(0, 0)" width="991.5" height="300">
-											<foreignObject x="0" y="0" width="991.5" height="300">
-											</foreignObject>
-											<g class="apexcharts-datalabels-group" transform="translate(0, 0) scale(1)"></g>
-											<g class="apexcharts-datalabels-group" transform="translate(0, 0) scale(1)"></g>
-											<rect width="0" height="0" x="0" y="0" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fefefe"></rect>
-											<g class="apexcharts-yaxis" rel="0" transform="translate(37.765625, 0)">
-												<g class="apexcharts-yaxis-texts-g">
-													<text x="20" y="34" text-anchor="end" dominant-baseline="auto" font-size="12px" font-family="inherit" font-weight="400" fill="#99a1b7" class="apexcharts-text apexcharts-yaxis-label " style="font-family: inherit;">
-														<tspan>$24K</tspan>
-														<title>$24K</title>
-													</text>
-												</g>
-											</g>
-											<g class="apexcharts-inner apexcharts-graphical" transform="translate(67.765625, 30)">
-												<defs>
-													<clipPath id="gridRectMaskokxz9egx">
-														<rect width="920.734375" height="228.82" x="-3.5" y="-3.5" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect>
-													</clipPath>
-													<clipPath id="gridRectBarMaskokxz9egx">
-														<rect width="920.734375" height="228.82" x="-3.5" y="-3.5" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect>
-													</clipPath>
-													<clipPath id="gridRectMarkerMaskokxz9egx">
-														<rect width="920.734375" height="221.82" x="-3.5" y="0" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect>
-													</clipPath>
-													<clipPath id="forecastMaskokxz9egx"></clipPath>
-													<clipPath id="nonForecastMaskokxz9egx"></clipPath>
-													<linearGradient x1="0" y1="0" x2="0" y2="1" id="SvgjsLinearGradient1004">
-														<stop stop-opacity="0.4" stop-color="rgba(23,198,83,0.4)" offset="0"></stop>
-														<stop stop-opacity="0" stop-color="rgba(255,255,255,0)" offset="0.8"></stop>
-														<stop stop-opacity="0" stop-color="rgba(255,255,255,0)" offset="1"></stop>
-													</linearGradient>
-												</defs>
-												<g class="apexcharts-grid">
-													<g class="apexcharts-gridlines-horizontal">
-														<line x1="0" y1="55.455" x2="913.734375" y2="55.455" stroke="#dbdfe9" stroke-dasharray="4" stroke-linecap="butt" class="apexcharts-gridline"></line>
-														<line x1="0" y1="110.91" x2="913.734375" y2="110.91" stroke="#dbdfe9" stroke-dasharray="4" stroke-linecap="butt" class="apexcharts-gridline"></line>
-														<line x1="0" y1="166.365" x2="913.734375" y2="166.365" stroke="#dbdfe9" stroke-dasharray="4" stroke-linecap="butt" class="apexcharts-gridline"></line>
-													</g>
-													<g class="apexcharts-gridlines-vertical"></g>
-													<line x1="0" y1="221.82" x2="913.734375" y2="221.82" stroke="transparent" stroke-dasharray="0" stroke-linecap="butt"></line>
-													<line x1="0" y1="1" x2="0" y2="221.82" stroke="transparent" stroke-dasharray="0" stroke-linecap="butt"></line>
-												</g>
-												<g class="apexcharts-grid-borders">
-													<line x1="0" y1="0" x2="913.734375" y2="0" stroke="#dbdfe9" stroke-dasharray="4" stroke-linecap="butt" class="apexcharts-gridline"></line>
-													<line x1="0" y1="221.82" x2="913.734375" y2="221.82" stroke="#dbdfe9" stroke-dasharray="4" stroke-linecap="butt" class="apexcharts-gridline"></line>
-												</g>
-												<g class="apexcharts-area-series apexcharts-plot-series">
-													<g class="apexcharts-series" zIndex="0" seriesName="Sales" data:longestSeries="true" rel="1" data:realIndex="0">
-														<path d="M 0 95.06571428571425C 17.767057291666667 95.06571428571425 32.99596354166667 95.06571428571425 50.763020833333336 95.06571428571425C 68.530078125 95.06571428571425 83.75898437500001 63.377142857142815 101.52604166666667 63.377142857142815C 119.29309895833333 63.377142857142815 134.52200520833333 63.377142857142815 152.2890625 63.377142857142815C 170.05611979166667 63.377142857142815 185.28502604166667 95.06571428571425 203.05208333333334 95.06571428571425C 220.81914062500002 95.06571428571425 236.048046875 95.06571428571425 253.81510416666669 95.06571428571425C 271.58216145833336 95.06571428571425 286.8110677083333 31.68857142857138 304.578125 31.68857142857138C 322.3451822916667 31.68857142857138 337.5740885416667 31.68857142857138 355.34114583333337 31.68857142857138C 373.10820312500005 31.68857142857138 388.337109375 63.377142857142815 406.1041666666667 63.377142857142815C 423.87122395833336 63.377142857142815 439.1001302083334 63.377142857142815 456.86718750000006 63.377142857142815C 474.63424479166673 63.377142857142815 489.8631510416667 95.06571428571425 507.63020833333337 95.06571428571425C 525.397265625 95.06571428571425 540.6261718750001 95.06571428571425 558.3932291666667 95.06571428571425C 576.1602864583334 95.06571428571425 591.3891927083333 63.377142857142815 609.15625 63.377142857142815C 626.9233072916667 63.377142857142815 642.1522135416667 63.377142857142815 659.9192708333334 63.377142857142815C 677.686328125 63.377142857142815 692.9152343750001 95.06571428571425 710.6822916666667 95.06571428571425C 728.4493489583334 95.06571428571425 743.6782552083333 95.06571428571425 761.4453125 95.06571428571425C 779.2123697916667 95.06571428571425 794.4412760416667 63.377142857142815 812.2083333333334 63.377142857142815C 829.975390625 63.377142857142815 845.2042968750001 63.377142857142815 862.9713541666667 63.377142857142815C 880.7384114583334 63.377142857142815 895.9673177083334 31.68857142857138 913.7343750000001 31.68857142857138C 913.7343750000001 31.68857142857138 913.7343750000001 31.68857142857138 913.7343750000001 221.82 L 0 221.82z" fill="url(#SvgjsLinearGradient1004)" fill-opacity="1" stroke="none" stroke-opacity="1" stroke-linecap="butt" stroke-width="0" stroke-dasharray="0" class="apexcharts-area" index="0" clip-path="url(#gridRectMaskokxz9egx)" pathTo="M 0 95.06571428571425C 17.767057291666667 95.06571428571425 32.99596354166667 95.06571428571425 50.763020833333336 95.06571428571425C 68.530078125 95.06571428571425 83.75898437500001 63.377142857142815 101.52604166666667 63.377142857142815C 119.29309895833333 63.377142857142815 134.52200520833333 63.377142857142815 152.2890625 63.377142857142815C 170.05611979166667 63.377142857142815 185.28502604166667 95.06571428571425 203.05208333333334 95.06571428571425C 220.81914062500002 95.06571428571425 236.048046875 95.06571428571425 253.81510416666669 95.06571428571425C 271.58216145833336 95.06571428571425 286.8110677083333 31.68857142857138 304.578125 31.68857142857138C 322.3451822916667 31.68857142857138 337.5740885416667 31.68857142857138 355.34114583333337 31.68857142857138C 373.10820312500005 31.68857142857138 388.337109375 63.377142857142815 406.1041666666667 63.377142857142815C 423.87122395833336 63.377142857142815 439.1001302083334 63.377142857142815 456.86718750000006 63.377142857142815C 474.63424479166673 63.377142857142815 489.8631510416667 95.06571428571425 507.63020833333337 95.06571428571425C 525.397265625 95.06571428571425 540.6261718750001 95.06571428571425 558.3932291666667 95.06571428571425C 576.1602864583334 95.06571428571425 591.3891927083333 63.377142857142815 609.15625 63.377142857142815C 626.9233072916667 63.377142857142815 642.1522135416667 63.377142857142815 659.9192708333334 63.377142857142815C 677.686328125 63.377142857142815 692.9152343750001 95.06571428571425 710.6822916666667 95.06571428571425C 728.4493489583334 95.06571428571425 743.6782552083333 95.06571428571425 761.4453125 95.06571428571425C 779.2123697916667 95.06571428571425 794.4412760416667 63.377142857142815 812.2083333333334 63.377142857142815C 829.975390625 63.377142857142815 845.2042968750001 63.377142857142815 862.9713541666667 63.377142857142815C 880.7384114583334 63.377142857142815 895.9673177083334 31.68857142857138 913.7343750000001 31.68857142857138C 913.7343750000001 31.68857142857138 913.7343750000001 31.68857142857138 913.7343750000001 221.82 L 0 221.82z" pathFrom="M 0 221.82 L 0 221.82 L 50.763020833333336 221.82 L 101.52604166666667 221.82 L 152.2890625 221.82 L 203.05208333333334 221.82 L 253.81510416666669 221.82 L 304.578125 221.82 L 355.34114583333337 221.82 L 406.1041666666667 221.82 L 456.86718750000006 221.82 L 507.63020833333337 221.82 L 558.3932291666667 221.82 L 609.15625 221.82 L 659.9192708333334 221.82 L 710.6822916666667 221.82 L 761.4453125 221.82 L 812.2083333333334 221.82 L 862.9713541666667 221.82 L 913.7343750000001 221.82z"></path>
-														<path d="M 0 95.06571428571425C 17.767057291666667 95.06571428571425 32.99596354166667 95.06571428571425 50.763020833333336 95.06571428571425C 68.530078125 95.06571428571425 83.75898437500001 63.377142857142815 101.52604166666667 63.377142857142815C 119.29309895833333 63.377142857142815 134.52200520833333 63.377142857142815 152.2890625 63.377142857142815C 170.05611979166667 63.377142857142815 185.28502604166667 95.06571428571425 203.05208333333334 95.06571428571425C 220.81914062500002 95.06571428571425 236.048046875 95.06571428571425 253.81510416666669 95.06571428571425C 271.58216145833336 95.06571428571425 286.8110677083333 31.68857142857138 304.578125 31.68857142857138C 322.3451822916667 31.68857142857138 337.5740885416667 31.68857142857138 355.34114583333337 31.68857142857138C 373.10820312500005 31.68857142857138 388.337109375 63.377142857142815 406.1041666666667 63.377142857142815C 423.87122395833336 63.377142857142815 439.1001302083334 63.377142857142815 456.86718750000006 63.377142857142815C 474.63424479166673 63.377142857142815 489.8631510416667 95.06571428571425 507.63020833333337 95.06571428571425C 525.397265625 95.06571428571425 540.6261718750001 95.06571428571425 558.3932291666667 95.06571428571425C 576.1602864583334 95.06571428571425 591.3891927083333 63.377142857142815 609.15625 63.377142857142815C 626.9233072916667 63.377142857142815 642.1522135416667 63.377142857142815 659.9192708333334 63.377142857142815C 677.686328125 63.377142857142815 692.9152343750001 95.06571428571425 710.6822916666667 95.06571428571425C 728.4493489583334 95.06571428571425 743.6782552083333 95.06571428571425 761.4453125 95.06571428571425C 779.2123697916667 95.06571428571425 794.4412760416667 63.377142857142815 812.2083333333334 63.377142857142815C 829.975390625 63.377142857142815 845.2042968750001 63.377142857142815 862.9713541666667 63.377142857142815C 880.7384114583334 63.377142857142815 895.9673177083334 31.68857142857138 913.7343750000001 31.68857142857138" fill="none" fill-opacity="1" stroke="#17c653" stroke-opacity="1" stroke-linecap="butt" stroke-width="3" stroke-dasharray="0" class="apexcharts-area" index="0" clip-path="url(#gridRectMaskokxz9egx)" pathTo="M 0 95.06571428571425C 17.767057291666667 95.06571428571425 32.99596354166667 95.06571428571425 50.763020833333336 95.06571428571425C 68.530078125 95.06571428571425 83.75898437500001 63.377142857142815 101.52604166666667 63.377142857142815C 119.29309895833333 63.377142857142815 134.52200520833333 63.377142857142815 152.2890625 63.377142857142815C 170.05611979166667 63.377142857142815 185.28502604166667 95.06571428571425 203.05208333333334 95.06571428571425C 220.81914062500002 95.06571428571425 236.048046875 95.06571428571425 253.81510416666669 95.06571428571425C 271.58216145833336 95.06571428571425 286.8110677083333 31.68857142857138 304.578125 31.68857142857138C 322.3451822916667 31.68857142857138 337.5740885416667 31.68857142857138 355.34114583333337 31.68857142857138C 373.10820312500005 31.68857142857138 388.337109375 63.377142857142815 406.1041666666667 63.377142857142815C 423.87122395833336 63.377142857142815 439.1001302083334 63.377142857142815 456.86718750000006 63.377142857142815C 474.63424479166673 63.377142857142815 489.8631510416667 95.06571428571425 507.63020833333337 95.06571428571425C 525.397265625 95.06571428571425 540.6261718750001 95.06571428571425 558.3932291666667 95.06571428571425C 576.1602864583334 95.06571428571425 591.3891927083333 63.377142857142815 609.15625 63.377142857142815C 626.9233072916667 63.377142857142815 642.1522135416667 63.377142857142815 659.9192708333334 63.377142857142815C 677.686328125 63.377142857142815 692.9152343750001 95.06571428571425 710.6822916666667 95.06571428571425C 728.4493489583334 95.06571428571425 743.6782552083333 95.06571428571425 761.4453125 95.06571428571425C 779.2123697916667 95.06571428571425 794.4412760416667 63.377142857142815 812.2083333333334 63.377142857142815C 829.975390625 63.377142857142815 845.2042968750001 63.377142857142815 862.9713541666667 63.377142857142815C 880.7384114583334 63.377142857142815 895.9673177083334 31.68857142857138 913.7343750000001 31.68857142857138" pathFrom="M 0 221.82 L 0 221.82 L 50.763020833333336 221.82 L 101.52604166666667 221.82 L 152.2890625 221.82 L 203.05208333333334 221.82 L 253.81510416666669 221.82 L 304.578125 221.82 L 355.34114583333337 221.82 L 406.1041666666667 221.82 L 456.86718750000006 221.82 L 507.63020833333337 221.82 L 558.3932291666667 221.82 L 609.15625 221.82 L 659.9192708333334 221.82 L 710.6822916666667 221.82 L 761.4453125 221.82 L 812.2083333333334 221.82 L 862.9713541666667 221.82 L 913.7343750000001 221.82" fill-rule="evenodd"></path>
-														<g class="apexcharts-series-markers-wrap apexcharts-hidden-element-shown" data:realIndex="0">
-															<g class="apexcharts-series-markers">
-																<path d="M 0, 0 
-																	m -0, 0 
-																	a 0,0 0 1,0 0,0 
-																	a 0,0 0 1,0 -0,0" fill="#17c653" fill-opacity="1" stroke="#17c653" stroke-opacity="0.9" stroke-linecap="butt" stroke-width="3" stroke-dasharray="0" cx="0" cy="0" shape="circle" class="apexcharts-marker wl1zeh2z7 no-pointer-events" default-marker-size="0"></path>
-															</g>
-														</g>
-													</g>
-													<g class="apexcharts-datalabels" data:realIndex="0"></g>
-												</g>
-												<line x1="0" y1="0" x2="0" y2="221.82" stroke="#17c653" stroke-dasharray="3" stroke-linecap="butt" class="apexcharts-xcrosshairs" x="0" y="0" width="1" height="221.82" fill="#b1b9c4" filter="none" fill-opacity="0.9" stroke-width="1"></line>
-												<line x1="0" y1="0" x2="913.734375" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" stroke-linecap="butt" class="apexcharts-ycrosshairs"></line>
-												<line x1="0" y1="0" x2="913.734375" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="0" stroke-linecap="butt" class="apexcharts-ycrosshairs-hidden"></line>
-												<g class="apexcharts-xaxis" transform="translate(0, 0)">
-													<g class="apexcharts-xaxis-texts-g" transform="translate(0, -10)">
-														<text x="0" y="243.82" text-anchor="end" dominant-baseline="auto" font-size="12px" font-family="inherit" font-weight="400" fill="#99a1b7" class="apexcharts-text apexcharts-xaxis-label " transform="rotate(0 1 -1)" style="font-family: inherit;">
-															<tspan></tspan>
-															<title></title>
-														</text><text x="50.76302083333333" y="243.82" text-anchor="end" dominant-baseline="auto" font-size="12px" font-family="inherit" font-weight="400" fill="#99a1b7" class="apexcharts-text apexcharts-xaxis-label " transform="rotate(0 1 -1)" style="font-family: inherit;">
-															<tspan></tspan>
-															<title></title>
-														</text><text x="101.52604166666667" y="243.82" text-anchor="end" dominant-baseline="auto" font-size="12px" font-family="inherit" font-weight="400" fill="#99a1b7" class="apexcharts-text apexcharts-xaxis-label " transform="rotate(0 1 -1)" style="font-family: inherit;">
-															<tspan></tspan>
-															<title></title>
-														</text><text x="152.28906250000003" y="243.82" text-anchor="end" dominant-baseline="auto" font-size="12px" font-family="inherit" font-weight="400" fill="#99a1b7" class="apexcharts-text apexcharts-xaxis-label " transform="rotate(0 153.412109375 238.32000732421875)" style="font-family: inherit;">
-															<tspan>Apr 04</tspan>
-															<title>Apr 04</title>
-														</text>
-													</g>
-												</g>
-												<g class="apexcharts-yaxis-annotations"></g>
-												<g class="apexcharts-xaxis-annotations"></g>
-												<g class="apexcharts-point-annotations"></g>
-											</g>
-											<rect width="0" height="0" x="0" y="0" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fefefe" class="apexcharts-zoom-rect"></rect>
-											<rect width="0" height="0" x="0" y="0" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fefefe" class="apexcharts-selection-rect"></rect>
-										</svg>
-										<div class="apexcharts-legend" style="max-height: 150px;"></div>
-										<div class="apexcharts-tooltip apexcharts-theme-light">
-											<div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;"></div>
-											<div class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-0" style="order: 1;"><span class="apexcharts-tooltip-marker" shape="circle" style="color: rgb(23, 198, 83);"></span>
-												<div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
-													<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label"></span><span class="apexcharts-tooltip-text-y-value"></span></div>
-													<div class="apexcharts-tooltip-goals-group"><span class="apexcharts-tooltip-text-goals-label"></span><span class="apexcharts-tooltip-text-goals-value"></span></div>
-													<div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div>
-												</div>
-											</div>
-										</div>
-										<div class="apexcharts-xaxistooltip apexcharts-xaxistooltip-bottom apexcharts-theme-light">
-											<div class="apexcharts-xaxistooltip-text" style="font-family: inherit; font-size: 12px;"></div>
-										</div>
-										<div class="apexcharts-yaxistooltip apexcharts-yaxistooltip-0 apexcharts-yaxistooltip-left apexcharts-theme-light">
-											<div class="apexcharts-yaxistooltip-text"></div>
-										</div>
-									</div>
-								</div>								
-							</div>							
-						</div>						
-					</div> -->
-					<!-- Custom Chart Contoh -->
 					<div class="col-lg-12 col-xl-12 col-xxl-6 mb-5 mb-xl-0">
 						<div class="card card-custom card-stretch gutter-b card_chart">
 							<div class="card-header border-0">
@@ -821,7 +678,5 @@
 	<!--end::Footer-->
 </div>
 <!--end:::Main-->
-
-<!-- Data old: Table_bckp12092025 -->
 
 <?php $this->load->view('javascript'); ?>

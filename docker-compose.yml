@@ -57,10 +57,12 @@ services:
       - ./pos:/var/www/pos
       - ./optax:/var/www/optax
       - ./portal:/var/www/portal
+      - ./outer-api:/var/www/outer-api
     ports:
       - "${POS_PORT}:80"
       - "${MONITORING_PORT}:81"
       - "${PORTAL_PORT}:82"
+      - "${OUTER_PORT}:83"
     depends_on:
       - optax
       - pos
@@ -77,6 +79,17 @@ services:
       - db-postgresql
     networks:
       - optax-network
+
+  outer-api:
+    build:
+      context: .
+      dockerfile: php74.Dockerfile
+    volumes:
+      - ./outer-api:/var/www/outer-api
+    depends_on:
+      - db-postgresql
+    networks:
+      - optax-network            
 
 networks:
   optax-network:
