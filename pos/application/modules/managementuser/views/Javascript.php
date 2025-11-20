@@ -60,11 +60,11 @@
 								<i class="fas fa-desktop"></i>
 							</span>
 						</a>`;
-						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-info btn-icon mx-1" onclick="showConfigMobile('${full['role_access_id']}')"">
-							<span class="svg-icon svg-icon-md">
-								<i class="fas fa-mobile"></i>
-							</span>
-						</a>`;
+						// btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-info btn-icon mx-1" onclick="showConfigMobile('${full['role_access_id']}')"">
+						// 	<span class="svg-icon svg-icon-md">
+						// 		<i class="fas fa-mobile"></i>
+						// 	</span>
+						// </a>`;
 						return btn_aksi;
 					},
 				},
@@ -197,24 +197,24 @@
 					// });
 
 					$('#tree1').on("changed.jstree", function(e, data) {
-							if (typeof data.node != 'undefined') {
-									$("#btn-save-config").removeClass("d-none");
-									if (data.selected.length == 0) {
-											$("#btnSaveHA").css('display', 'block');
-									} else {
-											$("#btnSaveHA").css('display', 'block');
-									}
-									unique = [];
-									var itemList = data.selected;
-									$.each(itemList, function(i, el) {
-											if (data.instance.is_leaf(el)) {
-													$.each(data.instance.get_node(el).parents, function(i2, el2) {
-															if ($.inArray(el2, itemList) == -1 && el2 != '#') itemList.push(el2);
-													})
-											}
-									});
-									unique = itemList;
+						if (typeof data.node != 'undefined') {
+							$("#btn-save-config").removeClass("d-none");
+							if (data.selected.length == 0) {
+								$("#btnSaveHA").css('display', 'block');
+							} else {
+								$("#btnSaveHA").css('display', 'block');
 							}
+							unique = [];
+							var itemList = data.selected;
+							$.each(itemList, function(i, el) {
+								if (data.instance.is_leaf(el)) {
+									$.each(data.instance.get_node(el).parents, function(i2, el2) {
+										if ($.inArray(el2, itemList) == -1 && el2 != '#') itemList.push(el2);
+									})
+								}
+							});
+							unique = itemList;
+						}
 					});
 				}
 			});

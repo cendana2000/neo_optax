@@ -2686,6 +2686,7 @@
 						tjson: true
 					},
 					type: 'post',
+					dataType: 'json',
 					success: function(res) {
 						HELPER.unblock();
 						if (res.tprint) {
