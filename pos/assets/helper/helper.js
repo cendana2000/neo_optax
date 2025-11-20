@@ -1172,14 +1172,29 @@ var HELPER = (function () {
             unblock(100);
           },
           complete: function (response) {
-            var rsp = $.parseJSON(response.responseText);
-            config.callback(
-              rsp.success,
-              rsp.id,
-              rsp.record,
-              rsp.message,
-              response
-            );
+            try {
+                var rsp = $.parseJSON(response.responseText);
+            } catch (e) {
+                console.error("JSON Parsing Error di complete:", e, response.responseText);
+                rsp = response.responseJSON || { success: false, id: null, record: null, message: "Server response was tainted (HTML/Whitespace)." };
+            }
+            if (rsp && typeof rsp.success !== 'undefined') {
+                config.callback(
+                  rsp.success,
+                  rsp.id,
+                  rsp.record,
+                  rsp.message,
+                  response
+                );
+            } else if (rsp) {
+                config.callback(
+                    false, 
+                    null,
+                    null,
+                    "Response incomplete or invalid structure.",
+                    response
+                );
+            }
           },
           callback: function (arg) {},
           oncancel: function (arg) {},
@@ -1201,6 +1216,7 @@ var HELPER = (function () {
           cache: _config.cache,
           contentType: _config.contentType,
           processData: _config.processData,
+          dataType: _config.dataType,
           xhr: function () {
             var myXhr = $.ajaxSettings.xhr();
             return myXhr;

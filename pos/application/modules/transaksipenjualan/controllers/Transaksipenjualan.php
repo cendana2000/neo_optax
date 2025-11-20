@@ -12,9 +12,10 @@ class Transaksipenjualan extends Base_Controller
 	{
 		parent::__construct();
 		$this->load->model(array(
-			'transaksipenjualanModel' 		=> 'transaksipenjualan',
+			'transaksipenjualanModelV2' 		=> 'transaksipenjualan',
 			'transaksipenjualanModel2' 		=> 'transaksipenjualan2',
 			'transaksipenjualandetailModel' => 'transaksipenjualandetail',
+			'transaksipenjualandetailhiburanModel' => 'transaksipenjualandetailhiburan',
 			'stokkartu/stokkartuModel' 		=> 'stokkartu',
 			'anggota/anggotaModel' 			=> 'anggota',
 			'barang/barangModel' 			=> 'barang',
@@ -27,23 +28,122 @@ class Transaksipenjualan extends Base_Controller
 			'pembayaranpiutang/PembayaranpiutangModel' 		=> 'pembayaran',
 			'pembayaranpiutang/PembayaranpiutangdetailModel' => 'pembayarandetail',
 			'pembayaranpiutang/PembayaranpiutangdetailpembayaranModel' 	=> 'multipayment',
-			'kategori/KategoriModel' => 'kelompokbarang'
+			'kategori/KategoriModel' => 'kelompokbarang',
+			'rekening/RekeningModel' => 'rekening',
 		));
 	}
 
 	public function index()
 	{
 		$var = varPost();
+		$bulan = $var['bulan'];
+		$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		// $rawend ori
+		// $rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		$rawend = date_format(
+			(new DateTime($bulan))->modify('+1 month')->modify('-1 second'),
+			'Y-m-d H:i:s'
+		);
+
+		$where = [
+			// 'penjualan_status_aktif' => null,
+			"penjualan_tanggal BETWEEN '" . $rawbegin . "' AND '" . $rawend . "'" => null,
+		];
 		$this->response(
-			$this->select_dt(varPost(), 'transaksipenjualan2', 'table', false, ['penjualan_status_aktif' => null])
+			$this->select_dt(varPost(), 'transaksipenjualan2', 'table', false, $where)
 		);
 	}
 
 	public function loadRental()
 	{
-		$var = varPost();
+		// $var = varPost();
+		$bulan = $this->input->post('bulan'); // Ambil data bulan dari POST request
+		$begin = new DateTime($bulan);
+		$end = (new DateTime($bulan))->modify('+1 month');
+		$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		$where = [
+			'penjualan_status_aktif' => null,
+			"penjualan_tanggal BETWEEN '" . $rawbegin . "' AND '" . $rawend . "'" => null,
+			"barang_aktif = '2' OR barang_aktif = '3' AND penjualan_tanggal BETWEEN '" . $rawbegin . "' AND '" . $rawend . "'" => null,
+		];
+
+		$data = $this->select_dt(varPost(), 'transaksipenjualan', 'table', false, $where);
+		// print_r($data);
+		// print_r($data);
+		// die;
 		$this->response(
-			$this->select_dt(varPost(), 'transaksipenjualan', 'table', false, ['penjualan_status_aktif' => null, 'barang_aktif = \'2\' OR barang_aktif = \'3\'' => null])
+			$data
+		);
+	}
+
+	public function loadRentalLunas()
+	{
+		// $var = varPost();
+		$bulan = $this->input->post('bulan'); // Ambil data bulan dari POST request
+		$begin = new DateTime($bulan);
+		$end = (new DateTime($bulan))->modify('+1 month');
+		$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		$where = [
+			'penjualan_status_aktif' => null,
+			"DATE(penjualan_tanggal) BETWEEN '" . $rawbegin . "' AND '" . $rawend . "' AND penjualan_bayar_sisa < '1'" => null,
+			"barang_aktif = '2' OR barang_aktif = '3' AND DATE(penjualan_tanggal) BETWEEN '" . $rawbegin . "' AND '" . $rawend . "' AND penjualan_bayar_sisa < '1'" => null,
+			'penjualan_status_aktif IS NULL' => null
+		];
+
+		$data = $this->select_dt(varPost(), 'transaksipenjualan', 'table', false, $where);
+		// print_r($data);
+		// print_r($data);
+		// die;
+		$this->response(
+			$data
+		);
+	}
+
+	public function loadRentalBelumLunas()
+	{
+		// $var = varPost();
+		$bulan = $this->input->post('bulan'); // Ambil data bulan dari POST request
+		$begin = new DateTime($bulan);
+		$end = (new DateTime($bulan))->modify('+1 month');
+		$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		$where = [
+			'penjualan_status_aktif' => null,
+			"DATE(penjualan_tanggal) BETWEEN '" . $rawbegin . "' AND '" . $rawend . "' AND penjualan_bayar_sisa > '0'" => null,
+			"barang_aktif = '2' OR barang_aktif = '3' AND DATE(penjualan_tanggal) BETWEEN '" . $rawbegin . "' AND '" . $rawend . "' AND penjualan_bayar_sisa > '0'" => null,
+			'penjualan_status_aktif IS NULL' => null
+		];
+
+		$data = $this->select_dt(varPost(), 'transaksipenjualan', 'table', false, $where);
+		// print_r($data);
+		// print_r($data);
+		// die;
+		$this->response(
+			$data
+		);
+	}
+
+	public function loadHiburan()
+	{
+		// $var = varPost();
+		$bulan = $this->input->post('bulan'); // Ambil data bulan dari POST request
+		$begin = new DateTime($bulan);
+		$end = (new DateTime($bulan))->modify('+1 month');
+		$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		$where = [
+			'penjualan_status_aktif' => null,
+			"penjualan_tanggal BETWEEN '" . $rawbegin . "' AND '" . $rawend . "'" => null,
+		];
+
+		$data = $this->select_dt(varPost(), 'transaksipenjualan', 'table', false, $where);
+		// print_r($data);
+		// print_r($data);
+		// die;
+		$this->response(
+			$data
 		);
 	}
 
@@ -273,7 +373,99 @@ class Transaksipenjualan extends Base_Controller
 			$limit = "LIMIT $row OFFSET $countlimit";
 		}
 
-		$filter = "WHERE barang_deleted_at IS NULL AND pos_barang.barang_kode is not null AND barang_aktif = '2' OR barang_aktif = '3'";
+		$filter = "WHERE pos_barang.barang_deleted_at IS NULL AND pos_barang.barang_kode is not null AND pos_barang.barang_aktif = '2' AND pos_barang.barang_aktif <> '3'";
+
+		if ($valKategori != NULL) {
+			$childKategori = $this->get_category_hierarchy($valKategori);
+			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if (isset($valOrder) && $valOrder != NULL) {
+			$order = "ORDER BY $valOrder DESC";
+			if ($valOrder == "tersedia") {
+				$order = "";
+				$filter .= " AND barang_stok > 0";
+			} else if ($valOrder == "kosong") {
+				$order = "";
+				$filter .= " AND barang_stok = 0";
+			} else if ($valOrder == "semua") {
+				$order = "";
+			} else if ($valOrder == "barang_stok_kecil") {
+				$order = "ORDER BY barang_stok ASC";
+			} else if ($valOrder == "rental_booking") {
+				$order = "";
+				$filter .= " AND barang_aktif = '2'";
+			} else if ($valOrder == "rental_booked") {
+				$order = "";
+				$filter .= " AND barang_aktif = '3'";
+			}
+		}
+
+		if ($valSearch != NULL) {
+			$filter .= " AND lower(barang_nama) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_kode) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_barcode_kode) LIKE lower('%" . $valSearch . "%')";
+		}
+
+		if (array_key_exists('mobileDb', varPost())) {
+			// Limit produk from mobile
+			if ($limitProduk != NULL) {
+				$limit = "LIMIT 12 OFFSET $limitProduk";
+			} else {
+				$limit = "LIMIT 12 OFFSET 0";
+			}
+		}
+
+		$query = "SELECT barang_id as id, barang_kode, barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok as stok_now, total_jual, barang_stok_min, jenis_include_stok, barang_kategori_barang, barang_aktif
+		FROM pos_barang 
+		LEFT JOIN pos_barang_satuan 
+			ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent
+		LEFT JOIN (SELECT penjualan_detail_barang_id, SUM(penjualan_detail_qty_barang) as total_jual FROM pos_penjualan_detail GROUP BY penjualan_detail_barang_id)	as jual
+			ON penjualan_detail_barang_id = barang_id
+		LEFT JOIN pos_jenis 
+			ON pos_barang.barang_jenis_barang = pos_jenis.jenis_id
+		LEFT JOIN pos_barang_barcode 
+			ON pos_barang.barang_id = pos_barang_barcode.barang_barcode_parent
+		$filter
+		GROUP BY barang_id, barang_kode,barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok, barang_stok_min, jenis_include_stok, jual.total_jual, barang_kategori_barang, barang_aktif, pos_barang.barang_created_at
+		$order
+		-- $limit
+		";
+
+		$return = $this->db->query($query)->result_array();
+		$total = count($return);
+
+		$this->response(array('items' => $return, 'total_count' => $total, 'sql' => $this->db->last_query()));
+		// $this->response(array('items' => $return, 'total_count' => $total, 'query' => $this->db->last_query()));
+	}
+
+	public function load_menu_hiburan($dbname = '')
+	{
+		if (!empty($dbname)) {
+			$this->db = $this->load->database(multidb_connect($dbname), true);
+		}
+
+		if (array_key_exists('mobileDb', varPost())) {
+			$user['session_db'] = varPost('mobileDb');
+			$this->session->userdata($user);
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+		}
+
+
+		$valSearch = trim(varPost('valSearch'));
+		$valKategori = trim(varPost('valKategori'));
+		$valOrder = trim(varPost('valOrder'));
+		$limitProduk = $_POST['limitProduk'];
+		$page = varPost('page');
+		$row = 12;
+		$limit = "";
+
+		if (isset($page) && $page != null) {
+			$countlimit = ($page - 1) * $row;
+			$limit = "LIMIT $row OFFSET $countlimit";
+		}
+
+		$filter = "WHERE barang_deleted_at IS NULL AND pos_barang.barang_kode is not null";
 
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
@@ -345,14 +537,32 @@ class Transaksipenjualan extends Base_Controller
 			$this->db = $this->load->database(multidb_connect($dbname), true);
 		}
 
+		$isMobile = false;
+		$jenisUsaha = '';
+
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user);
 			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$isMobile = true;
+
+			$kode_toko = explode('_', varPost('mobileDb'));
+			$toko = $this->dbmp->where([
+				'toko_kode' => $kode_toko[1]
+			])->get('v_pajak_toko')->row_array();
+
+			$getJenis = $this->dbmp->get_where('pajak_jenis', [
+				'jenis_nama' => $toko['jenis_nama']
+			])->row_array();
+			$getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+				'jenis_id' => $getJenis['jenis_parent']
+			])->row_array();
+
+			$jenisUsaha = $getJenisParent['jenis_nama'];
 		}
 
 
-		$filter = trim(varPost('valSearch'));
+		$valSearch = trim(varPost('valSearch'));
 		$valKategori = trim(varPost('kategori_id'));
 		$valOrder = trim(varPost('valOrder'));
 		$limitProduk = $_POST['limitProduk'];
@@ -365,22 +575,16 @@ class Transaksipenjualan extends Base_Controller
 			$limit = "LIMIT $row OFFSET $countlimit";
 		}
 
-		if ($filter != NULL) {
-			$filter = "WHERE jenis_include_stok != 2 
-			AND barang_deleted_at IS NULL
-			AND lower(barang_nama) LIKE lower('%" . $filter . "%') 
-			OR lower(barang_kode) LIKE lower('%" . $filter . "%') 
-			OR lower(barang_barcode_kode) LIKE lower('%" . $filter . "%')";
-		} else {
-			$filter = "WHERE jenis_include_stok != 2 AND barang_deleted_at IS NULL";
+		// $filter = "WHERE jenis_include_stok != 2 AND barang_deleted_at IS NULL";
+
+		$filter = "WHERE barang_deleted_at IS NULL AND pos_barang.barang_kode is not null";
+		if ($jenisUsaha == 'PAJAK HOTEL' || $jenisUsaha == 'PAJAK HIBURAN') {
+			$filter = "WHERE pos_barang.barang_deleted_at IS NULL AND pos_barang.barang_kode is not null AND pos_barang.barang_aktif = '2' AND pos_barang.barang_aktif <> '3'";
 		}
 
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
 			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
-
-			// echo $filter;
-			// exit;
 		}
 
 		if (isset($valOrder) && $valOrder != NULL) {
@@ -395,7 +599,19 @@ class Transaksipenjualan extends Base_Controller
 				$order = "";
 			} else if ($valOrder == "barang_stok_kecil") {
 				$order = "ORDER BY barang_stok ASC";
+			} else if ($valOrder == "rental_booking") {
+				$order = "";
+				$filter .= " AND barang_aktif = '2'";
+			} else if ($valOrder == "rental_booked") {
+				$order = "";
+				$filter .= " AND barang_aktif = '3'";
 			}
+		}
+
+		if ($valSearch != NULL) {
+			$filter .= " AND lower(barang_nama) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_kode) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_barcode_kode) LIKE lower('%" . $valSearch . "%')";
 		}
 
 		// Limit produk from mobile
@@ -405,19 +621,29 @@ class Transaksipenjualan extends Base_Controller
 			// $limit = "LIMIT 9 OFFSET 0";
 		}
 
+		$selectThumbnail = 'barang_thumbnail';
+		if ($isMobile) {
+			$selectThumbnail = 'CASE 
+        WHEN barang_thumbnail IS NULL THEN NULL
+        ELSE CONCAT(\'' . $_ENV['BASE_URL'] . '\', barang_thumbnail) 
+    END as barang_thumbnail';
+		}
 
-		$query = "SELECT barang_id as id, barang_kode, barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok as stok_now, barang_stok_min, jenis_include_stok, barang_kategori_barang
+		$query = "SELECT barang_id as id, barang_kode, barang_nama, $selectThumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok as stok_now, total_jual, barang_stok_min, jenis_include_stok, barang_kategori_barang, barang_aktif
 		FROM pos_barang 
 		LEFT JOIN pos_barang_satuan 
 			ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent
+		LEFT JOIN (SELECT penjualan_detail_barang_id, SUM(penjualan_detail_qty_barang) as total_jual FROM pos_penjualan_detail GROUP BY penjualan_detail_barang_id)	as jual
+			ON penjualan_detail_barang_id = barang_id
 		LEFT JOIN pos_jenis 
 			ON pos_barang.barang_jenis_barang = pos_jenis.jenis_id
 		LEFT JOIN pos_barang_barcode 
 			ON pos_barang.barang_id = pos_barang_barcode.barang_barcode_parent
-		$filter AND jenis_include_stok != 2
-		GROUP BY barang_id, barang_kode,barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok, barang_stok_min, jenis_include_stok, barang_kategori_barang, pos_barang.barang_created_at
+		$filter
+		GROUP BY barang_id, barang_kode,barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok, barang_stok_min, jenis_include_stok, jual.total_jual, barang_kategori_barang, barang_aktif, pos_barang.barang_created_at
 		$order
-			";
+		-- $limit
+		";
 
 		$return = $this->db->query($query)->result_array();
 		$total = count($return);
@@ -477,28 +703,33 @@ class Transaksipenjualan extends Base_Controller
 		$dPenjualan = $this->db->get('pos_penjualan')->row_array();
 
 		$dPenjualanDetail = $this->db->get_where('pos_penjualan_detail', ['penjualan_detail_parent' => $dPenjualan['penjualan_id']])->result_array();
-		foreach ($dPenjualanDetail as $key => $value) {
-			$satuan = $this->db->get_where('pos_barang_satuan', ['barang_satuan_parent' => $value['penjualan_detail_barang_id']])->row_array();
-			$konversi = $satuan['barang_satuan_konversi'];
-			$qtyBarangJual = $value['penjualan_detail_qty_barang'];
-			$hasilBarangJual = $qtyBarangJual * $konversi;
+		$cBarangNonStok = $this->db->get_where('pos_barang', ['barang_id' => $dPenjualanDetail['penjualan_detail_barang_id']])->row_array()['barang_stok'];
 
-			$cBarangStok = $this->db->get_where('pos_barang', ['barang_id' => $value['penjualan_detail_barang_id']])->row_array()['barang_stok'];
+		if ($cBarangNonStok != null) {
+			# code...
+			foreach ($dPenjualanDetail as $key => $value) {
+				$satuan = $this->db->get_where('pos_barang_satuan', ['barang_satuan_parent' => $value['penjualan_detail_barang_id']])->row_array();
+				$konversi = $satuan['barang_satuan_konversi'];
+				$qtyBarangJual = $value['penjualan_detail_qty_barang'];
+				$hasilBarangJual = $qtyBarangJual * $konversi;
 
-			$hasil = $cBarangStok + $hasilBarangJual;
+				$cBarangStok = $this->db->get_where('pos_barang', ['barang_id' => $value['penjualan_detail_barang_id']])->row_array()['barang_stok'];
 
-			$this->db->set('barang_stok', $hasil);
-			$this->db->set('barang_aktif', 2);
-			$this->db->where('barang_id', $value['penjualan_detail_barang_id']);
-			$this->db->update('pos_barang');
+				$hasil = $cBarangStok + $hasilBarangJual;
+
+				$this->db->set('barang_stok', $hasil);
+				$this->db->set('barang_aktif', 2);
+				$this->db->where('barang_id', $value['penjualan_detail_barang_id']);
+				$this->db->update('pos_barang');
+			}
 		}
-
 
 		// update status di pos_penjualan
 		$this->db->set('penjualan_status_aktif', date("Y-m-d H:i:s"));
 		$this->db->where($id_penjualan);
 		$update_penjualan['pos_penjualan'] = $this->db->update('pos_penjualan');
 
+		//update trigger status retur di pos_penjualan_detail
 		foreach ($dPenjualanDetail as $key => $value) {
 			# code...
 			if ($update_penjualan == true) {
@@ -529,7 +760,8 @@ class Transaksipenjualan extends Base_Controller
 
 	function read_detail($value = '')
 	{
-		$this->response($this->transaksipenjualandetail->read(varPost()));
+		$operation = $this->transaksipenjualandetail->read(varPost());
+		$this->response($operation);
 	}
 
 	public function mobile_detail()
@@ -547,13 +779,137 @@ class Transaksipenjualan extends Base_Controller
 
 	function edit_detail($value = '')
 	{
-		// if (array_key_exists('mobileDb', $data)) {
-		// 	$user['session_db'] = $data['mobileDb'];
-		// 	$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
-		// 	$this->session->set_userdata($user);
-		// }
 		$data = varPost();
+		if (array_key_exists('mobileDb', $data)) {
+			$user['session_db'] = $data['mobileDb'];
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$this->session->set_userdata($user);
+		}
 		$detail = $this->transaksipenjualandetail->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
+
+		$html = '';
+		$row = 1;
+		foreach ($detail['data'] as $key => $value) {
+			$satuan = $this->barangsatuan->select(['filters_static' => ['barang_satuan_parent' => $value['penjualan_detail_barang_id']], 'sort_static' => 'barang_satuan_order']);
+			$html .= '<tr class="barang_' . $row . '">
+					<td scope="row">
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_id'] . '" name="penjualan_detail_id[' . $row . ']" id="penjualan_detail_id_' . $row . '">						
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_jenis_barang'] . '" name="penjualan_detail_jenis_barang[' . $row . ']" id="penjualan_detail_jenis_barang_' . $row . '">						
+						<select class="form-control barang_id" value="' . $value['penjualan_detail_barang_id'] . '" name="penjualan_detail_barang_id[' . $row . ']" id="penjualan_detail_barang_id_' . $row . '" data-id="' . $row . '" onchange="setSatuan(' . $row . ')" style="width: 260px;white-space: nowrap">
+								<option value="' . $value['penjualan_detail_barang_id'] . '" selected>' . $value['barang_kode'] . ' - ' . $value['barang_nama'] . '</option>
+						</select></td>
+					<td><select class="form-control" value="' . $value['penjualan_detail_satuan'] . '" name="penjualan_detail_satuan[' . $row . ']" id="penjualan_detail_satuan_' . $row . '" style="width: 100%" onchange="getHarga(' . $row . ')">';
+
+			foreach ($satuan['data'] as $k => $v) {
+				// $html .= '<option value="'.$v['barang_satuan_id'].'" data-barang_satuan_harga_beli="'.$v['barang_satuan_harga_beli'].'" data-barang_satuan_konversi="'.$v['barang_satuan_konversi'].'" data-barang_satuan_keuntungan="'.$v['barang_satuan_keuntungan'].'" '.($v['barang_satuan_id'] == $value['pembelian_detail_satuan']?'selected':'').'>'.$v['barang_satuan_kode'].'</option>';
+				$html .= '<option value="' . $v['barang_satuan_id'] . '" data-barang_satuan_harga_jual="' . $v['barang_satuan_harga_jual'] . '" data-barang_satuan_harga_beli="' . $v['barang_harga_pokok'] . '" data-barang_satuan_disc="' . $v['barang_satuan_disc'] . '" data-barang_satuan_konversi="' . $v['barang_satuan_konversi'] . '" data-barang_kategori="' . $v['kategori_barang_parent'] . '" ' . ($v['barang_satuan_id'] == $v['penjualan_detail_satuan'] ? 'selected' : '') . '>' . $v['barang_satuan_kode'] . '(' . $v['barang_satuan_konversi'] . ')' . '</option>';
+			}
+			$html .= '</select>
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_satuan_kode'] . '" name="penjualan_detail_satuan_kode[' . $row . ']" id="penjualan_detail_satuan_kode_' . $row . '" >						
+					</td>					
+					<td>
+						<input class="form-control number" type="text" value="' . $value['penjualan_detail_harga'] . '" name="penjualan_detail_harga[' . $row . ']" id="penjualan_detail_harga_' . $row . '" onchange="countRow(' . $row . ')" readonly="">
+					</td>
+					<td>
+						<input class="form-control qty" type="number" value="' . $value['penjualan_detail_qty'] . '" name="penjualan_detail_qty[' . $row . ']" id="penjualan_detail_qty_' . $row . '" onkeyup="countRow(' . $row . ')" onchange="countRow(' . $row . ')" value="1">
+						<input class="form-control number" type="hidden" value="' . $value['penjualan_detail_qty_barang'] . '" name="penjualan_detail_qty_barang[' . $row . ']" id="penjualan_detail_qty_barang_' . $row . '">						
+		                <input class="form-control number" type="text" style="display:none"  value="' . $value['penjualan_detail_harga_beli'] . '" name="penjualan_detail_harga_beli[' . $row . ']" id="penjualan_detail_harga_beli_' . $row . '">
+		                <input class="form-control number" type="text" style="display:none"  value="' . $value['penjualan_detail_hpp'] . '" name="penjualan_detail_hpp[' . $row . ']" id="penjualan_detail_hpp_' . $row . '">					
+					</td>
+					<td>
+						<input class="form-control disc" type="text" value="' . $value['penjualan_detail_potongan_persen'] . '" name="penjualan_detail_potongan_persen[' . $row . ']" id="penjualan_detail_potongan_persen_' . $row . '" onkeyup="countRow(' . $row . ')">
+						<input class="form-control number" type="hidden" value="' . $value['penjualan_detail_potongan'] . '" name="penjualan_detail_potongan[' . $row . ']" id="penjualan_detail_potongan_' . $row . '">
+					</td>
+					<td><input class="form-control number jumlah" type="text" value="' . $value['penjualan_detail_subtotal'] . '" name="penjualan_detail_subtotal[' . $row . ']" id="penjualan_detail_subtotal_' . $row . '" readonly=""></td>
+					<td style="text-align: center;"><a href="javascript:;" data-id="' . $row . '" class="btn btn-sm btn-clean btn-icon btn-icon-md kt-font-bold kt-font-warning" onclick="remRow(this)" title="Hapus" >
+		          		<span class="la la-trash"></span> Hapus</a></td>
+				</tr>';
+			$row++;
+		}
+
+		$opsparent = $this->transaksipenjualan->read($data);
+		$opsparent['customer'] = $this->customer->read($opsparent['pos_penjualan_customer_id']);
+		if ($opsparent['penjualan_bank'] != null) {
+			$opsparent['bank'] = $this->rekening->read($opsparent['penjualan_bank']);
+		}
+
+		$this->response([
+			'parent' => $opsparent,
+			'detail' => $detail,
+		]);
+	}
+
+	function edit_detail_rental($value = '')
+	{
+		$data = varPost();
+		if (array_key_exists('mobileDb', $data)) {
+			$user['session_db'] = $data['mobileDb'];
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$this->session->set_userdata($user);
+		}
+		$detail = $this->transaksipenjualandetail->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
+
+		$html = '';
+		$row = 1;
+		foreach ($detail['data'] as $key => $value) {
+			$satuan = $this->barangsatuan->select(['filters_static' => ['barang_satuan_parent' => $value['penjualan_detail_barang_id']], 'sort_static' => 'barang_satuan_order']);
+			$html .= '<tr class="barang_' . $row . '">
+					<td scope="row">
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_id'] . '" name="penjualan_detail_id[' . $row . ']" id="penjualan_detail_id_' . $row . '">						
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_jenis_barang'] . '" name="penjualan_detail_jenis_barang[' . $row . ']" id="penjualan_detail_jenis_barang_' . $row . '">						
+						<select class="form-control barang_id" value="' . $value['penjualan_detail_barang_id'] . '" name="penjualan_detail_barang_id[' . $row . ']" id="penjualan_detail_barang_id_' . $row . '" data-id="' . $row . '" onchange="setSatuan(' . $row . ')" style="width: 260px;white-space: nowrap">
+								<option value="' . $value['penjualan_detail_barang_id'] . '" selected>' . $value['barang_kode'] . ' - ' . $value['barang_nama'] . '</option>
+						</select></td>
+					<td><select class="form-control" value="' . $value['penjualan_detail_satuan'] . '" name="penjualan_detail_satuan[' . $row . ']" id="penjualan_detail_satuan_' . $row . '" style="width: 100%" onchange="getHarga(' . $row . ')">';
+
+			foreach ($satuan['data'] as $k => $v) {
+				// $html .= '<option value="'.$v['barang_satuan_id'].'" data-barang_satuan_harga_beli="'.$v['barang_satuan_harga_beli'].'" data-barang_satuan_konversi="'.$v['barang_satuan_konversi'].'" data-barang_satuan_keuntungan="'.$v['barang_satuan_keuntungan'].'" '.($v['barang_satuan_id'] == $value['pembelian_detail_satuan']?'selected':'').'>'.$v['barang_satuan_kode'].'</option>';
+				$html .= '<option value="' . $v['barang_satuan_id'] . '" data-barang_satuan_harga_jual="' . $v['barang_satuan_harga_jual'] . '" data-barang_satuan_harga_beli="' . $v['barang_harga_pokok'] . '" data-barang_satuan_disc="' . $v['barang_satuan_disc'] . '" data-barang_satuan_konversi="' . $v['barang_satuan_konversi'] . '" data-barang_kategori="' . $v['kategori_barang_parent'] . '" ' . ($v['barang_satuan_id'] == $v['penjualan_detail_satuan'] ? 'selected' : '') . '>' . $v['barang_satuan_kode'] . '(' . $v['barang_satuan_konversi'] . ')' . '</option>';
+			}
+			$html .= '</select>
+						<input type="hidden" class="form-control" value="' . $value['penjualan_detail_satuan_kode'] . '" name="penjualan_detail_satuan_kode[' . $row . ']" id="penjualan_detail_satuan_kode_' . $row . '" >						
+					</td>					
+					<td>
+						<input class="form-control number" type="text" value="' . $value['penjualan_detail_harga'] . '" name="penjualan_detail_harga[' . $row . ']" id="penjualan_detail_harga_' . $row . '" onchange="countRow(' . $row . ')" readonly="">
+					</td>
+					<td>
+						<input class="form-control qty" type="number" value="' . $value['penjualan_detail_qty'] . '" name="penjualan_detail_qty[' . $row . ']" id="penjualan_detail_qty_' . $row . '" onkeyup="countRow(' . $row . ')" onchange="countRow(' . $row . ')" value="1">
+						<input class="form-control number" type="hidden" value="' . $value['penjualan_detail_qty_barang'] . '" name="penjualan_detail_qty_barang[' . $row . ']" id="penjualan_detail_qty_barang_' . $row . '">						
+		                <input class="form-control number" type="text" style="display:none"  value="' . $value['penjualan_detail_harga_beli'] . '" name="penjualan_detail_harga_beli[' . $row . ']" id="penjualan_detail_harga_beli_' . $row . '">
+		                <input class="form-control number" type="text" style="display:none"  value="' . $value['penjualan_detail_hpp'] . '" name="penjualan_detail_hpp[' . $row . ']" id="penjualan_detail_hpp_' . $row . '">					
+					</td>
+					<td>
+						<input class="form-control disc" type="text" value="' . $value['penjualan_detail_potongan_persen'] . '" name="penjualan_detail_potongan_persen[' . $row . ']" id="penjualan_detail_potongan_persen_' . $row . '" onkeyup="countRow(' . $row . ')">
+						<input class="form-control number" type="hidden" value="' . $value['penjualan_detail_potongan'] . '" name="penjualan_detail_potongan[' . $row . ']" id="penjualan_detail_potongan_' . $row . '">
+					</td>
+					<td><input class="form-control number jumlah" type="text" value="' . $value['penjualan_detail_subtotal'] . '" name="penjualan_detail_subtotal[' . $row . ']" id="penjualan_detail_subtotal_' . $row . '" readonly=""></td>
+					<td style="text-align: center;"><a href="javascript:;" data-id="' . $row . '" class="btn btn-sm btn-clean btn-icon btn-icon-md kt-font-bold kt-font-warning" onclick="remRow(this)" title="Hapus" >
+		          		<span class="la la-trash"></span> Hapus</a></td>
+				</tr>';
+			$row++;
+		}
+
+		$opsparent = $this->transaksipenjualan->read($data);
+		$opsparent['customer'] = $this->customer->read($opsparent['pos_penjualan_customer_id']);
+		if ($opsparent['penjualan_bank'] != null) {
+			$opsparent['bank'] = $this->rekening->read($opsparent['penjualan_bank']);
+		}
+
+		$this->response([
+			'parent' => $opsparent,
+			'detail' => $detail,
+		]);
+	}
+
+	function edit_detail_hiburan($value = '')
+	{
+		$data = varPost();
+		if (array_key_exists('mobileDb', $data)) {
+			$user['session_db'] = $data['mobileDb'];
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$this->session->set_userdata($user);
+		}
+		$detail = $this->transaksipenjualandetailhiburan->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
 
 		$html = '';
 		$row = 1;
@@ -674,12 +1030,14 @@ class Transaksipenjualan extends Base_Controller
 		}
 
 		$data['penjualan_kode'] 		= $this->transaksipenjualan->gen_kode_penjualan(true, [
-			'penjualan_tanggal' => $data['penjualan_tanggal'],
+			'penjualan_tanggal' => $data['penjualan_tanggal'] . ' ' . date('H:i:s'),
 			'penjualan_metode'  => $data['penjualan_metode'],
 		]);
+
 		$data['penjualan_no_antrian'] = $this->transaksipenjualan->gen_nomor_antrian(false);
 		$data['penjualan_user_id'] 		= $this->session->userdata('user_id');
 		$data['penjualan_user_nama']	= $this->session->userdata('user_nama');
+		$data['penjualan_tanggal'] 		= $data['penjualan_tanggal'] . ' ' . date('H:i:s');
 		$data['penjualan_aktif'] 		= '1';
 		$data['penjualan_updated'] 		= date('Y-m-d H:i:s');
 		$data['penjualan_created'] 		= date('Y-m-d H:i:s');
@@ -715,22 +1073,26 @@ class Transaksipenjualan extends Base_Controller
 		}
 		$data = cVarNull($data);
 
-		// print_r($id);exit;
 		$operation = $this->transaksipenjualan->insert($id, $data, function ($res) use ($data) {
 			$user  = $this->session->userdata();
-			$dataSend = [
-				'log_penjualan_id' => md5(time()),
-				'log_penjualan_wp_penjualan_id' => $res['id'],
-				'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
-				'log_penjualan_wp_total' => $data['penjualan_total_grand'],
-				'log_penjualan_code_store' => $user['toko']['toko_kode'],
-				'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
-			];
 
-			$this->dbmp->insert(
-				'log_penjualan_wp',
-				$dataSend
-			);
+			$query_log_penjualan = $this->dbmp->query("SELECT * FROM log_penjualan_wp where log_penjualan_wp_penjualan_id = '" . $res['id'] . "'");
+			$result_cek = $query_log_penjualan->result_array();
+			if (count($result_cek) == 0) {
+				$dataSend = [
+					'log_penjualan_id' => md5(time()),
+					'log_penjualan_wp_penjualan_id' => $res['id'],
+					'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
+					'log_penjualan_wp_total' => $data['penjualan_total_grand'],
+					'log_penjualan_code_store' => $user['toko']['toko_kode'],
+					'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
+				];
+
+				$this->dbmp->insert(
+					'log_penjualan_wp',
+					$dataSend
+				);
+			}
 
 			$detail = [];
 			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
@@ -753,7 +1115,6 @@ class Transaksipenjualan extends Base_Controller
 					'penjualan_detail_custom_menu' 		=> $data['penjualan_custom_menu'][$key],
 					'penjualan_detail_order' 		=> $key,
 				];
-				$jenis_barang = [];
 
 				$id_detail = gen_uuid($this->transaksipenjualandetail->get_table());
 				$det_opr = $this->transaksipenjualandetail->insert($id_detail, $detail);
@@ -794,6 +1155,7 @@ class Transaksipenjualan extends Base_Controller
 		} else {
 			if (isset($data['cetak']) && $data['cetak']) $operation['print'] = $this->tprint($operation['id'], 'pdf', true);
 		}
+		$this->output->set_content_type('application/json');
 		$this->response($operation);
 	}
 
@@ -821,14 +1183,14 @@ class Transaksipenjualan extends Base_Controller
 			$data['penjualan_total_bayar'] = 0;
 		}
 
-		$data['penjualan_tanggal'] 		= date('Y-m-d H:i:s');
+		$data['penjualan_tanggal'] 		= $data['penjualan_tanggal'] ?? date('Y-m-d H:i:s');
 		$data['penjualan_kode'] 		= $this->transaksipenjualan->gen_kode_penjualan(false, [
 			'penjualan_tanggal' => $data['penjualan_tanggal'],
 			'penjualan_metode'  => $data['penjualan_metode'],
 		]);
 		$data['penjualan_no_antrian'] 	= $this->transaksipenjualan->gen_nomor_antrian(true, varPost('mobileDb'));
 		$data['penjualan_user_id'] 		= $this->session->userdata('user_id');
-		$data['penjualan_user_nama']	= $this->session->userdata('user_alias');
+		$data['penjualan_user_nama']	= $this->session->userdata('user_nama') ?? $data['penjualan_user_nama'];
 		$data['penjualan_aktif'] 		= '1';
 		$data['penjualan_updated'] 		= date('Y-m-d H:i:s');
 		$data['penjualan_created'] 		= date('Y-m-d H:i:s');
@@ -933,7 +1295,189 @@ class Transaksipenjualan extends Base_Controller
 	public function update()
 	{
 		$data = varPost();
+		$error = [];
+		$debit = [];
 
+		$db['default']['db_debug'] = TRUE;
+
+		if (array_key_exists('mobileDb', varPost())) {
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$user['session_db'] = varPost('mobileDb');
+			$this->session->set_userdata($user);
+		}
+
+		foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
+			$data['penjualan_detail_qty'][$key] = $data['penjualan_detail_qty_barang'][$key];
+			$data['penjualan_detail_qty_barang'][$key] = $data['konversi_barang'][$key] * $data['penjualan_detail_qty_barang'][$key];
+		}
+
+		// Penyesuaian pembayaran
+		if ($data['penjualan_metode'] == 'K') {
+			$data['penjualan_total_kredit'] = $data['penjualan_total_grand'];
+			$data['penjualan_bayar_sisa'] = $data['penjualan_total_grand'];
+			$data['penjualan_total_bayar'] = 0;
+		}
+
+		$data['penjualan_updated'] 		= date('Y-m-d H:i:s');
+
+		if ($data['penjualan_metode'] !== 'B') {
+			$data['penjualan_bank'] = null;
+		} else {
+			$debit[$data['penjualan_bank']] = $data['penjualan_total_bayar_bank'];
+		}
+
+		if ($data['penjualan_metode'] !== 'K') {
+			$data['penjualan_jatuh_tempo'] = null;
+		}
+
+		$data['penjualan_total_harga'] = $data['penjualan_total_harga'][0];
+		$data = cVarNull($data);
+
+		$query = 'SELECT * from pos_penjualan_detail WHERE penjualan_detail_parent = \'' . $data['penjualan_id'] . '\'';
+		$lastDetailId = $this->db->query($query)->result();
+		// print_r($lastDetailId[0]->penjualan_detail_id);
+		// die;
+
+		$operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function ($res) use ($data) {
+			$user  = $this->session->userdata();
+
+			$query_log = 'SELECT * FROM log_penjualan_wp WHERE log_penjualan_wp_penjualan_id = \'' . $data['penjualan_id'] . '\'';
+			$getQueryLog =	$this->dbmp->query($query_log)->result();
+
+			if (!empty($getQueryLog)) {
+				foreach ($getQueryLog as $row) {
+					// Memeriksa apakah ada baris dengan log_penjualan_wp_penjualan_id tertentu
+					if ($row->log_penjualan_wp_penjualan_id == $data['penjualan_id']) {
+						$this->dbmp->set('log_penjualan_deleted_at', date('Y-m-d H:i:s'));
+						$this->dbmp->where('log_penjualan_wp_penjualan_id', $data['penjualan_id']);
+						$this->dbmp->update('log_penjualan_wp');
+						break; // Keluar dari loop setelah update dilakukan
+					}
+				}
+			}
+
+			$dataSend = [
+				'log_penjualan_id' => md5(time()),
+				'log_penjualan_wp_penjualan_id' => $res['id'],
+				'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
+				'log_penjualan_wp_total' => $data['penjualan_total_grand'],
+				'log_penjualan_code_store' => $user['toko']['toko_kode'],
+				'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
+			];
+
+			$this->dbmp->insert(
+				'log_penjualan_wp',
+				$dataSend
+			);
+
+			$detail = [];
+			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
+				$dt = $res['record'];
+				$detail = [
+					'penjualan_detail_parent' 		=> $res['id'],
+					'penjualan_detail_barang_id'	=> $value,
+					'penjualan_detail_satuan' 		=> $data['penjualan_detail_satuan'][$key],
+					'penjualan_detail_satuan_kode' 	=> $data['penjualan_detail_satuan_kode'][$key],
+					'penjualan_detail_harga' 		=> $data['penjualan_detail_harga'][$key],
+					'penjualan_detail_harga_beli' 	=> $data['penjualan_detail_harga_beli'][$key],
+					'penjualan_detail_hpp' 			=> $data['penjualan_detail_hpp'][$key],
+					'penjualan_detail_qty' 			=> $data['penjualan_detail_qty'][$key],
+					'penjualan_detail_qty_barang' 	=> $data['penjualan_detail_qty_barang'][$key],
+					'penjualan_detail_potongan_persen' => $data['penjualan_detail_potongan_persen'][$key],
+					'penjualan_detail_potongan' 	=> $data['penjualan_detail_potongan'][$key],
+					'penjualan_detail_subtotal' 	=> $data['penjualan_detail_subtotal'][$key],
+					'penjualan_detail_tanggal' 		=> $dt['penjualan_tanggal'],
+					'penjualan_detail_notes' 		=> $data['penjualan_detail_notes'][$key],
+					'penjualan_detail_custom_menu' 		=> $data['penjualan_custom_menu'][$key],
+					'penjualan_detail_order' 		=> $key,
+				];
+
+				$idDetail = gen_uuid($this->transaksipenjualandetail->get_table());
+				$det_opr = $this->transaksipenjualandetail->insert($idDetail, $detail);
+
+				if (!$det_opr['success']) $error[] = $det_opr;
+				else {
+					if ($data['jenis_include_stok'][$key] == 1) {
+						$stokKeluarBarangUpdate = 0;
+						$stokMasukBarangUpdate = 0;
+						$checkStokBarangUpdate = $this->transaksipenjualandetail->read([
+							'penjualan_detail_id' => $data['penjualan_detail_id'][$key],
+							'penjualan_detail_barang_id' => $data['penjualan_detail_barang_id'][$key]
+						])['penjualan_detail_qty'];
+
+						if ($checkStokBarangUpdate != $data['penjualan_detail_qty'][$key]) {
+							$selisihBarangUpdate = $checkStokBarangUpdate - $data['penjualan_detail_qty'][$key];
+							if ($selisihBarangUpdate < 0) {
+								$stokKeluarBarangUpdate = $selisihBarangUpdate * -1;
+							} else if ($selisihBarangUpdate > 0) {
+								$stokMasukBarangUpdate = $selisihBarangUpdate;
+							}
+						}
+
+						$kartu = $this->stokkartu->insert_kartu([
+							'kartu_id' 			=> $data['penjualan_detail_id'][$key],
+							'kartu_tanggal' 	=> $dt['penjualan_tanggal'],
+							'kartu_barang_id' 	=> $value,
+							'kartu_satuan_id' 	=> $data['penjualan_detail_satuan'][$key],
+							'kartu_stok_keluar'	=> $stokKeluarBarangUpdate,
+							'kartu_stok_masuk'  => $stokMasukBarangUpdate,
+							'kartu_transaksi' 	=> 'Penjualran',
+							'kartu_keterangan' 	=> 'On Inset',
+							'kartu_harga'			=> $data['penjualan_detail_harga_beli'][$key],
+							'kartu_harga_transaksi'	=> $data['penjualan_detail_harga_beli'][$key],
+							'kartu_nilai'			=> $data['penjualan_detail_subtotal'][$key],
+							'kartu_transaksi_kode' => $dt['penjualan_kode'],
+							'kartu_user' 		=> $dt['penjualan_user'],
+							'kartu_created_at' 	=> date('Y-m-d H:i:s'),
+						], 'J');
+						if ($kartu) $error[] = [$kartu, $dt['penjualan_kode'], $value];
+					}
+
+					if ($data['jenis_include_stok'][$key] == 2) {
+						$this->db->set('barang_aktif', 3);
+						$this->db->where('barang_id', $value);
+						$this->db->update('pos_barang');
+					}
+				}
+			}
+		});
+
+		foreach ($lastDetailId as $id) {
+			// if (!in_array($id->penjualan_detail_id, $data['penjualan_detail_id'])) {
+			// 	$this->stokkartu->insert_kartu([
+			// 		'kartu_id' 			=> $id->penjualan_detail_id,
+			// 		'kartu_tanggal' 	=> $id->penjualan_detail_tanggal,
+			// 		'kartu_barang_id' 	=> $id->penjualan_detail_barang_id,
+			// 		'kartu_satuan_id' 	=> $id->penjualan_detail_satuan,
+			// 		'kartu_stok_keluar'	=> 0,
+			// 		'kartu_stok_masuk'  => $id->penjualan_detail_qty,
+			// 		'kartu_transaksi' 	=> 'Penjualran',
+			// 		'kartu_keterangan' 	=> 'On Inset',
+			// 		'kartu_harga'			=> $id->penjualan_detail_harga_beli,
+			// 		'kartu_harga_transaksi'	=> $id->penjualan_detail_harga_beli,
+			// 		'kartu_nilai'			=> $id->penjualan_detail_sub_total,
+			// 		'kartu_transaksi_kode' => $data['penjualan_kode'],
+			// 		'kartu_user' 		=> $data['penjualan_user'],
+			// 		'kartu_created_at' 	=> date('Y-m-d H:i:s'),
+			// 	], 'J');
+			// 	// if ($kartu) $error[] = [$kartu, $dt['penjualan_kode'], $value];
+			// }
+			$this->db->delete('pos_penjualan_detail', array('penjualan_detail_id' => $id->penjualan_detail_id));
+		}
+
+		$operation['error_log'] = $error;
+		if ($this->session->userdata('jenis_wp') === 'RESTO') {
+			if (isset($data['cetak']) && $data['cetak']) $operation['tprint'] = $this->tprint($operation['id']);
+		} else {
+			if (isset($data['cetak']) && $data['cetak']) $operation['print'] = $this->tprint($operation['id'], 'pdf', true);
+		}
+		$this->response($operation);
+	}
+
+	public function update_old()
+	{
+
+		$data = varPost();
 
 		unset($data['penjualan_tanggal']);
 		if ($data['penjualan_metode'] !== 'K') {
@@ -947,9 +1491,11 @@ class Transaksipenjualan extends Base_Controller
 			$data['penjualan_total_bayar'] = 0;
 		}
 
-		$operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function (&$res) use ($data) {
+		// $operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function (&$res) use ($data) {
+		$operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function ($res) use ($data) {
 			$detail = $id_detail = [];
-			$dt = $rec['record'];
+			$dt = $res['record'];
+
 			$last_detail = $this->transaksipenjualandetail->select(array('filters_static' => array('penjualan_detail_parent' => $data['penjualan_id']), 'sort_static' => 'penjualan_detail_order asc'))['data'];
 			$delete = $last_detail;
 			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
@@ -1250,6 +1796,7 @@ class Transaksipenjualan extends Base_Controller
 
 		$detail = $this->db->select('*')
 			->where('penjualan_detail_parent', $id)
+			->where('penjualan_detail_retur', null)
 			->order_by('penjualan_detail_order', 'asc')
 			->from('v_pos_penjualan_detail')->get()->result_array();
 
@@ -1529,6 +2076,16 @@ class Transaksipenjualan extends Base_Controller
 			';
 		}
 
+		if (!empty($jual['penjualan_room_id'])) {
+			$roomquery = $this->db->query("SELECT * FROM pos_room where room_id = '{$jual['penjualan_room_id']}'")->row_array();
+			if (!empty($roomquery)) {
+				$roomhtml = '<tr>
+					<th align="right" colspan="3" class="right">Room :</th>room_price
+					<th align="right" class="right">' . number_format($roomquery['room_price']) . '</th>
+				</tr>';
+			}
+		}
+
 		$htmls = '<html>
 		<head>
 			<title>Cetak Invoice</title>
@@ -1667,6 +2224,7 @@ class Transaksipenjualan extends Base_Controller
 					<th align="right" colspan="3" class="right">Subtotal :</th>
 					<th align="right" class="right">' . number_format($jual['penjualan_total_harga']) . '</th>
 				</tr>
+				' . $roomhtml . '
 				<tr>
 					<th align="right" colspan="3" class="right">Jasa :</th>
 					<th align="right" class="right">' . number_format($jual['penjualan_total_harga'] * ($jual['penjualan_jasa'] / 100)) . '</th>

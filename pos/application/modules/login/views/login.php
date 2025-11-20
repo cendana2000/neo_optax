@@ -154,7 +154,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							<div class="d-flex justify-content-between pt-7">
 								<button type="submit" class="btn btn-primary btn-lg font-weight-bolder font-size-h6 my-3 btn-next" onclick="doLogin()">Login</button>
 								<div>
-									<a href="<?= $_ENV['PORTAL_URL'] ?>" title="Kembali ke homepage" class="btn btn-secondary btn-lg font-weight-bolder font-size-h6 px-4 py-4 btn-icon my-3"><i class="fa fa-home"></i></a>
+									<a href="http://10.10.9.7:3131/74/portal/" title="Kembali ke homepage" class="btn btn-secondary btn-lg font-weight-bolder font-size-h6 px-4 py-4 btn-icon my-3"><i class="fa fa-home"></i></a>
 									<button type="button" class="btn btn-secondary btn-lg font-weight-bolder font-size-h6 px-4 py-4 btn-icon my-3" id="btn-settings" data-toggle="modal" data-target="#modal-pengaturan"><i class="fa fa-cog"></i></button>
 								</div>
 							</div>

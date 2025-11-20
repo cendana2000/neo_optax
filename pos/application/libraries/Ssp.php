@@ -392,8 +392,9 @@ class SSP
 	{
 		// hapus port nya / ganti ke 5432
 		try {
+			$port = $_ENV['DB_PORT'] ?? 5432;
 			$db = @new PDO(
-				"pgsql:host={$sql_details['host']};dbname={$sql_details['db']};port=5433",
+				"pgsql:host={$sql_details['host']};dbname={$sql_details['db']};port={$port}",
 				// "pgsql:host={$sql_details['host']};dbname={$sql_details['db']}",
 				$sql_details['user'],
 				$sql_details['pass'],

@@ -465,6 +465,31 @@
             }
         }
 
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .payment-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ff7a00;
+            border-radius: 8px;
+            padding: 15px 0;
+            font-size: 1rem;
+            color: #ff7a00;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .payment-btn:hover {
+            background: #ff7a00;
+            color: white;
+        }
+
         .badge-primary {
             background-color: var(--color-primary) !important;
             border-color: var(--color-primary) !important;
@@ -742,7 +767,7 @@
                 </div>
 
                 <div class="button-apung col-12 col-md-5 col-lg-4 p-0" style="position: fixed; bottom: 0px;">
-                    <a class="btn btn-primary w-100 d-flex justify-content-center smooth-link" href="#orders" style="">
+                    <a class="btn btn-primary w-100 d-flex justify-content-center smooth-link" href="#orders">
                         <span>
                             Lanjutkan Transaksi
                         </span>
@@ -854,31 +879,31 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(10000)">Rp. 10.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(15000)">Rp. 15.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(20000)">Rp. 20.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(25000)">Rp. 25.000</span></div>
+                                        <div class="payment-grid mb-2">
+                                            <span class="payment-btn" onclick="addPayment(10000)">Rp. 10.000</span>
+                                            <span class="payment-btn" onclick="addPayment(15000)">Rp. 15.000</span>
+                                            <span class="payment-btn" onclick="addPayment(20000)">Rp. 20.000</span>
+                                            <span class="payment-btn" onclick="addPayment(25000)">Rp. 25.000</span>
 
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(30000)">Rp. 30.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(35000)">Rp. 35.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(40000)">Rp. 40.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(45000)">Rp. 45.000</span></div>
+                                            <span class="payment-btn" onclick="addPayment(30000)">Rp. 30.000</span>
+                                            <span class="payment-btn" onclick="addPayment(35000)">Rp. 35.000</span>
+                                            <span class="payment-btn" onclick="addPayment(40000)">Rp. 40.000</span>
+                                            <span class="payment-btn" onclick="addPayment(45000)">Rp. 45.000</span>
 
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(50000)">Rp. 50.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(75000)">Rp. 75.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(100000)">Rp. 100.000</span></div>
-                                            <div class="col-sm-4 col-md-6 col-lg-3 mb-sm-2 mb-lg-4"><span class="btn btn-outline-primary py-5 w-100" style="cursor: pointer;font-size:1rem;" onclick="addPayment(200000)">Rp. 200.000</span></div>
+                                            <span class="payment-btn" onclick="addPayment(50000)">Rp. 50.000</span>
+                                            <span class="payment-btn" onclick="addPayment(75000)">Rp. 75.000</span>
+                                            <span class="payment-btn" onclick="addPayment(100000)">Rp. 100.000</span>
+                                            <span class="payment-btn" onclick="addPayment(200000)">Rp. 200.000</span>
                                         </div>
 
                                         <div class="row mb-2">
                                             <div class="col-lg-12">
-                                                <span class="badge badge-dark p-4 w-100" id="nominal_mendekati" style="cursor: pointer; font-size: 14px;" onclick="addPayment(this)">NOMINAL MENDEKATI</span>
+                                                <span class="badge badge-dark p-4 w-100" id="nominal_mendekati" style="cursor: pointer; font-size: 14px;" onclick="addPaymentPas(this)">NOMINAL MENDEKATI</span>
                                             </div>
                                         </div>
 
                                         <div class="row mb-2">
-                                            <div class="col-lg-12"><span class="badge badge-success p-4 w-100" id="uang_pas" style="cursor: pointer;font-size:14px;" onclick="addPayment(this)"> UANG PAS</span></div>
+                                            <div class="col-lg-12"><span class="badge badge-success p-4 w-100" id="uang_pas" style="cursor: pointer;font-size:14px;" onclick="addPaymentPas(this)"> UANG PAS</span></div>
                                         </div>
                                     </div>
                                     <div class="form-group row" id="divBayarTunai">
