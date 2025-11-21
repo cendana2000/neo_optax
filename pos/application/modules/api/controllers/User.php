@@ -48,7 +48,7 @@ class User extends Base_Controller
     $data = $this->dbmp->where(['pos_user_id' => $user_id])->get('pos_user')->row_array();
 
     if (!empty($data['pos_user_photo'])) {
-      $data['pos_user_photo'] = $_ENV['BASE_URL'] . "dokumen/user/" . $data['pos_user_photo'];
+      $data['pos_user_photo'] = base_url() . "dokumen/user/" . $data['pos_user_photo'];
     }
 
     $operation = [
