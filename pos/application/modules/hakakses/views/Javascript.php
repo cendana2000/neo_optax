@@ -1,6 +1,6 @@
 <script type="text/javascript">
 	var fv;
-	$(function () {
+	$(function() {
 
 		HELPER.fields = [
 			'hak_akses_id',
@@ -18,8 +18,7 @@
 
 		fv = HELPER.newHandleValidation({
 			el: 'form-jenis',
-			setting: [
-				{
+			setting: [{
 					name: "Jenis Kode",
 					selector: ".hak_akses_kode",
 					rule: {
@@ -38,7 +37,7 @@
 			]
 		});
 
-		
+
 		loadTable();
 	})
 
@@ -46,12 +45,11 @@
 	function loadTable() {
 
 		HELPER.initTable({
-			el 	: "table-jenis",
-			url : HELPER.api.table,
+			el: "table-jenis",
+			url: HELPER.api.table,
 			searchAble: true,
 			destroyAble: true,
-			columnDefs: [
-				{
+			columnDefs: [{
 					targets: 1,
 					render: function(data, type, full, meta) {
 						return full['hak_akses_kode'];
@@ -150,14 +148,14 @@
 				$('#hak_akses_keterangan').val(res.hak_akses_keterangan);
 				$('.form_data').show()
 			}
-			$('#modal_hak_akses').modal('show')
-		})
+		});
+		$('#modal_hak_akses').modal('show')
 	}
 
 	function onDelete(hak_akses_id) {
 		HELPER.confirm({
 			message: 'Apakah Anda yakin ingin menghapus ?',
-			callback: function (suc) {
+			callback: function(suc) {
 				if (suc) {
 					HELPER.block()
 

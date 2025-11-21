@@ -151,7 +151,7 @@
 																		<div class="image-input-wrapper"></div>
 																		<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
 																			<i class="fa fa-pen icon-sm text-muted"></i>
-																			<input type="file" name="user_foto" accept=".png, .jpg, .jpeg" />
+																			<input type="file" id="user_foto_input" name="user_foto" accept=".png, .jpg, .jpeg" />
 																			<input type="hidden" name="profile_avatar_remove" />
 																		</label>
 
