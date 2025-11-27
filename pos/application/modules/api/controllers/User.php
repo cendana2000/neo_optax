@@ -188,6 +188,11 @@ class User extends Base_Controller
     $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
     $toko = $this->dbmp->where($filter)->get('v_pajak_toko')->row_array();
 
+    // base_url jika connect ke optax(localhost://8801)??
+    if (!empty($toko['toko_logo'])) {
+      $toko['toko_logo'] = $_ENV['PAJAK_URL'] . $toko['toko_logo'];
+    }
+
     $this->response($toko);
   }
 }

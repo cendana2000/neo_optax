@@ -1,3 +1,10 @@
+<?php
+$env = parse_ini_file(__DIR__ . '/.env');
+
+$MONITORING_URL = $env['MONITORING_URL'] ?? '';
+$POS_URL        = $env['POS_URL'] ?? '';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -25,12 +32,9 @@
 
 <body>
 
-  <!-- ======= Header ======= -->
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
       <a href="index.php" class="logo d-flex align-items-center">
-        <!-- Ganti dengan logo Anda -->
-        <!-- <h1>Monitoring Pajak</h1> -->
         <img alt="Logo" style="max-width: 550px; max-height: 100px; vertical-align: middle;" src="img/logo_optax_1/logo_optax_1.png" />
       </a>
       <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
@@ -40,14 +44,11 @@
           <li><a href="#beranda" class="active">Beranda</a></li>
           <li><a href="#slideshow">Galeri</a></li>
           <li><a href="#features">Fitur</a></li>
-          <!-- <li><a class="get-a-quote" href="#">Hubungi Kami</a></li> -->
         </ul>
       </nav><!-- .navbar -->
     </div>
   </header><!-- End Header -->
 
-
-  <!-- ======= beranda Section ======= -->
   <section id="beranda" class="d-flex align-items-center">
     <div class="container">
       <div class="row">
@@ -55,11 +56,11 @@
           <h1 class="display-3 fw-bolder text-white">Transformasi Digital <span class="highlight-text">Pajak Daerah</span></h1>
           <h2 class="fw-light text-white mb-5">Tingkatkan Pendapatan Asli Daerah (PAD) melalui platform Optimalisasi Monitoring Pajak dan Aplikasi Kasir (POS) yang terintegrasi, transparan, dan realtime.</h2>
           <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center gap-4">
-            <a href="http://localhost:8801" class="btn btn-pos shadow-lg">
+            <a href="<?= $MONITORING_URL; ?>" class="btn btn-pos shadow-lg">
               <i class="bi bi-graph-up-arrow me-2"></i>
               OPTAX
             </a>
-            <a href="http://localhost:8800/" class="btn btn-monitoring shadow-lg">
+            <a href="<?= $POS_URL; ?>" class="btn btn-monitoring shadow-lg">
               <i class="bi bi-receipt-cutoff me-2"></i>
               Aplikasi Kasir (POS)
             </a>
@@ -67,37 +68,9 @@
         </div>
       </div>
     </div>
-  </section><!-- End beranda -->
+  </section>
 
   <main id="main">
-
-    <!-- ======= Clients/Partners Section ======= -->
-    <!-- <section id="clients" class="clients section-bg">
-      <div class="container">
-        <div class="row" data-aos="zoom-in">
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Pemda+A" class="img-fluid" alt="Logo Pemda A">
-          </div>
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Pemkot+B" class="img-fluid" alt="Logo Pemkot B">
-          </div>
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Pemkab+C" class="img-fluid" alt="Logo Pemkab C">
-          </div>
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Bapenda+D" class="img-fluid" alt="Logo Bapenda D">
-          </div>
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Dinas+E" class="img-fluid" alt="Logo Dinas E">
-          </div>
-          <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
-            <img src="https://placehold.co/120x60/f0f0f0/999?text=Instansi+F" class="img-fluid" alt="Logo Instansi F">
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- ======= Slideshow Section ======= -->
     <section id="slideshow" class="slideshow">
       <div class="container" data-aos="fade-up">
 
