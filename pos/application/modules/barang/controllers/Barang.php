@@ -53,6 +53,147 @@ class Barang extends Base_Controller
 		$this->response($barang);
 	}
 
+	public function get_category_hierarchy($parent_id = '')
+	{
+		$categories = $this->get_child_categories($parent_id);
+		static $res = '';
+		if (!empty($categories)) {
+			foreach ($categories as $category) {
+				$category->children = $this->get_category_hierarchy($category->kategori_barang_id);
+				$res .= "OR barang_kategori_barang = '" . $category->kategori_barang_id . "' ";
+			}
+		}
+
+		return $res;
+	}
+
+	public function get_child_categories($parent_id = '')
+	{
+		$this->db->select('kategori_barang_id, kategori_barang_kode, kategori_barang_nama');
+		$this->db->from('pos_kategori');
+		$this->db->where('kategori_barang_parent', $parent_id);
+		$query = $this->db->get();
+		return $query->result();
+	}
+
+	public function load_menu_mobile($dbname = '')
+	{
+		if (!empty($dbname)) {
+			$this->db = $this->load->database(multidb_connect($dbname), true);
+		}
+
+		$isMobile = false;
+		$jenisUsaha = '';
+
+		if (array_key_exists('mobileDb', varPost())) {
+			$user['session_db'] = varPost('mobileDb');
+			$this->session->set_userdata($user);
+			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			$isMobile = true;
+
+			$kode_toko = explode('_', varPost('mobileDb'));
+			$toko = $this->dbmp->where([
+				'toko_kode' => $kode_toko[1]
+			])->get('v_pajak_toko')->row_array();
+
+			$getJenis = $this->dbmp->get_where('pajak_jenis', [
+				'jenis_nama' => $toko['jenis_nama']
+			])->row_array();
+			$getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+				'jenis_id' => $getJenis['jenis_parent']
+			])->row_array();
+
+			$jenisUsaha = $getJenisParent['jenis_nama'];
+		}
+
+
+		$valSearch = trim(varPost('valSearch'));
+		$valKategori = trim(varPost('kategori_id'));
+		$valOrder = trim(varPost('valOrder'));
+		$limitProduk = $this->input->post('limitProduk') ?? null;
+		$page = varPost('page');
+		$row = 12;
+		$limit = "";
+
+		if (isset($page) && $page != null) {
+			$countlimit = ($page - 1) * $row;
+			$limit = "LIMIT $row OFFSET $countlimit";
+		}
+
+		$filter = "WHERE barang_deleted_at IS NULL AND pos_barang.barang_kode is not null";
+		if ($jenisUsaha == 'PAJAK HOTEL' || $jenisUsaha == 'PAJAK HIBURAN') {
+			$filter = "WHERE pos_barang.barang_deleted_at IS NULL AND pos_barang.barang_kode is not null AND pos_barang.barang_aktif = '2' AND pos_barang.barang_aktif <> '3'";
+		}
+
+		if ($valKategori != NULL) {
+			$childKategori = $this->get_category_hierarchy($valKategori);
+			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if (isset($valOrder) && $valOrder != NULL) {
+			$order = "ORDER BY $valOrder DESC";
+			if ($valOrder == "tersedia") {
+				$order = "";
+				$filter .= " AND barang_stok > 0";
+			} else if ($valOrder == "kosong") {
+				$order = "";
+				$filter .= " AND barang_stok = 0";
+			} else if ($valOrder == "semua") {
+				$order = "";
+			} else if ($valOrder == "barang_stok_kecil") {
+				$order = "ORDER BY barang_stok ASC";
+			} else if ($valOrder == "rental_booking") {
+				$order = "";
+				$filter .= " AND barang_aktif = '2'";
+			} else if ($valOrder == "rental_booked") {
+				$order = "";
+				$filter .= " AND barang_aktif = '3'";
+			}
+		}
+
+		if ($valSearch != NULL) {
+			$filter .= " AND lower(barang_nama) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_kode) LIKE lower('%" . $valSearch . "%') 
+			OR lower(barang_barcode_kode) LIKE lower('%" . $valSearch . "%')";
+		}
+
+		// Limit produk from mobile
+		if ($limitProduk != NULL) {
+			$limit = "LIMIT 9 OFFSET $limitProduk";
+		} else if ($limitProduk == NULL) {
+			// $limit = "LIMIT 9 OFFSET 0";
+		}
+
+		$selectThumbnail = 'barang_thumbnail';
+		if ($isMobile) {
+			$selectThumbnail = 'CASE 
+			WHEN barang_thumbnail IS NULL THEN NULL
+			ELSE CONCAT(\'' . $_ENV['BASE_URL'] . '\', barang_thumbnail) 
+			END as barang_thumbnail';
+		}
+
+		$query = "SELECT barang_id as id, barang_kode, barang_nama, $selectThumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok as stok_now, total_jual, barang_stok_min, jenis_include_stok, barang_kategori_barang, barang_aktif
+			FROM pos_barang 
+			LEFT JOIN pos_barang_satuan 
+				ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent
+			LEFT JOIN (SELECT penjualan_detail_barang_id, SUM(penjualan_detail_qty_barang) as total_jual FROM pos_penjualan_detail GROUP BY penjualan_detail_barang_id)	as jual
+				ON penjualan_detail_barang_id = barang_id
+			LEFT JOIN pos_jenis 
+				ON pos_barang.barang_jenis_barang = pos_jenis.jenis_id
+			LEFT JOIN pos_barang_barcode 
+				ON pos_barang.barang_id = pos_barang_barcode.barang_barcode_parent
+			$filter
+			GROUP BY barang_id, barang_kode,barang_nama, barang_thumbnail, pos_barang.barang_satuan_kode, barang_harga, barang_stok, barang_stok_min, jenis_include_stok, jual.total_jual, barang_kategori_barang, barang_aktif, pos_barang.barang_created_at
+			$order
+			-- $limit
+		";
+
+		$return = $this->db->query($query)->result_array();
+		$total = count($return);
+		return $this->response(array('items' => $return, 'total_count' => $total));
+	}
+
+
 	public function mobile_read($dbname = '')
 	{
 		if (!empty($dbname)) {
