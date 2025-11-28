@@ -40,4 +40,7 @@ application/logs/*
 
 /.vscode
 
+/assets/master/*
+/assets/laporan/*
+
 index.php

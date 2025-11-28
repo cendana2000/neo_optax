@@ -7,7 +7,7 @@ use chillerlan\QRCode\QROptions;
 
 class Transaksipenjualan extends Base_Controller
 {
-
+	protected $db;
 	public function __construct()
 	{
 		parent::__construct();

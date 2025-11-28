@@ -985,13 +985,7 @@
 			type: 'post',
 			dataType: 'json',
 			success: function(res) {
-				if (typeof res !== 'object' || res === null || typeof res.total_count === 'undefined') {
-					console.error("Response is not valid JSON:", res);
-					loadingMenu(false);
-					lazyLoad.isLoading = false;
-					$('#menuHandler').append('<p class="d-flex align-items-center justify-content-center" style="grid-column: 1 / 5; min-height: 50vh;">Error loading menu. Response was not JSON.</p>');
-					return;
-				}
+				console.log(page, res.total_count);
 				if (page === 1 && res.total_count < 1) {
 					$('#menuHandler').append('<p class="d-flex align-items-center justify-content-center" style="grid-column: 1 / 5; min-height: 50vh;">Belum ada produk yang ditambahkan</p>');
 					return;

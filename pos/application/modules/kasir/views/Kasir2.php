@@ -1015,6 +1015,14 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive" style="max-width: 85vw;">
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <label style="font-size: 12px;">Bulan :</label>
+                                    <input type="month" class="form-control" name="bulan" id="bulan" value="<?php echo date('Y-m') ?>" onchange="loadTable()">
+                                </div>
+                            </div>
+                        </div>
                         <table class="table table-striped table-checkable table-condensed" id="table-penjualanbarang">
                             <thead>
                                 <tr>
