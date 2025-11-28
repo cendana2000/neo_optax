@@ -647,7 +647,7 @@ class Transaksipenjualan extends Base_Controller
 
 		$return = $this->db->query($query)->result_array();
 		$total = count($return);
-		$this->response(array('items' => $return, 'total_count' => $total));
+		return $this->response(array('items' => $return, 'total_count' => $total));
 	}
 
 	public function barang_ajax($value = '')
