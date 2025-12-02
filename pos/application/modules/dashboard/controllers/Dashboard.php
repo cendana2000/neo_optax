@@ -94,12 +94,12 @@ class Dashboard extends Base_Controller
      */
 
     // QUERY 2
-    $oppenjualan = $this->db->query("SELECT SUM(COALESCE(penjualan_total_grand,0) - COALESCE(penjualan_total_retur,0)) as penjualan_total, SUM(COALESCE(penjualan_total_bayar, 0)) as total_pembayaran, penjualan_tanggal, penjualan_metode 
+    $oppenjualan = $this->db->query("SELECT SUM(COALESCE(penjualan_total_grand,0) - COALESCE(penjualan_total_retur,0)) as penjualan_total, SUM(COALESCE(penjualan_total_bayar, 0)) as total_pembayaran, penjualan_tanggal::date, penjualan_metode 
     FROM pos_penjualan pp
-    WHERE penjualan_tanggal BETWEEN '" . $rawbegin . "' and '" . $rawend . "'
+    WHERE penjualan_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "'
     AND penjualan_status_aktif IS NULL
-    GROUP BY penjualan_tanggal, penjualan_metode
-    ORDER BY penjualan_tanggal ASC, penjualan_metode ASC");
+    GROUP BY penjualan_tanggal::date, penjualan_metode
+    ORDER BY penjualan_tanggal::date ASC, penjualan_metode ASC");
     // print_r('<pre>');print_r($oppenjualan->result());print_r('</pre>');
     // print_r('<pre>');print_r($this->db->last_query());print_r('</pre>');exit;
 
@@ -155,7 +155,7 @@ class Dashboard extends Base_Controller
     // GROUP BY kartu_barang_id, pb.barang_harga, pb.barang_nama, pb.barang_thumbnail
     // ORDER BY total_kartu_stok_keluar DESC
     // LIMIT 10");
-    
+
     /*
      *  All barang (Stok, Non stok, and Rental) 
      */

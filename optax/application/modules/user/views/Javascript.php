@@ -33,7 +33,8 @@
 			url: BASE_URL + 'user/combobox_role',
 			withNull: true,
 			grouped: false,
-			select2: true, // ubah ini
+			select2: true,
+			select2Parent: '#modalData',
 			callback: function() {}
 		});
 
@@ -200,6 +201,9 @@
 		$('#pegawai_foto').css('background-image', 'url(./assets/media/noimage.png)');
 		$("#modal-title").html('Add User')
 		$("#modalData").modal('show')
+		$('#pegawai_role_access_id').select2({
+			dropdownParent: $('#modalData')
+		});
 		fv.resetForm(true)
 	}
 
@@ -254,6 +258,9 @@
 				$('#pegawai_foto').css('background-image', 'url(./assets/media/noimage.png)');
 				$("#modal-title").html('Update user')
 				$("#modalData").modal('show')
+				$('#pegawai_role_access_id').select2({
+					dropdownParent: $('#modalData')
+				});
 				HELPER.populateForm($('#form-user'), res);
 				if (res.pegawai_foto) {
 					$('#pegawai_foto').css('background-image', 'url(dokumen/user/' + res.pegawai_foto + ')');

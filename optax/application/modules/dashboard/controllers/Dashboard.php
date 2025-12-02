@@ -47,29 +47,119 @@ class Dashboard extends Base_Controller
 			array_push($categories, $dt->format("d M Y"));
 		}
 
-		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal
-		FROM pajak_realisasi WHERE realisasi_tanggal BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		GROUP BY realisasi_tanggal")->result_array();
+		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
+		FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
+		GROUP BY realisasi_tanggal::date")->result_array();
 		foreach ($opchartnominal as $key => $val) {
 			$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
 			$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
 		}
 
-		$opchartupload = $this->db->query("SELECT DISTINCT COUNT(realisasi_wajibpajak_npwpd) AS total_upload, realisasi_tanggal 
-		FROM pajak_realisasi WHERE realisasi_tanggal BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		GROUP BY realisasi_tanggal")->result_array();
+		$opchartupload = $this->db->query("SELECT DISTINCT COUNT(realisasi_wajibpajak_npwpd) AS total_upload, realisasi_tanggal::date 
+		FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
+		GROUP BY realisasi_tanggal::date")->result_array();
 		foreach ($opchartupload as $key => $val) {
 			$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
 			$data['chart_upload_pajak'][$opdate] = (object) array('total_upload' => $val['total_upload'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
 		}
 
-		$data['total_pajak_masuk'] = $this->db->query("SELECT SUM(realisasi_pajak) AS total_pajak_masuk FROM pajak_realisasi WHERE realisasi_tanggal BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL")->row_array()['total_pajak_masuk'];
+		// TOTAL ALL
+		$query_total = $this->db->query("
+			SELECT 
+				COALESCE((
+					SELECT SUM(pr.realisasi_pajak)
+					FROM pajak_realisasi pr
+					WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
+					AND pr.realisasi_deleted_at IS NULL
+				), 0)
+				+
+				COALESCE((
+					SELECT SUM(lpw.log_penjualan_wp_total / 11)
+					FROM log_penjualan_wp lpw
+					WHERE lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
+					AND lpw.log_penjualan_deleted_at IS NULL
+				), 0)
+			AS total_pajak_masuk
+		")->row_array();
+		$data['total_pajak_masuk'] = $query_total['total_pajak_masuk'];
+
+		// TOTAL RESTO
+		$query_resto = $this->db->query("
+			SELECT
+				COALESCE((
+					SELECT SUM(pr.realisasi_pajak)
+					FROM pajak_realisasi pr
+					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_nama
+					WHERE 
+						(pj.jenis_parent = (
+							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
+						))
+						AND pr.realisasi_tanggal BETWEEN '$rawbegin' AND '$rawend'
+						AND pr.realisasi_deleted_at IS NULL						
+						AND pw.wajibpajak_deleted_at IS NULL
+				), 0)
+				+
+				COALESCE((
+					SELECT SUM(lpw.log_penjualan_wp_total / 11)
+					FROM log_penjualan_wp lpw
+					LEFT JOIN pajak_toko pt ON pt.toko_kode = lpw.log_penjualan_code_store
+					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = pt.toko_wajibpajak_id 
+					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_nama
+					WHERE 
+						(pj.jenis_parent = (
+							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
+						))
+						AND lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
+						AND lpw.log_penjualan_deleted_at IS NULL
+						AND pw2.wajibpajak_deleted_at IS NULL
+				), 0)
+			AS total_pajak_resto;
+		")->row_array();
+		$data['total_pajak_resto'] = $query_resto['total_pajak_resto'];
+
+		$query_hotel = $this->db->query("
+			SELECT
+				COALESCE((
+					SELECT SUM(pr.realisasi_pajak)
+					FROM pajak_realisasi pr
+					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_nama
+					WHERE 
+						(pj.jenis_parent = (
+							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
+						))
+						AND pr.realisasi_tanggal BETWEEN '$rawbegin' AND '$rawend'
+						AND pr.realisasi_deleted_at IS NULL
+						AND pw.wajibpajak_deleted_at IS NULL
+				), 0)
+				+
+				COALESCE((
+					SELECT SUM(lpw.log_penjualan_wp_total / 11)
+					FROM log_penjualan_wp lpw
+					LEFT JOIN pajak_toko pt ON pt.toko_kode = lpw.log_penjualan_code_store
+					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = pt.toko_wajibpajak_id 
+					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_nama
+					WHERE 
+						(pj.jenis_parent = (
+							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
+						))
+						AND lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
+						AND lpw.log_penjualan_deleted_at IS NULL
+						AND pw2.wajibpajak_deleted_at IS NULL
+				), 0)
+			AS total_pajak_hotel;
+		")->row_array();
+		$data['total_pajak_hotel'] = $query_hotel['total_pajak_hotel'];
+		// Query Old
+		// $data['total_pajak_masuk'] = $this->db->query("SELECT SUM(realisasi_pajak) AS total_pajak_masuk FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL")->row_array()['total_pajak_masuk'];
+
 		$data['total_pajak_masuk_pertahun'] = $this->db->query("SELECT SUM(realisasi_pajak) AS total_pajak_masuk FROM pajak_realisasi WHERE to_char(realisasi_tanggal, 'YYYY') = '" . $rawtahun . "' AND realisasi_deleted_at IS NULL")->row_array()['total_pajak_masuk'];
 		$data['target_pajak_tahun'] = $rawtahun;
 		$sql['total_realisasi_wajib_pajak_query'] = "SELECT COUNT(distinct(pr.realisasi_wajibpajak_npwpd)) AS total_realisasi_wajib_pajak 
 			FROM pajak_realisasi pr
 			JOIN pajak_wajibpajak pw ON pr.realisasi_wajibpajak_npwpd = pw.wajibpajak_npwpd
-			WHERE realisasi_tanggal BETWEEN '$rawbegin' and '$rawend' 
+			WHERE realisasi_tanggal::date BETWEEN '$rawbegin' and '$rawend' 
 			AND realisasi_deleted_at IS null
 			and pw.wajibpajak_status = '2'
 		";
@@ -198,11 +288,11 @@ class Dashboard extends Base_Controller
 			array_push($categories, $dt->format("d M Y"));
 		}
 
-		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal
+		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
 		FROM pajak_realisasi pr
 		LEFT JOIN pajak_wajibpajak pw ON pr.realisasi_wajibpajak_npwpd = pw.wajibpajak_npwpd
 		LEFT JOIN pajak_jenis pj ON pw.wajibpajak_sektor_nama = pj.jenis_id 
-		WHERE pr.realisasi_tanggal BETWEEN '$rawbegin' and '$rawend'
+		WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' and '$rawend'
 		AND pr.realisasi_deleted_at IS NULL
 		AND pj.jenis_parent = '$id' 
 		GROUP BY pr.realisasi_tanggal")->result_array();

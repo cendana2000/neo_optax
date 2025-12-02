@@ -263,7 +263,7 @@
 
 										<!--begin::Stats-->
 										<div class="fw-bolder text-gray-700 text-xxl-end">
-											0
+											<span id="total_transaksi_hotel">0</span>
 										</div>
 										<!--end::Stats-->
 									</div>
@@ -461,7 +461,7 @@
 
 										<!--begin::Stats-->
 										<div class="fw-bolder text-gray-700 text-xxl-end">
-											<span id="total_pajak_masuk_resto">0</span>
+											<span id="total_pajak_resto">0</span>
 										</div>
 										<!--end::Stats-->
 									</div>
@@ -483,7 +483,7 @@
 
 										<!--begin::Stats-->
 										<div class="fw-bolder text-gray-700 text-xxl-end">
-											0
+											<span id="total_pajak_hotel">0</span>
 										</div>
 										<!--end::Stats-->
 									</div>

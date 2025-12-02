@@ -1,85 +1,145 @@
+<style>
+	/* Biar jarak kiri modal tidak mepet */
+	#modalData .modal-body,
+	#modalData .card-body {
+		padding-left: 2rem !important;
+		padding-right: 2rem !important;
+	}
+
+	/* Label biar tidak terlalu menempel */
+	#modalData .form-group label {
+		padding-top: 6px;
+		font-weight: 600;
+	}
+
+	/* Jarak antar form row */
+	#modalData .form-group {
+		margin-bottom: 1.2rem;
+	}
+
+	/* Footer tombol lebih naik (tidak mepet sudut) */
+	#modalData .card-footer {
+		padding: 1rem 2rem !important;
+	}
+
+	/* Biar tombol footer tidak mepet kanan */
+	#modalData .card-footer .text-right {
+		padding-right: 0.5rem;
+	}
+
+	/* Rapiin foto upload */
+	#modalData .image-input {
+		width: 120px;
+		height: 120px;
+		border-radius: 8px;
+	}
+</style>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="modalData">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
+
 			<div class="modal-header">
-				<h5 class="modal-title" id="modal-title">Form User</h5>
+				<h5 class="modal-title" id="modal-title">Add User</h5>
 				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 					<i aria-hidden="true" class="ki ki-close"></i>
 				</button>
 			</div>
+
 			<form action="javascript:save('form-user')" method="post" id="form-user" autocomplete="off">
-				<div class="card-body">
+				<div class="modal-body card-body">
 					<div class="row">
+
+						<!-- LEFT SIDE -->
 						<div class="col-md-6">
 							<input type="hidden" name="pegawai_id" id="pegawai_id">
+
 							<div class="form-group row">
-								<label class="col-lg-3 col-form-label text-left pr-0" for="pegawai_role_access_id">Select Permission</label>
-								<div class="col-lg-9">
-									<select class="form-select" id="pegawai_role_access_id" name="pegawai_role_access_id"></select>
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_role_access_id">Select Permission</label>
+								<div class="col-lg-8">
+									<select class="form-select select2 form-control" id="pegawai_role_access_id" name="pegawai_role_access_id"></select>
 								</div>
 							</div>
+
 							<div class="form-group row">
-								<label class="col-lg-3 col-form-label text-left" for="pegawai_nama">Name</label>
-								<div class="col-lg-9">
-									<input type="text" id="pegawai_nama" name="pegawai_nama" class="form-control pegawai_nama" placeholder="Name" required data-fv-not-empty___message="This field is required" minlength="3" maxlength="150">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_nama">Name</label>
+								<div class="col-lg-8">
+									<input type="text" id="pegawai_nama" name="pegawai_nama" class="form-control" placeholder="Name" required minlength="3" maxlength="150">
 								</div>
 							</div>
+
 							<div class="form-group row">
-								<label class="col-lg-3 col-form-label text-left" for="pegawai_alamat">Address</label>
-								<div class="col-lg-9">
-									<textarea type="textarea" id="pegawai_alamat" name="pegawai_alamat" class="form-control pegawai_alamat" placeholder="Address" required data-fv-not-empty___message="This field is required"></textarea>
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_alamat">Address</label>
+								<div class="col-lg-8">
+									<textarea id="pegawai_alamat" name="pegawai_alamat" class="form-control" placeholder="Address" required></textarea>
 								</div>
 							</div>
+
 							<div class="form-group row">
-								<label class="col-lg-3 col-form-label text-left" for="pegawai_hp">Phone</label>
-								<div class="col-lg-9">
-									<input type="number" id="pegawai_hp" min="0" name="pegawai_hp" class="form-control pegawai_hp" placeholder="Phone" required data-fv-not-empty___message="This field is required">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_hp">Phone</label>
+								<div class="col-lg-8">
+									<input type="number" id="pegawai_hp" name="pegawai_hp" class="form-control" placeholder="Phone" required>
 								</div>
 							</div>
+
 							<div class="form-group row">
-								<label class="col-lg-3 col-form-label text-left" for="pegawai_email">Email</label>
-								<div class="col-lg-9">
-									<input type="email" id="pegawai_email" name="pegawai_email" class="form-control pegawai_email" placeholder="Email" required data-fv-not-empty___message="This field is required" data-fv-email-address___message=" ">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_email">Email</label>
+								<div class="col-lg-8">
+									<input type="email" id="pegawai_email" name="pegawai_email" class="form-control" placeholder="Email" required>
 								</div>
 							</div>
 						</div>
-						<div class="col-md-6">
-							<div class="form-group row">
+
+						<!-- RIGHT SIDE -->
+						<div class="col-md-6 d-flex justify-content-center align-items-start">
+							<div class="form-group row w-100">
 								<label class="col-lg-3 col-form-label text-left" for="pegawai_foto">Photo</label>
 								<div class="col-lg-9">
-									<div class="image-input image-input-empty image-input-outline" id="pegawai_foto" style="background-image: url(./assets/media/noimage.png)">
+									<div class="image-input image-input-empty image-input-outline"
+										id="pegawai_foto"
+										style="background-image: url('./assets/media/noimage.png')">
+
 										<div class="image-input-wrapper"></div>
-										<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
+
+										<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+											data-action="change"
+											data-toggle="tooltip"
+											title="Change avatar">
 											<i class="fa fa-pen icon-sm text-muted"></i>
-											<input type="file" name="pegawai_foto" accept=".png, .jpg, .jpeg" />
-											<input type="hidden" name="profile_avatar_remove" />
+											<input type="file" name="pegawai_foto" accept=".png, .jpg, .jpeg">
+											<input type="hidden" name="profile_avatar_remove">
 										</label>
 
-										<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
+										<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+											data-action="cancel"
+											data-toggle="tooltip"
+											title="Cancel avatar">
 											<i class="ki ki-bold-close icon-xs text-muted"></i>
 										</span>
 
-										<!-- <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="remove" data-toggle="tooltip" title="Remove avatar">
-											<i class="ki ki-bold-close icon-xs text-muted"></i>
-										</span> -->
 									</div>
 								</div>
 							</div>
 						</div>
+
 					</div>
 				</div>
+
 				<div class="card-footer">
 					<div class="row">
 						<div class="col-12 text-right">
-							<button type="button" class="btn btn-sm btn-danger mx-1" data-bs-dismiss="modal" aria-label="Close"> Close</button>
-							<button type="submit" class="btn btn-sm btn-success mx-1"><i class="fas fa-save"></i> Save</button>
+							<button type="button" class="btn btn-sm btn-danger mx-2" data-bs-dismiss="modal">Close</button>
+							<button type="submit" class="btn btn-sm btn-success mx-2"><i class="fas fa-save"></i> Save</button>
 						</div>
 					</div>
 				</div>
+
 			</form>
+
 		</div>
 	</div>
 </div>
+
 <!-- Modal-->
 <div class="modal fade" id="modal-user" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">

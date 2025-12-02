@@ -1066,6 +1066,7 @@ class Transaksipenjualan extends Base_Controller
 					'log_penjualan_id' => md5(time()),
 					'log_penjualan_wp_penjualan_id' => $res['id'],
 					'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
+					'log_penjualan_wp_penjualan_time' => date('H:i:s'),
 					'log_penjualan_wp_total' => $data['penjualan_total_grand'],
 					'log_penjualan_code_store' => $user['toko']['toko_kode'],
 					'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
@@ -1797,7 +1798,7 @@ class Transaksipenjualan extends Base_Controller
 				// 'font_face'     => 'cour',
 				'font_size'     => '10',
 				'json'          => true,
-				'return'				=> $return,
+				'return'		=> $return,
 			));
 		} else {
 			$htmls = $this->html_tprint_print($detail, $jual, $metode_pembayaran);

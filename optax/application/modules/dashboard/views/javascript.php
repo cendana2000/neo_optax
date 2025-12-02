@@ -115,9 +115,11 @@
 			dataType: 'json',
 			success: function(res) {
 				$('#total_pajak_masuk').text($.number(res.total_pajak_masuk));
-				$('#total_pajak_masuk_resto').text($.number(res.total_pajak_masuk));
+				$('#total_pajak_resto').text($.number(res.total_pajak_resto));
+				$('#total_pajak_hotel').text($.number(res.total_pajak_hotel));
 				$('#total_transaksi').text($.number(res.total_pajak_masuk * 10));
-				$('#total_transaksi_resto').text($.number(res.total_pajak_masuk * 10));
+				$('#total_transaksi_resto').text($.number(res.total_pajak_resto * 10));
+				$('#total_transaksi_hotel').text($.number(res.total_pajak_hotel * 10));
 				$('#total_realisasi_wajib_pajak').text(res.total_realisasi_wajib_pajak);
 				$('#total_wajib_pajak').text(res.total_wajib_pajak);
 				$('#total_wp_resto').text(res.total_wp_resto);

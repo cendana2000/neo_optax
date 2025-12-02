@@ -87,16 +87,16 @@ class User extends Base_Controller
 
       $read = $this->dbmp->where(['pos_user_id' => $data['pos_user_id']])->get('pos_user')->row_array();
       $this->upload->initialize($config);
-      $_FILES['upload_field_name']['name']        = $_FILES['user_foto']['name'];
-      $_FILES['upload_field_name']['type']        = $_FILES['user_foto']['type'];
-      $_FILES['upload_field_name']['tmp_name']    = $_FILES['user_foto']['tmp_name'];
-      $_FILES['upload_field_name']['error']       = $_FILES['user_foto']['error'];
-      $_FILES['upload_field_name']['size']        = $_FILES['user_foto']['size'];
+      $_FILES['upload_field_name']['name']        = $_FILES['pos_user_photo']['name'];
+      $_FILES['upload_field_name']['type']        = $_FILES['pos_user_photo']['type'];
+      $_FILES['upload_field_name']['tmp_name']    = $_FILES['pos_user_photo']['tmp_name'];
+      $_FILES['upload_field_name']['error']       = $_FILES['pos_user_photo']['error'];
+      $_FILES['upload_field_name']['size']        = $_FILES['pos_user_photo']['size'];
       if (!$this->upload->do_upload('upload_field_name')) {
         $data['pos_user_photo'] = $this->upload->display_errors();
         return $this->response([
           'success' => false,
-          'message' => strip_tags($data['user_foto']),
+          'message' => strip_tags($data['pos_user_photo']),
         ]);
       } else {
         unlink("./dokumen/user/" . $read['pos_user_photo']);

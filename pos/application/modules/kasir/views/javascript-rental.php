@@ -24,6 +24,16 @@
 </script>
 
 <script type="text/javascript">
+	// if ($('#lunas-tab').hasClass('active')) {
+	// // Button dengan ID 'lunas' memiliki class 'active'
+	// // Lakukan sesuatu di sini
+	// 	loadTableRentalLunas();
+	// } else if($('#belum-lunas-tab').hasClass('active')){
+	// 	// Button dengan ID 'lunas' tidak memiliki class 'active'
+	// 	// Lakukan sesuatu yang berbeda di sini
+	// 	loadTableRentalBelumLunas();
+	// }
+
 	$('.datepickermt').datepicker({
 		rtl: KTUtil.isRTL(),
 		todayHighlight: true,
@@ -51,11 +61,11 @@
 	let divBayarTunai = $('#divBayarTunai');
 	let divJatuhTempo = $('#divJatuhTempo');
 	let countOnline = 0;
-	let isRent = false;
+	let isRent = true;
 	divJatuhTempo.hide();
 
 	$(function() {
-		$('#penjualan_metode').val('B');
+		$('#penjualan_metode').val('K');
 		$('.select2').select2();
 		$('#dropdown-filter-menu').on('click', function(e) {
 			e.stopPropagation();
@@ -131,7 +141,7 @@
 
 		HELPER.api = {
 			table: BASE_URL + 'transaksipenjualan/',
-			read: BASE_URL + 'transaksipenjualan/edit_detail',
+			read: BASE_URL + 'transaksipenjualan/edit_detail_rental',
 			store: BASE_URL + 'transaksipenjualan/store',
 			update: BASE_URL + 'transaksipenjualan/update',
 			destroy: BASE_URL + 'transaksipenjualan/destroy',
@@ -651,10 +661,12 @@
 
 		if ($(el)[0].dataset.quantity === 'increase') {
 			quantity += 1;
-			if (quantity === 2) {
+			if (quantity >= 2) {
 				const decreaseButton = $(el).siblings('button[data-quantity="delete"]');
 				decreaseButton.attr('onclick', `changeQuantity(this, ${JSON.stringify(orderItem)})`);
-				decreaseButton[0].dataset.quantity = 'decrease';
+				if (quantity === 2) {
+					decreaseButton[0].dataset.quantity = 'decrease';
+				}
 				decreaseButton.html(`
 				<div class="bg-white rounded d-flex align-items-center justify-content-center">
 					<svg width="13" height="2" viewBox="0 0 13 2" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -755,7 +767,7 @@
 		let total = countTotal() + (countTotal() * (countJasa() / 100));
 		let inputPajak = $('#penjualan_pajak_persen').val();
 		let result = total * (inputPajak / 100);
-		// result = Math.round(result / 100) * 100;
+		result = Math.round(result / 100) * 100;
 		$('#penjualan_pajak_nominal').val('Rp. ' + $.number(result));
 		return result;
 	}
@@ -766,7 +778,7 @@
 		let inputDiscount = $('#penjualan_total_potongan_persen').val();
 		let discount = total * (inputDiscount / 100);
 		let result = total - discount + pajak;
-		// result = Math.round(result / 100) * 100;
+		result = Math.round(result / 100) * 100;
 		let penjualanMetode = $('#penjualan_metode').val();
 
 		$('#penjualan_total_potongan_nominal').val('Rp. ' + $.number(discount));
@@ -913,6 +925,7 @@
 				page,
 			},
 			type: 'post',
+			dataType: 'json',
 			success: function(res) {
 				if (page === 1 && res.total_count < 1) {
 					$('#listHandler').append('<p class="d-flex align-items-center justify-content-center" style="grid-column: 1 / 5; min-height: 50vh;">Belum ada produk yang ditambahkan</p>');
@@ -1022,7 +1035,7 @@
 
 	function remOrder(el, mode = '0', pCrow) {
 		// event.preventDefault();
-		isRent = false;
+		isRent = true;
 		onRent();
 
 		if (mode == '0') {
@@ -1108,7 +1121,7 @@
 		orderHandler.empty();
 		$('#divBank').hide();
 		$('#pembelian_total_bayar_display').text(0);
-		$('#penjualan_metode').val('B').trigger('change');
+		$('#penjualan_metode').val('K').trigger('change');
 	}
 
 	function loadTable() { //load daftar penjualan 
@@ -1155,6 +1168,12 @@
 						if (full['penjualan_platform'] == 'Mobile') {
 							platform = '<button onclick="event.preventDefault()" class="btn btn-primary btn-sm btn-block" style="width:100px"><span class="fas fa-mobile-alt"></span> Mobile</button>';
 						}
+						if (full['penjualan_total_retur'] > 0) {
+							platform += '<span class="label label-danger label-inline font-weight-normal mr-2">Retur</span>'
+						}
+						if (full['penjualan_status_aktif'] != null) {
+							platform += '<span class="label label-dark label-inline font-weight-normal mr-2">Batal</span>'
+						}
 						return platform;
 					},
 				},
@@ -1189,9 +1208,226 @@
 		HELPER.initTable({
 			el: "table-rental",
 			url: BASE_URL + 'transaksipenjualan/loadRental',
+			type: 'POST',
 			searchAble: true,
 			destroyAble: true,
 			responsive: false,
+			data: {
+				bulan: $('#bulan').val()
+			},
+			order: [
+				[2, 'desc']
+			],
+			columnDefs: [{
+					targets: 1,
+					render: function(data, type, full, meta) {
+						return full['penjualan_kode'];
+					},
+				},
+				{
+					targets: 2,
+					render: function(data, type, full, meta) {
+						return full['penjualan_tanggal'];
+					},
+				},
+				{
+					targets: 3,
+					render: function(data, type, full, meta) {
+						return full['barang_nama'];
+					},
+				},
+				{
+					targets: 4,
+					render: function(data, type, full, meta) {
+						return full['customer_nama'];
+					},
+				},
+				{
+					targets: 5,
+					render: function(data, type, full, meta) {
+						return full['penjualan_total_potongan_persen'];
+					},
+				},
+				{
+					targets: 6,
+					render: function(data, type, full, meta) {
+						return '' + HELPER.toCurrency(full['penjualan_total_grand']);
+					},
+				},
+				{
+					targets: 7,
+					render: function(data, type, full, meta) {
+						let platform = '<button onclick="event.preventDefault()" class="btn btn-primary btn-sm btn-block" style="width:100px"><span class="fas fa-desktop"></span> Desktop</button>';
+						if (full['penjualan_platform'] == 'Mobile') {
+							platform = '<button onclick="event.preventDefault()" class="btn btn-primary btn-sm btn-block" style="width:100px"><span class="fas fa-mobile-alt"></span> Mobile</button>';
+						}
+						if (full['penjualan_total_retur'] > 0) {
+							platform += '<span class="label label-danger label-inline font-weight-normal mr-2">Retur</span>'
+						}
+						if (full['penjualan_status_aktif'] != null) {
+							platform += '<span class="label label-dark label-inline font-weight-normal mr-2">Batal</span>'
+						}
+						return platform;
+					},
+				},
+				{
+					targets: 8,
+					width: '10px',
+					orderable: false,
+					visible: true,
+					render: function(data, type, full, meta) {
+						var html = `
+							<a href="javascript:;" class="btn btn-sm btn-info" title="Print" onclick="onPrint('` + full['penjualan_id'] + `')" >
+								<span class="fas fa-print"></span>
+							</a>`;
+
+						if (full['penjualan_bayar_sisa'] > 0) {
+							html += `
+							<a href="javascript:;" class="btn btn-sm btn-warning" title="Print" onclick="onPay('` + full['penjualan_id'] + `')" >
+								<span class="fas fa-money-bill"></span>
+								Bayar Transaksi
+							</a>`;
+						} else {
+							html += `
+							<a href="javascript:;" class="btn btn-sm btn-success" title="Print" onclick="Swal.fire({
+							title: 'Transaksi',
+							text: 'Transaksi ini telah lunas',
+							icon: 'info',
+						});" >
+								<span class="fas fa-check"></span>
+								Transaksi Lunas
+							</a>`;
+						}
+
+
+						return html;
+					},
+				},
+
+			],
+		});
+	}
+
+	function loadTableRentalBelumLunas() { //load daftar penjualan 
+		HELPER.initTable({
+			el: "table-rental-belum-lunas",
+			url: BASE_URL + 'transaksipenjualan/loadRentalBelumLunas',
+			type: 'POST',
+			searchAble: true,
+			destroyAble: true,
+			responsive: false,
+			data: {
+				bulan: $('#bulan').val()
+			},
+			order: [
+				[2, 'desc']
+			],
+			columnDefs: [{
+					targets: 1,
+					render: function(data, type, full, meta) {
+						return full['penjualan_kode'];
+					},
+				},
+				{
+					targets: 2,
+					render: function(data, type, full, meta) {
+						return full['penjualan_tanggal'];
+					},
+				},
+				{
+					targets: 3,
+					render: function(data, type, full, meta) {
+						return full['barang_nama'];
+					},
+				},
+				{
+					targets: 4,
+					render: function(data, type, full, meta) {
+						return full['customer_nama'];
+					},
+				},
+				{
+					targets: 5,
+					render: function(data, type, full, meta) {
+						return full['penjualan_total_potongan_persen'];
+					},
+				},
+				{
+					targets: 6,
+					render: function(data, type, full, meta) {
+						return '' + HELPER.toCurrency(full['penjualan_total_grand']);
+					},
+				},
+				{
+					targets: 7,
+					render: function(data, type, full, meta) {
+						let platform = '<span class="label label-warning label-inline font-weight-normal mr-2">Web</span>';
+						if (full['penjualan_platform'] == 'Mobile') {
+							platform = '<span class="label label-primary label-inline font-weight-normal mr-2">Mobile</span>';
+						}
+
+						if (full['penjualan_total_retur'] > 0) {
+							platform += '<span class="label label-danger label-inline font-weight-normal mr-2">Retur</span>'
+						}
+						if (full['penjualan_status_aktif'] != null) {
+							platform += '<span class="label label-dark label-inline font-weight-normal mr-2">Batal</span>'
+						}
+						return platform;
+					},
+				},
+				{
+					targets: 8,
+					width: '10px',
+					orderable: false,
+					visible: true,
+					render: function(data, type, full, meta) {
+						var html = `
+							<a href="javascript:;" class="btn btn-sm btn-info" title="Print" onclick="onPrint('` + full['penjualan_id'] + `')" >
+								<span class="fas fa-print"></span>
+							</a>`;
+						html += `
+							<a href="javascript:;" class="btn btn-sm btn-primary" title="Edit" onclick="onEdit(this)" >
+								<span class="fas fa-pen"></span> 
+							</a>`;
+
+						if (full['penjualan_bayar_sisa'] > 0) {
+							html += `
+							<a href="javascript:;" class="btn btn-sm btn-warning" title="Print" onclick="onPay('` + full['penjualan_id'] + `')" >
+								<span class="fas fa-money-bill"></span>
+								Bayar Transaksi
+							</a>`;
+						} else {
+							html += `
+							<a href="javascript:;" class="btn btn-sm btn-success" title="Print" onclick="Swal.fire({
+							title: 'Transaksi',
+							text: 'Transaksi ini telah lunas',
+							icon: 'info',
+						});" >
+								<span class="fas fa-check"></span>
+								Transaksi Lunas
+							</a>`;
+						}
+
+
+						return html;
+					},
+				},
+
+			],
+		});
+	}
+
+	function loadTableRentalLunas() { //load daftar penjualan 
+		HELPER.initTable({
+			el: "table-rental-lunas",
+			url: BASE_URL + 'transaksipenjualan/loadRentalLunas',
+			type: 'POST',
+			searchAble: true,
+			destroyAble: true,
+			responsive: false,
+			data: {
+				bulan: $('#bulan').val()
+			},
 			order: [
 				[2, 'desc']
 			],
@@ -1323,6 +1559,7 @@
 			server: true,
 			inline: $(el),
 			callback: function(res) {
+				// initOrder();
 				onReset(() => {});
 				if (res.parent.customer) {
 					$("#pos_penjualan_customer_id").select2("trigger", "select", {
@@ -1341,7 +1578,7 @@
 				totalItem = 0;
 				let detail = res.detail.data;
 
-
+				$('#receipts').html('');
 				// Set input parent
 				$('#penjualan_total_item').val(res.parent.penjualan_total_item);
 				$('#penjualan_id').val(res.parent.penjualan_id);
@@ -1361,56 +1598,138 @@
 				$('#penjualan_total_bayar_bank').trigger('change');
 				handlePembayaran();
 
-				$('#modal-penjualan').modal('hide');
-				// return;
+				$('#modal-rental').modal('hide');
+				let LSToko = JSON.parse(localStorage.getItem('toko'));
 
 				$.each(detail, function(i, v) {
+					const orderItem = {
+						cRow: row,
+						cHarga: v.barang_harga,
+						s_press: 0,
+						stokNow: v.current_stok,
+						jenis_include_stok: v.jenis_include_stok,
+					};
+					console.log(orderItem);
 					idBayar[row] = v.penjualan_detail_barang_id;
-					totalBayar[row] = v.barang_satuan_harga_beli;
+					totalBayar[row] = v.barang_harga;
+					totalBayarIncludePajak[row] = v.barang_harga;
 					totalQty[row] = v.penjualan_detail_qty_barang;
 
 					setSatuan(row, v.penjualan_detail_barang_id, v.penjualan_detail_satuan);
 
 
-					$('#orderHandler').append(
-						`
-						<tr class="order_${row}">
-							<td id="barang_nama_${row}" style="vertical-align:middle;">
-								<input type="hidden" readonly name="penjualan_detail_barang_id[${row}]" id="penjualan_detail_barang_id_${row}" value="${v.penjualan_detail_barang_id}">
-									<span>${v.barang_nama}</span>
-							</td>
-							<td>
-							<select class="form-control" onchange="satuanKonversi(this, ${row}, ${v.penjualan_detail_qty_barang}, ${v.barang_stok})" name="penjualan_detail_satuan[${row}]" id="penjualan_detail_satuan_${row}">
-							<option value="">-Pilih Satuan-</option>
-							</select>
-							</td>
-							<td>
-								<input id="penjualan_detail_harga_beli_${row}" type="text" readonly style="background-color: #eaeaea;" name="penjualan_detail_harga_beli[${row}]" value="${HELPER.toCurrency(v.barang_harga)}" class="form-control">
-								
-							</td>
-							<td id="updateHarga_${row}">
-								<input type="hidden" readonly name="penjualan_detail_satuan_kode[${row}]" id="penjualan_detail_satuan_kode_${row}">
-								<input type="hidden" readonly name="penjualan_detail_id[${row}]" id="penjualan_detail_id_${row}">
-								<input type="hidden" readonly name="konversi_barang[${row}]" value="1" id="konversi_barang_${row}">
-								<input type="number" value="${parseInt(v.penjualan_detail_qty_barang)}" id="penjualan_detail_qty_barang_${row}" onchange="countPrice(${row}, ${v.barang_harga}, 0, ${v.barang_stok})" name="penjualan_detail_qty_barang[${row}]" class="form-control qty">
-							</td>
-							<td>
-								<input type="text" readonly="" style="background-color: #eaeaea;" class="form-control" id="total_row_${row}" value="${HELPER.toCurrency(v.barang_harga * v.penjualan_detail_qty_barang)}"/>
-							</td>
-							<td>
-								<span class="btn btn-transparent-warning font-weight-bold" data-id="${row}" onclick="remOrder(this);" btn-sm ml-1">Hapus</button>
-							</td>
-						</tr>
-						`
-					);
+					// $('#orderHandler').append(
+					// 	`
+					// 	<tr class="order_${row}">
+					// 		<td id="barang_nama_${row}" style="vertical-align:middle;">
+					// 			<input type="hidden" readonly name="penjualan_detail_barang_id[${row}]" id="penjualan_detail_barang_id_${row}" value="${v.penjualan_detail_barang_id}">
+					// 				<span>${v.barang_nama}</span>
+					// 		</td>
+					// 		<td>
+					// 		<select class="form-control" onchange="satuanKonversi(this, ${row}, ${v.penjualan_detail_qty_barang}, ${v.barang_stok})" name="penjualan_detail_satuan[${row}]" id="penjualan_detail_satuan_${row}">
+					// 		<option value="">-Pilih Satuan-</option>
+					// 		</select>
+					// 		</td>
+					// 		<td>
+					// 			<input id="penjualan_detail_harga_beli_${row}" type="text" readonly style="background-color: #eaeaea;" name="penjualan_detail_harga_beli[${row}]" value="${HELPER.toCurrency(v.barang_harga)}" class="form-control">
+
+					// 		</td>
+					// 		<td id="updateHarga_${row}">
+					// 			<input type="hidden" readonly name="penjualan_detail_satuan_kode[${row}]" id="penjualan_detail_satuan_kode_${row}">
+					// 			<input type="hidden" readonly name="penjualan_detail_id[${row}]" id="penjualan_detail_id_${row}">
+					// 			<input type="hidden" readonly name="konversi_barang[${row}]" value="1" id="konversi_barang_${row}">
+					// 			<input type="number" value="${parseInt(v.penjualan_detail_qty_barang)}" id="penjualan_detail_qty_barang_${row}" onchange="countPrice(${row}, ${v.barang_harga}, 0, ${v.barang_stok})" name="penjualan_detail_qty_barang[${row}]" class="form-control qty">
+					// 		</td>
+					// 		<td>
+					// 			<input type="text" readonly="" style="background-color: #eaeaea;" class="form-control" id="total_row_${row}" value="${HELPER.toCurrency(v.barang_harga * v.penjualan_detail_qty_barang)}"/>
+					// 		</td>
+					// 		<td>
+					// 			<span class="btn btn-transparent-warning font-weight-bold" data-id="${row}" onclick="remOrder(this);" btn-sm ml-1">Hapus</button>
+					// 		</td>
+					// 	</tr>
+					// 	`
+					// );
+					if (v.barang_harga != v.penjualan_detail_harga_beli) {
+						$('#includePajak').prop('checked', true);
+					}
+
+
+					$('#receipts').append(`
+				<div class="receipt_${row} accordion" id="accordionRoomDetails">
+					<div class="card rounded shadow-none" style="border: 1px solid #EFEFEF;">
+						<div class="card-header bg-white rounded" id="headingRoomDetails">
+							<h2 class="mb-0">
+								<button class="btn btn-block text-left font-weight-bold text-body" type="button" data-toggle="collapse" data-target="#collapseRoomDetails" aria-expanded="true" aria-controls="collapseRoomDetails">
+									Room Details
+								</button>
+							</h2>
+						</div>
+						<div id="collapseRoomDetails" class="collapse show" aria-labelledby="headingRoomDetails" data-parent="#accordionRoomDetails">
+							<div class="card-body">
+								<div class="row align-items-center">
+									<div class="col-5">
+										<input type="hidden" readonly name="penjualan_detail_barang_id[${row}]" id="penjualan_detail_barang_id_${row}" value="${v.penjualan_detail_barang_id}">
+										<span class="d-block font-weight-bolder h6 mb-0" id="barang_nama_${row}">${v.barang_nama}</span>
+										<span class="d-block font-weight-bold text-muted font-size-xs">Kode: 213849156</span>
+									</div>
+									<div class="col-5 d-flex flex-column">
+										<span class="font-size-sm text-primary font-weight-bolder">Rp. ${formatRupiah(v.barang_harga)}/night</span>
+									</div>
+									<div class="col-2 p-0 text-end">
+										<img loading="lazy" class="img-fluid rounded" style="width:50px; height:50px; object-fit:cover;" src="${v.barang_thumbnail != null ? '<?= base_url() ?>'+v.barang_thumbnail : ''}" onerror="imgError(this)">
+									</div>
+								</div>
+								<div class="my-8" style="border-bottom: 1px solid #EFEFEF;"></div>
+								<div class="row align-items-center">
+									<div class="col-4 d-flex align-items-center" style="gap: 5px;">
+										<input type="text" class="number" id="total_row_${row}" name="penjualan_detail_subtotal[${row}]" value="${v.penjualan_detail_harga_beli * v.penjualan_detail_qty_barang}" hidden />
+										<span>Rp.</span> 
+										<input id="penjualan_detail_harga_beli_${row}" type="text" data-row="${row}" data-inpajak="${parseInt(v.penjualan_detail_harga_beli *(LSToko.jenis_tarif / 100))}" data-defaultHarga="${v.penjualan_detail_harga_beli}"  name="penjualan_detail_harga_beli[${row}]" onkeyup='countPriceFlexiblePrice(${JSON.stringify(orderItem)})' value="${v.penjualan_detail_harga_beli}" class="number hargaBeli py-1 px-3 rounded w-100" style="border: 1px solid #E5E5F0;">
+									</div>
+									<div class="col-3 font-weight-bolder h6 mb-0">
+										<select onchange="satuanKonversi(this, ${row}, ${v.penjualan_detail_qty_barang}, ${v.jenis_include_stok})" name="penjualan_detail_satuan[${row}]" id="penjualan_detail_satuan_${row}" class="rounded border-0 py-1" style="background-color: #F7F7F7;"></select>
+									</div>
+									<div class="col-5 d-flex align-items-center px-0" style="gap: 15px;">
+										<div class="d-flex align-items-center" id="updateHarga_${row}" style="gap: 15px;">
+											<input type="hidden" readonly name="jenis_include_stok[${row}]" id="jenis_include_stok${row}" value="${orderItem.jenis_include_stok}">
+											<input type="hidden" readonly name="penjualan_detail_satuan_kode[${row}]" id="penjualan_detail_satuan_kode_${row}">
+											<input type="hidden" readonly name="penjualan_detail_id[${row}]" id="penjualan_detail_id_${row}" value="${v.penjualan_detail_id}">
+											<input type="hidden" readonly name="konversi_barang[${row}]" value="1" id="konversi_barang_${row}">
+											<button type="button" class="btn btn-quantity d-flex align-items-center justify-content-center" data-quantity="delete" data-id="${row}" onclick="remOrder(this);">
+												<svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path d="M11.8333 1.33333H8.91663L8.08329 0.5H3.91663L3.08329 1.33333H0.166626V3H11.8333M0.999959 13.8333C0.999959 14.2754 1.17555 14.6993 1.48811 15.0118C1.80068 15.3244 2.2246 15.5 2.66663 15.5H9.33329C9.77532 15.5 10.1992 15.3244 10.5118 15.0118C10.8244 14.6993 11 14.2754 11 13.8333V3.83333H0.999959V13.8333Z" fill="currentColor"/>
+												</svg>
+											</button>
+											<span class="h5 font-weight-bolder mb-0">
+												<input type="number" value="${v.penjualan_detail_qty_barang}" id="penjualan_detail_qty_barang_${row}" name="penjualan_detail_qty_barang[${row}]" hidden>
+												<span><span id="quantity_${row}">${parseInt(v.penjualan_detail_qty_barang)}</span> Night</span>
+											</span>
+											<button type="button" class="btn btn-quantity" data-quantity="increase" onclick='changeQuantity(this, ${JSON.stringify(orderItem)})'>
+												<div class="bg-white rounded d-flex align-items-center justify-content-center">
+													<svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M11.5001 6.83171H7.33341V10.9984C7.33341 11.2194 7.24562 11.4313 7.08934 11.5876C6.93306 11.7439 6.7211 11.8317 6.50008 11.8317C6.27907 11.8317 6.06711 11.7439 5.91083 11.5876C5.75455 11.4313 5.66675 11.2194 5.66675 10.9984V6.83171H1.50008C1.27907 6.83171 1.06711 6.74391 0.910826 6.58763C0.754546 6.43135 0.666748 6.21939 0.666748 5.99837C0.666748 5.77736 0.754546 5.5654 0.910826 5.40912C1.06711 5.25284 1.27907 5.16504 1.50008 5.16504H5.66675V0.998372C5.66675 0.777359 5.75455 0.565397 5.91083 0.409117C6.06711 0.252836 6.27907 0.165039 6.50008 0.165039C6.7211 0.165039 6.93306 0.252836 7.08934 0.409117C7.24562 0.565397 7.33341 0.777359 7.33341 0.998372V5.16504H11.5001C11.7211 5.16504 11.9331 5.25284 12.0893 5.40912C12.2456 5.5654 12.3334 5.77736 12.3334 5.99837C12.3334 6.21939 12.2456 6.43135 12.0893 6.58763C11.9331 6.74391 11.7211 6.83171 11.5001 6.83171Z" fill="currentColor"/>
+													</svg>
+												</div>
+											</button>
+										</div>
+									</div>
+								</div>
+								<div class="my-8" style="border-bottom: 1px solid #EFEFEF;"></div>
+								<div class="d-flex justify-content-end">
+									<button class="btn btn-primary" role="button" onclick="handleAddCustomer()">Tambah Customer</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				`);
+
+
 					countPrice(row, v.barang_harga);
 					row++;
 					totalItem++;
+					HELPER.unblock()
 				});
-
-
-				$('#modal-penjualan').modal('hide');
-				HELPER.unblock()
 			}
 		})
 	}
@@ -1453,13 +1772,20 @@
 
 
 		if (metode.val() == 'B') {
-			divBank.show();
-			divBayarTunai.show();
-			divBayarBank.show();
-			bayardanKembalian.show();
-			divJatuhTempo.hide();
+			let date = moment().add(1, 'days').format('YYYY-MM-DD');
+			$('#penjualan_jatuh_tempo').val(date);
 
-			penjualanTotalBayar.val(0);
+			$('#penjualan_total_bayar_bank').val(0);
+			$('#penjualan_total_bayar_tunai').val(0);
+
+			let getTotal = $('#penjualan_total_grand').val();
+			penjualanTotalBayar.val(getTotal);
+			divBank.hide();
+			divBayarTunai.hide();
+			divBayarBank.hide();
+			bayardanKembalian.hide();
+			divJatuhTempo.show();
+			// penjualanTotalBayar.val(0);
 		} else if (metode.val() == 'K') {
 			let date = moment().add(1, 'days').format('YYYY-MM-DD');
 			$('#penjualan_jatuh_tempo').val(date);
@@ -1701,7 +2027,8 @@
 	}
 
 	function onRental() {
-		loadTableRental();
+		// loadTableRentalLunas();
+		loadTableRentalBelumLunas();
 		$('#modal-rental').modal();
 	}
 
@@ -2451,17 +2778,17 @@
 						// setReset();
 						handlePembayaran();
 						if (cetak.val() == 1) {
-							print = res.responseJSON.tprint;
-							if (print) {
-								$('#printArea').html(print);
+							var response = res;
+							if (response.tprint) {
+								$('#printArea').html(response.tprint);
 								var WinPrint = window.open('', '', 'width=900,height=650');
 								WinPrint.document.write($('#printArea').html());
 								WinPrint.document.close();
 								WinPrint.focus();
 								WinPrint.print();
 								WinPrint.close();
-							} else if (res.responseJSON.print) {
-								var data = res.responseJSON.print;
+							} else if (response.print) {
+								var data = response.print;
 								$('#modal-rental').modal('hide');
 								$('#modal-pdf').modal('show');
 								$('#pdf-laporan object').remove();
@@ -2738,4 +3065,24 @@
 			}
 		});
 	}
+
+	$('#bulan').on('change', function() {
+		if ($('#lunas-tab').hasClass('active')) {
+			// Button dengan ID 'lunas' memiliki class 'active'
+			// Lakukan sesuatu di sini
+			loadTableRentalLunas();
+		} else if ($('#belum-lunas-tab').hasClass('active')) {
+			// Button dengan ID 'lunas' tidak memiliki class 'active'
+			// Lakukan sesuatu yang berbeda di sini
+			loadTableRentalBelumLunas();
+		}
+	});
+
+	$('#lunas-tab').on('click', function() {
+		loadTableRentalLunas();
+	});
+
+	$('#belum-lunas-tab').on('click', function() {
+		loadTableRentalBelumLunas();
+	})
 </script>

@@ -422,7 +422,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			<!--begin::Content-->
 			<!--begin::Aside-->
 			<div class="login-aside order-2 order-lg-1 bgi-no-repeat bgi-position-x-right">
-				<div class="login-conteiner bgi-no-repeat bgi-position-x-right bgi-position-y-bottom" style="background-image: url(<?= base_url('assets/media/svg/illustrations/pajak.png'); ?>); width:100%;">
+				<div class="login-conteiner bgi-no-repeat bgi-position-x-right bgi-position-y-bottom" style="background-image: url(<?= base_url('assets/media/svg/illustrations/login-visual-5.svg'); ?>); width:100%;">
 					<!--begin::Aside title-->
 					<h3 class="pt-lg-30 pl-lg-20 pb-lg-0 pl-10 pt-20 m-0 d-flex justify-content-lg-start font-weight-boldest display5 display1-lg text-white">OPTAX</h3>
 					<h3 class="pl-lg-20 pb-lg-0 pl-10 pr-0 text-white" style="width: 50%;">APLIKASI OPTIMALISASI MONITORING PAJAK</h3>

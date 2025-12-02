@@ -93,6 +93,11 @@ License: You must have a valid license purchased only from themeforest(the above
 			background-color: #0c3f9eff !important;
 			border-color: #0c3f9eff !important;
 		}
+
+		.navi a {
+			display: inline-flex !important;
+			margin-right: 10px;
+		}
 	</style>
 	<link rel="shortcut icon" href="<?= base_url(); ?>/assets/media/icon_title.png" />
 </head>
@@ -280,7 +285,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				</div>
 				<div class="d-flex flex-column">
 					<a href="#" class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary"><?= $this->session->userdata('pegawai_nama') ?></a>
-					<div class="navi mt-2">
+					<div class="navi mt-2 d-flex">
 						<a href="javascript:void(0)" class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5 menu-link" id="btn-Profile" onclick="HELPER.loadPage(this)" data-menu="profile-Table">Edit Profile</a>
 						<a href="<?= base_url('index.php/login/logout') ?>" class="btn btn-sm btn-light-danger font-weight-bolder py-2 px-5">Sign Out</a>
 					</div>

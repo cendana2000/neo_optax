@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS-PTPIS</title>
+    <title>KASIR POS - <?= $this->session->userdata('toko_nama') ?></title>
     <meta name="description" content="No subheader example" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <!--begin::Fonts-->
@@ -354,6 +354,28 @@
             -webkit-transform: rotate(45deg);
             -ms-transform: rotate(45deg);
             transform: rotate(45deg);
+        }
+
+        #modal-rental .modal-header .close {
+            color: #565657ff !important;
+            /* abu tua (ikon terlihat di background putih) */
+            opacity: 1 !important;
+            background: transparent !important;
+            border: none !important;
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            z-index: 10;
+        }
+
+        #modal-rental .modal-header .close:hover {
+            color: #565657ff !important;
+            transform: scale(1.1);
+        }
+
+        #modal-rental .modal-header .close i {
+            font-size: 16px !important;
+            color: inherit !important;
         }
 
         @media only screen and (min-width: 500px) {
@@ -833,7 +855,7 @@
                                             <!-- <input type="text" class="form-control datepickermt" id="penjualan_tanggal" name="penjualan_tanggal" readonly="readonly"> -->
                                         </div>
                                     </div>
-                                    <div class=" form-group row">
+                                    <div class=" form-group row" style="display: none;">
                                         <label for="penjualan_id" class="col-5 col-form-label" style="font-size: var(--label-checkout);">No Transaksi</label>
                                         <div class="col-sm-7  float-left">
                                             <div class="input-group">
@@ -858,7 +880,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class=" form-group row">
+                                    <div class=" form-group row" style="display: none;">
                                         <label for="discount" class="col-5 col-form-label" style="font-size: var(--label-checkout);">Diskon(%)</label>
                                         <div class="col-sm-7  float-left">
                                             <div class="input-group">
@@ -886,7 +908,7 @@
                                         </div>
                                     </div>
                                     <section>
-                                        <div class=" form-group row" id="divBank">
+                                        <div class=" form-group row" id="divBank" style="display: none;">
                                             <label for="discount" class="col-sm-5 col-form-label" style="font-size: var(--label-checkout);">Bank</label>
                                             <div class="col-sm-7  float-left">
                                                 <select name="penjualan_bank" id="penjualan_bank" class="form-control">
@@ -898,13 +920,13 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group row" id="divBayarBank">
+                                        <div class="form-group row" id="divBayarBank" style="display: none;">
                                             <label class="col-5 col-form-label">Bayar Bank</label>
                                             <div class="col-sm-7">
                                                 <input type="text" class="form-control manualNumber" name="penjualan_total_bayar_bank" id="penjualan_total_bayar_bank" value="0" onkeyup="sumBayar()">
                                             </div>
                                         </div>
-                                        <div class="form-group row" id="divBayarTunai">
+                                        <div class="form-group row" id="divBayarTunai" style="display: none;">
                                             <label class="col-5 col-form-label">Bayar Tunai</label>
                                             <div class="col-sm-7">
                                                 <input type="text" class="form-control manualNumber" name="penjualan_total_bayar_tunai" id="penjualan_total_bayar_tunai" value="0" onkeyup="sumBayar()">
@@ -1031,34 +1053,87 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive" style="max-width: 85vw;">
-                        <table class="table table-striped table-checkable table-condensed" id="table-rental">
-                            <thead>
-                                <tr>
-                                    <th style="width:5%;">No.</th>
-                                    <th>Kode</th>
-                                    <th>Tanggal</th>
-                                    <th>Produk</th>
-                                    <th>Customer</th>
-                                    <th>Potongan</th>
-                                    <th>Grand Total</th>
-                                    <th>Platform</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                            <tfoot>
-                                <tr>
-                                    <th style="width:5%;">No.</th>
-                                    <th>Kode</th>
-                                    <th>Tanggal</th>
-                                    <th>Customer</th>
-                                    <th>Potongan</th>
-                                    <th>Grand Total</th>
-                                    <th>Platform</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </tfoot>
-                        </table>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <label style="font-size: 12px;">Bulan :</label>
+                                    <input type="month" class="form-control" name="bulan" id="bulan" value="<?php echo date('Y-m') ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="belum-lunas-tab" data-toggle="tab" data-target="#belum_lunas" type="button" role="tab" aria-controls="profile" aria-selected="false">Belum Lunas</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="lunas-tab" data-toggle="tab" data-target="#lunas" type="button" role="tab" aria-controls="lunas" aria-selected="true">Lunas</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-5" id="myTabContent">
+                            <div class="tab-pane fade show active" id="belum_lunas" role="tabpanel" aria-labelledby="belum-lunas-tab">
+                                <table class="table table-striped table-checkable table-condensed" id="table-rental-belum-lunas">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:5%;">No.</th>
+                                            <th>Kode</th>
+                                            <th>Tanggal</th>
+                                            <th>Produk</th>
+                                            <th>Customer</th>
+                                            <th>Potongan</th>
+                                            <th>Grand Total</th>
+                                            <th>Platform</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th style="width:5%;">No.</th>
+                                            <th>Kode</th>
+                                            <th>Tanggal</th>
+                                            <th>Produk</th>
+                                            <th>Customer</th>
+                                            <th>Potongan</th>
+                                            <th>Grand Total</th>
+                                            <th>Platform</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="lunas" role="tabpanel" aria-labelledby="lunas-tab">
+                                <table class="table table-striped table-checkable table-condensed" id="table-rental-lunas">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:5%;">No.</th>
+                                            <th>Kode</th>
+                                            <th>Tanggal</th>
+                                            <th>Produk</th>
+                                            <th>Customer</th>
+                                            <th>Potongan</th>
+                                            <th>Grand Total</th>
+                                            <th>Platform</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th style="width:5%;">No.</th>
+                                            <th>Kode</th>
+                                            <th>Tanggal</th>
+                                            <th>Produk</th>
+                                            <th>Customer</th>
+                                            <th>Potongan</th>
+                                            <th>Grand Total</th>
+                                            <th>Platform</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
