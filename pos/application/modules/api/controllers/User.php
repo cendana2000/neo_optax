@@ -132,10 +132,14 @@ class User extends Base_Controller
     }
     $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
     $operation = $this->dbmp->update('pos_user', $data, ['pos_user_id' => $data['pos_user_id']]);
-    if ($operation['success'] && $operation['record']) {
+
+    if (!empty($operation['record'])) {
       $this->session->set_userdata($operation['record']);
     }
-    $this->response($operation);
+    return $this->response([
+      'success' => true,
+      'message' => 'Data profile berhasil diupdate',
+    ]);
   }
 
   public function changePassword()
