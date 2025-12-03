@@ -555,49 +555,24 @@
 						<div class="card card-flush h-xl-100">
 							<!--begin::Header-->
 							<div class="card-header pt-7">
-								<!--begin::Title-->
-								<h3 class="card-title align-items-start flex-column">
-									<span class="card-label fw-bold text-gray-900">Activity Users</span>
-									<span class="text-gray-500 mt-1 fw-semibold fs-6">Status online users</span>
-								</h3>
-								<!--end::Title-->
-
-								<!--begin::Toolbar-->
-								<div class="card-toolbar">
-									<a
-										href="#"
-										class="btn btn-sm btn-light">Details</a>
+								<div class="d-flex justify-content-between align-items-center w-100">
+									<h3 class="card-title mb-0">
+										<span class="card-label fw-bold text-gray-900 fs-4">Activity Users</span>
+									</h3>
 								</div>
-								<!--end::Toolbar-->
+								<div>
+									<span class="text-gray-600 fw-semibold fs-6">Status online users</span>
+								</div>
 							</div>
 							<!--end::Header-->
 
 							<!--begin::Body-->
 							<div class="card-body">
 								<!--begin::Scroll-->
-								<div
-									class="hover-scroll-overlay-y pe-6 me-n6"
-									style="height: 415px">
-									<!--begin::Item-->
-
-									<div class="grid-user" id="online-user">
-										<!-- <div class="d-flex flex-stack mb-3">
-											<div class="me-3">
-												<img
-													src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>"
-													class="w-50px ms-n1 me-1"
-													alt="" />
-												<span class="text-gray-500 fw-bold">Nama_WP</span>
-											</div>
-										</div>
-										<div class="d-flex flex-stack">
-											<span class="text-gray-500 fw-bold">Status:
-											</span>
-											<span class="badge badge-light-success">Delivered</span>
-										</div> -->
+								<div class="hover-scroll-overlay-y pe-6 me-n6" style="height: 415px">
+									<div class="hover-scroll-overlay-y-wrapper">
+										<div class="grid-user" id="online-user"></div>
 									</div>
-
-									<!--end::Item-->
 								</div>
 								<!--end::Scroll-->
 							</div>
@@ -622,7 +597,7 @@
 							<!--end::Card header-->
 
 							<!--begin::Card body-->
-							<div class="card-body">
+							<div class="card-body table-responsive">
 								<!--begin::Table-->
 								<table
 									class="table align-middle table-row-dashed fs-6 gy-3"
@@ -633,14 +608,14 @@
 										<tr
 											class="text-start text-gray-500 fw-bold fs-6 gs-0">
 											<th class="min-w-150px">Objek Pajak</th>
-											<th class="min-w-100px">
+											<th style="width:5%;">
 												NPWPD
 											</th>
-											<th class="text-end pe-3 min-w-150px">
+											<th class="text-end pe-3 min-w-100px">
 												DPP
 											</th>
 											<th class="text-end pe-3 min-w-100px">Pajak</th>
-											<th class="text-end pe-3 min-w-100px">Tanggal Transaksi</th>
+											<th class="text-end pe-3 min-w-150px text-nowrap">Tanggal Transaksi</th>
 										</tr>
 										<!--end::Table row-->
 									</thead>

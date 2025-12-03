@@ -75,7 +75,6 @@
 		switchDashboard();
 		// loadUserActiveDashboard();
 		onlineActivityUser();
-		onlineUser();
 	});
 
 	function loadTanggal() {
@@ -183,11 +182,11 @@
 					$.each(res.transaksi_terakhir, function(i, v) {
 						$('#table-transaksi-terakhir tbody').append(`
 						<tr>
-							<td>${v.nama_wp}</td>
+							<td class="text-nowrap">${v.nama_wp}</td>
 							<td>${v.npwpd}</td>
 							<td class="text-end">${$.number(v.sub_total)}</td>
 							<td class="text-end">${$.number(v.jumlah_pajak)}</td>
-							<td class="text-end">${v.tanggal_transaksi}</td>
+							<td class="text-end text-nowrap">${v.tanggal_transaksi}</td>
 						</tr>
 					`);
 					});
@@ -229,7 +228,7 @@
 			})
 
 			statistikNominal.updateSeries([{
-				name: 'Realisasi Pajak',
+				name: 'Pajak Masuk',
 				data: y || []
 			}]);
 		}
@@ -819,7 +818,7 @@
 				if (res.data) {
 					$('#count-online-user-activity').text(`${res.total} Users`);
 					if (page == 0) {
-						$('#online-user-activity').html('');
+						$('#online-user').html('');
 					}
 					$('#load-more-online-activity').remove();
 					res.data.map((item, index) => {
@@ -828,74 +827,34 @@
 						if (item.status_active == 'Inactive') status = 'text-warning';
 						if (item.status_active == 'Offline') status = 'text-danger';
 						if (item.status_active == 'Close') status = 'text-dark';
-						$('#online-user-activity').append(`<div class="card-user">
-							<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" />
-							<span class="nama">${item.toko_nama}</span>
-							<span role="button" class="material-icons status ${status}" data-toggle="tooltip" data-placement="top" title="${item.status_active}">
-								lens
-							</span>
-						</div>`);
-						$('[data-toggle="tooltip"]').tooltip()
-					});
-					if (((page + 1) * res.limit) < res.total) {
-						$('#online-user-activity').append(`<button class="btn btn-secondary" id="load-more-online-activity" onclick="onlineActivityUser(${page + 1})">Load More</button>`)
-					}
-				}
-			}
-		});
-	}
-
-	function onlineUser(page = 0) {
-		HELPER.loadData({
-			url: HELPER.api.onlineActivityUser,
-			server: true,
-			data: {
-				page,
-			},
-			callback: function(res) {
-				// console.log(res);
-				if (res.data) {
-					if (page == 0) {
-						$('#online-user').html('');
-					}
-					$('#load-more-online').remove();
-					res.data.map((item, index) => {
-						let statusClass = "badge-light-dark"; // default abu-abu
-
-						if (item.status_active === 'Active') statusClass = 'badge-light-success';
-						if (item.status_active === 'Inactive') statusClass = 'badge-light-warning';
-						if (item.status_active === 'Offline') statusClass = 'badge-light-danger';
-						if (item.status_active === 'Close') statusClass = 'badge-light-dark';
-
 						$('#online-user').append(`
-							<div class="online-user-item">
-								<div class="d-flex flex-stack mb-3">
-									<div class="me-3">
-										<img
-											src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>"
-											class="w-30px ms-n1 me-1"
-											alt="" />
-										<span class="text-gray-500 fw-bold text-truncate d-inline-block" style="max-width:150px;">
-											${item.toko_nama}
-										</span>
-									</div>
-								</div>				
-								<div class="d-flex flex-stack">
-									<span class="text-gray-500 fw-bold">Status:</span>
-									<span class="badge ${statusClass}">${item.status_active}</span>
-								</div>		
+							<div class="card-user">
+								<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" />
+								<span class="nama">${item.toko_nama}</span>
+
+								<div class="d-flex align-items-center mt-1">
+									<span class="status-dot" style="background:${getColor(status)}"></span>
+									<span class="status-label" style="color:${getColor(status)}">${item.status_active}</span>
+								</div>
 							</div>
 						`);
 						$('[data-toggle="tooltip"]').tooltip()
 					});
 					if (((page + 1) * res.limit) < res.total) {
-						$('#online-user').append(`<button class="btn btn-secondary" id="load-more-online" onclick="onlineUser(${page + 1})">Load More</button>`)
+						$('#online-user').append(`<button class="btn btn-secondary" id="load-more-online-activity" onclick="onlineActivityUser(${page + 1})">Load More</button>`)
 					}
 				}
 			}
 		});
 	}
 
+	function getColor(status) {
+		if (status === 'text-success') return '#17c653';
+		if (status === 'text-warning') return '#f6c000';
+		if (status === 'text-danger') return '#f1416c';
+		if (status === 'text-dark') return '#181c32';
+		return '#888';
+	}
 
 	document.addEventListener("DOMContentLoaded", function() {
 		var options = {

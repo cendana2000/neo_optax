@@ -22,8 +22,8 @@
 * {
   margin: 0px;
   /* max-width: 100%; */
-  scrollbar-color: blue;
-  scrollbar-width: 5px;
+  scrollbar-color: rgb(167, 167, 167);
+  scrollbar-width: 3px;
 }
 
 .header-left {
@@ -216,6 +216,91 @@
 /* --- Kalau pakai KTMenu / Metronic Dropdown --- */
 .dropdown-menu.show {
   z-index: 99999 !important;
+}
+
+.grid-user {
+   display: block;
+}
+
+.card-user, #load-more-online-activity {
+    margin-bottom: 12px;
+}
+
+.card-user {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px dashed #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.card-user img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.card-user .nama {
+    flex-grow: 1;
+    font-weight: 600;
+    color: #181c32;
+    text-transform: uppercase;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.status-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.status-label {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+#load-more-online-activity {
+    width: 100%;
+    border-radius: 10px;
+    padding: 10px;
+    background: #e0e0e0;
+    font-weight: 600;
+}
+
+.hover-scroll-overlay-y {
+    padding-right: 15px !important;
+}
+
+.hover-scroll-overlay-y-wrapper {
+    position: relative;
+    overflow-y: auto; /* wajib */
+    padding-right: 10px;
+}
+
+.hover-scroll-overlay-y {
+    overflow-y: hidden !important;
+}
+
+.hover-scroll-overlay-y-wrapper {
+    max-height: 100% !important;
+    overflow-y: auto !important;
 }
 
 @media only screen and (max-width: 768px) {

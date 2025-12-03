@@ -47,23 +47,44 @@ class Dashboard extends Base_Controller
 			array_push($categories, $dt->format("d M Y"));
 		}
 
-		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
-		FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		GROUP BY realisasi_tanggal::date")->result_array();
-		foreach ($opchartnominal as $key => $val) {
-			$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
-			$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
+		$src1 = $this->db->query("
+			SELECT 
+				SUM(pr.realisasi_pajak) AS total,
+				pr.realisasi_tanggal::date AS tanggal
+			FROM pajak_realisasi pr
+			WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
+			AND pr.realisasi_deleted_at IS NULL
+			GROUP BY pr.realisasi_tanggal::date
+		")->result_array();
+
+		$src2 = $this->db->query("
+			SELECT 
+				SUM(lpw.log_penjualan_wp_total / 11) AS total,
+				lpw.log_penjualan_wp_penjualan_tanggal::date AS tanggal
+			FROM log_penjualan_wp lpw
+			WHERE lpw.log_penjualan_wp_penjualan_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
+			AND lpw.log_penjualan_deleted_at IS NULL
+			GROUP BY lpw.log_penjualan_wp_penjualan_tanggal::date
+		")->result_array();
+
+		$mergeMap = [];
+		foreach ($src1 as $row) {
+			$key = date("d M Y", strtotime($row['tanggal']));
+			if (!isset($mergeMap[$key])) $mergeMap[$key] = 0;
+			$mergeMap[$key] += floatval($row['total']);
+		}
+		foreach ($src2 as $row) {
+			$key = date("d M Y", strtotime($row['tanggal']));
+			if (!isset($mergeMap[$key])) $mergeMap[$key] = 0;
+			$mergeMap[$key] += floatval($row['total']);
 		}
 
-		$opchartupload = $this->db->query("SELECT DISTINCT COUNT(realisasi_wajibpajak_npwpd) AS total_upload, realisasi_tanggal::date 
-		FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		GROUP BY realisasi_tanggal::date")->result_array();
-		foreach ($opchartupload as $key => $val) {
-			$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
-			$data['chart_upload_pajak'][$opdate] = (object) array('total_upload' => $val['total_upload'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
+		foreach ($categories as $i => $cat) {
+			if (isset($mergeMap[$cat])) {
+				$data['chart_nominal_pajak'][$i]->total_pajak_masuk = $mergeMap[$cat];
+			}
 		}
 
-		// TOTAL ALL
 		$query_total = $this->db->query("
 			SELECT 
 				COALESCE((
@@ -79,9 +100,45 @@ class Dashboard extends Base_Controller
 					WHERE lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
 					AND lpw.log_penjualan_deleted_at IS NULL
 				), 0)
-			AS total_pajak_masuk
+				AS total_pajak_masuk
 		")->row_array();
 		$data['total_pajak_masuk'] = $query_total['total_pajak_masuk'];
+
+		// $opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
+		// FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
+		// GROUP BY realisasi_tanggal::date")->result_array();
+		// foreach ($opchartnominal as $key => $val) {
+		// 	$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
+		// 	$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
+		// }
+
+		// $opchartupload = $this->db->query("SELECT DISTINCT COUNT(realisasi_wajibpajak_npwpd) AS total_upload, realisasi_tanggal::date 
+		// FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
+		// GROUP BY realisasi_tanggal::date")->result_array();
+		// foreach ($opchartupload as $key => $val) {
+		// 	$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
+		// 	$data['chart_upload_pajak'][$opdate] = (object) array('total_upload' => $val['total_upload'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
+		// }
+
+		// TOTAL ALL
+		// $query_total = $this->db->query("
+		// 	SELECT 
+		// 		COALESCE((
+		// 			SELECT SUM(pr.realisasi_pajak)
+		// 			FROM pajak_realisasi pr
+		// 			WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
+		// 			AND pr.realisasi_deleted_at IS NULL
+		// 		), 0)
+		// 		+
+		// 		COALESCE((
+		// 			SELECT SUM(lpw.log_penjualan_wp_total / 11)
+		// 			FROM log_penjualan_wp lpw
+		// 			WHERE lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
+		// 			AND lpw.log_penjualan_deleted_at IS NULL
+		// 		), 0)
+		// 	AS total_pajak_masuk
+		// ")->row_array();
+		// $data['total_pajak_masuk'] = $query_total['total_pajak_masuk'];
 
 		// TOTAL RESTO
 		$query_resto = $this->db->query("

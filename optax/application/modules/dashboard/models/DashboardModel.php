@@ -154,12 +154,12 @@ class DashboardModel extends Base_Model
 				left join pajak_wajibpajak pw2 on
 					pw2.wajibpajak_npwpd = hasil.npwpd
 				where
-					pw2.wajibpajak_status = '2'
-					and hasil.jumlah_pajak > 0
-					and hasil.npwpd <> '0437.63.102'
+					hasil.jumlah_pajak > 0
+					-- and pw2.wajibpajak_status = '2'
+					-- and hasil.npwpd <> '0437.63.102'
 				order by
 					hasil.tanggal_transaksi desc
-				limit 6 offset 0;";
+				limit 10 offset 0;";
 		return $this->db->query($sql)->result_array();
 	}
 }
