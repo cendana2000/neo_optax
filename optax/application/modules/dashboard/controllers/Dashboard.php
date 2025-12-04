@@ -308,7 +308,7 @@ class Dashboard extends Base_Controller
 		$data['toko_baru'] = $this->db->query("SELECT wajibpajak_nama_penanggungjawab, wajibpajak_nama FROM pajak_wajibpajak
 		WHERE wajibpajak_status = '2'
 		ORDER BY wajibpajak_created_at DESC
-		LIMIT 12")->result_array();
+		LIMIT 6")->result_array();
 
 		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir();
 

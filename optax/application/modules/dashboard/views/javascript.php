@@ -91,7 +91,10 @@
 		$("#bulan").parent().addClass("d-none");
 	}
 
+	let tokoBaruRendered = false;
+
 	function loadTable(type = "tanggal") {
+		tokoBaruRendered = false;
 		var awaltanggal = $("#awal_tanggal").val();
 		var akhirtanggal = $("#akhir_tanggal").val();
 		var bulan = $("#bulan").val();
@@ -146,14 +149,10 @@
 					`);
 				});
 
-				$.each(res.toko_baru, function(i, v) {
-					$('#toko_baru').append(`
-						<div class="item-tempat-usaha">
-							<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" style="width: 50px; border-radius: 999px; background-color: #003A97; padding: 7px; margin-right: 10px"; />
-							<span class="font-weight-bold text-dark ml-2">${v.wajibpajak_nama}</span>
-						</div>
-					`);
-				});
+				if (!tokoBaruRendered) {
+					renderTokoBaru(res.toko_baru);
+					tokoBaruRendered = true;
+				}
 
 				$.each(res.toko_baru_total, function(i, v) {
 					$('#toko_baru_total').append(`
@@ -177,7 +176,6 @@
 					`);
 				});
 
-				// ✅ render tabel transaksi terakhir
 				if (res.transaksi_terakhir && res.transaksi_terakhir.length > 0) {
 					$.each(res.transaksi_terakhir, function(i, v) {
 						$('#table-transaksi-terakhir tbody').append(`
@@ -207,6 +205,20 @@
 				$("#spinner-statistik-total").addClass('d-none');
 			}
 		})
+	}
+
+	function renderTokoBaru(data) {
+		$("#toko_baru").empty();
+		$.each(data, function(i, v) {
+			$('#toko_baru').append(`
+            <div
+				class="symbol symbol-35px symbol-circle toko_icon"
+				data-bs-toggle="tooltip"
+				title="${v.wajibpajak_nama}">
+				<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" style="style= width: 10px; border-radius: 999px; background-color: #003A97;" ; />
+			</div>
+        `);
+		});
 	}
 
 	function initChartTotalNominal(data) {

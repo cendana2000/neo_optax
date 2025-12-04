@@ -303,6 +303,43 @@
     overflow-y: auto !important;
 }
 
+.card-number {
+    font-size: clamp(1.8rem, 2vw, 3.2rem);
+    line-height: 1.1;
+    font-weight: 600;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.card-number-small {
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 600;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    text-align: right;
+}
+
+.number-row {
+    width: 100%;
+    justify-content: space-between;
+}
+
+#toko_baru {
+    display: flex;
+    flex-wrap: wrap;          /* memungkinkan turun ke baris baru */
+    gap: 6px;                 /* jarak antar ikon */
+    max-width: 100%;          /* tidak boleh keluar card */
+    overflow: hidden;         /* cegah overflow */
+}
+
+.toko_icon img {
+    width: clamp(40px, 3vw, 55px);   /* responsif, mengecil saat zoom out */
+    height: auto;
+}
+
+
 @media only screen and (max-width: 768px) {
   ::-webkit-scrollbar {
     width: 4px;
