@@ -584,12 +584,6 @@ class Transaksiwp extends Base_Controller
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
 
-		// if (empty($data['filterBulan'])) {
-		// 	$masapajak = 'All';
-		// } else {
-		// 	$bulan = explode('-', $data['filterBulan']);
-		// 	$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		// }
 		try {
 			$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$sheet = $spreadsheet->getActiveSheet();
@@ -784,6 +778,9 @@ class Transaksiwp extends Base_Controller
 
 			// Save the new .xlsx file
 			$filename = 'transaksiwp-' . $codestore . '-' . date('d-m-y-H:i:s') . '.xlsx';
+			if (!file_exists(FCPATH . 'assets/laporan/wajibpajak/')) {
+				mkdir(FCPATH . 'assets/laporan/wajibpajak/', 0777, true);
+			}
 			$file = FCPATH . 'assets/laporan/wajibpajak/' . $filename;
 			$writer->save($file);
 
@@ -916,7 +913,7 @@ class Transaksiwp extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>

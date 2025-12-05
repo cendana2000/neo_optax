@@ -7,9 +7,10 @@ class LogoapiModel extends Base_Model
     {
         $model = array(
             'table' => array(
-                'name' => 'v_log_oapi_v2',
+                'name' => 'v_log_oapi_v3',
                 'primary' => 'toko_wajibpajak_id',
                 'fields' => array(
+                    array('name' => 'realisasi_id', 'view' => true),
                     array('name' => 'toko_wajibpajak_id', 'view' => true),
                     array('name' => 'realisasi_no', 'view' => true),
                     array('name' => 'realisasi_wajibpajak_npwpd', 'view' => true),
@@ -21,12 +22,14 @@ class LogoapiModel extends Base_Model
                     array('name' => 'realisasi_created_at', 'view' => true),
                     array('name' => 'toko_kode', 'view' => true),
                     array('name' => 'realisasi_tanggal', 'view' => true),
+                    array('name' => 'wajibpajak_alamat', 'view' => true),
                 )
             ),
             'view' => array(
-                'name' => 'v_log_oapi_v2',
+                'name' => 'v_log_oapi_v3',
                 'mode' => array(
                     'table' => array(
+                        'realisasi_id',
                         'toko_wajibpajak_id',
                         'toko_kode',
                         'toko_nama',
@@ -38,34 +41,13 @@ class LogoapiModel extends Base_Model
                         'realisasi_pajak',
                         'realisasi_total',
                         'realisasi_created_at',
+                        'wajibpajak_alamat',
                     ),
                 )
             )
         );
         parent::__construct($model);
         //Do your magic here
-    }
-
-    public function deleteTransaksi($data)
-    {
-        $this->dbpos = $this->load->database(multidb_connect($data['code_store']), true);
-
-        $this->dbpos->where('penjualan_id', $data['penjualan_id']);
-        $this->dbpos->where('penjualan_lock', null);
-        $this->dbpos->delete('pos_penjualan');
-
-        if ($this->dbpos->affected_rows() > 0) {
-            $this->db->delete('log_penjualan_wp', array('log_penjualan_wp_penjualan_id' => $data['penjualan_id']));
-            return [
-                'success' => true,
-                'message' => 'Data berhasil dihapus'
-            ];
-        } {
-            return [
-                'success' => false,
-                'message' => 'Data penjualan sudah melakukan upload pajak'
-            ];
-        }
     }
 }
 

@@ -25,7 +25,10 @@ class Realisasipajak extends Base_Controller
 			$where = [
 				'realisasi_parent_wajibpajak_status' => '2',
 			];
-print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
+			print_r('<pre>');
+			print_r('eherere');
+			print_r('</pre>');
+			exit;
 			return $this->response(
 				$this->select_dt(varPost(), 'realisasiparent', 'table', true, $where)
 			);
@@ -34,7 +37,10 @@ print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
 				'realisasi_parent_wajibpajak_status' => '2',
 				'realisasi_parent_tanggal' => $data['filterBulan']
 			];
-print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
+			print_r('<pre>');
+			print_r('eherere');
+			print_r('</pre>');
+			exit;
 			return $this->response(
 				$this->select_dt(varPost(), 'realisasiparentfilter', 'table', true, $where)
 			);
@@ -741,7 +747,7 @@ print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -945,7 +951,7 @@ print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -1154,7 +1160,7 @@ print_r('<pre>');print_r('eherere');print_r('</pre>');exit;
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>

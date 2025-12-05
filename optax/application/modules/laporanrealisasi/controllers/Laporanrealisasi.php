@@ -146,7 +146,7 @@ class Laporanrealisasi extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 					<p><u>---- ------- ----</u></p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
@@ -357,7 +357,7 @@ class Laporanrealisasi extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 					<p><u>---- ------- ----</u></p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>

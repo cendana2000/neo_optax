@@ -1,22 +1,23 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Laporantoko extends Base_Controller {
-  public function __construct()
-  {
-    parent::__construct();
-    $this->load->model(array(
-      'wajibpajak/WajibpajakModel'  => 'wajibpajak',
-      'toko/TokoModel'              => 'toko',
-      'transaksipembelian/TransaksipembelianModel' => 'transaksipembelian',
+class Laporantoko extends Base_Controller
+{
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model(array(
+			'wajibpajak/WajibpajakModel'  => 'wajibpajak',
+			'toko/TokoModel'              => 'toko',
+			'transaksipembelian/TransaksipembelianModel' => 'transaksipembelian',
 			'transaksipembelian/TransaksipembeliandetailModel' => 'transaksipembeliandetail',
 			'supplier/SupplierModel' => 'supplier'
-    ));
-  }
+		));
+	}
 
-  public function index()
-  {
-    $where['toko_status = \'2\''] = null;
+	public function index()
+	{
+		$where['toko_status = \'2\''] = null;
 		$this->select_dt(varPost(), 'toko', 'table', true, $where);
 
 		$res = $this->toko->select([
@@ -24,20 +25,21 @@ class Laporantoko extends Base_Controller {
 				'toko_status' => '2',
 			],
 		]);
-    $this->response(
+		$this->response(
 			$res
-    );
-  }
-
-	public function gettoko_ajax(){
-    $data = varPost();
-    $return = $this->toko->select(array(
-      'custom_fields' => 'toko_id as id, toko_nama as text'
-    ))['data'];
-    $this->response(array('items' => $return, 'total_count' => count($return)));
+		);
 	}
 
-  public function header($txt, $hal)
+	public function gettoko_ajax()
+	{
+		$data = varPost();
+		$return = $this->toko->select(array(
+			'custom_fields' => 'toko_id as id, toko_nama as text'
+		))['data'];
+		$this->response(array('items' => $return, 'total_count' => count($return)));
+	}
+
+	public function header($txt, $hal)
 	{
 		return '
 		<table>
@@ -153,7 +155,7 @@ class Laporantoko extends Base_Controller {
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 					<p><u>---- ------- ----</u></p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
@@ -184,11 +186,11 @@ class Laporantoko extends Base_Controller {
 			</tr>';
 		$wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak ORDER BY jenis_nama")->result_array();
 
-    $opr = $this->toko->select([
-      'filters_static' => [
-        'toko_status' => '2',
-      ],
-    ])['data'];
+		$opr = $this->toko->select([
+			'filters_static' => [
+				'toko_status' => '2',
+			],
+		])['data'];
 
 		$no = 1;
 		foreach ($opr as $key => $value) {
@@ -381,8 +383,8 @@ class Laporantoko extends Base_Controller {
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'LaporanTempatUsaha-'.$data_tk['toko_wajibpajak_npwpd'].'-' . $data_tk['toko_nama'],
-			'title'         => 'Laporan Tempat Usaha - '.$data_tk['toko_wajibpajak_npwpd'].' - '.$data_tk['toko_nama'],
+			'file_name'     => 'LaporanTempatUsaha-' . $data_tk['toko_wajibpajak_npwpd'] . '-' . $data_tk['toko_nama'],
+			'title'         => 'Laporan Tempat Usaha - ' . $data_tk['toko_wajibpajak_npwpd'] . ' - ' . $data_tk['toko_nama'],
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -489,23 +491,23 @@ class Laporantoko extends Base_Controller {
 			$no = 2;
 			foreach ($ops as $key => $value) {
 				foreach ($value as $vkey => $vvalue) {
-						if (is_null($vvalue)) {
-								$value[$vkey] = "-";
-						}
+					if (is_null($vvalue)) {
+						$value[$vkey] = "-";
+					}
 				}
 				$no += 1;
-				$sheet->setCellValue('A'.$no, $key+1);
-				$sheet->setCellValue('B'.$no, $value['wajibpajak_npwpd']);
-				$sheet->setCellValue('C'.$no, $value['realisasitoko_nama_parent_nama']);
-				$sheet->setCellValue('D'.$no, $value['jenis_nama']);
-				$sheet->setCellValue('E'.$no, $value['wajibpajak_alamat']);
-				$sheet->setCellValue('F'.$no, $value['wajibpajak_nama_penanggungjawab']);
-				$sheet->setCellValue('G'.$no, $value['wajibpajak_telp']);
-				$sheet->setCellValue('H'.$no, $value['wajibpajak_email']);
-				$sheet->setCellValue('I'.$no, $value['toko_kode']);
-				$sheet->setCellValue('J'.$no, $value['toko_registered_at']);
+				$sheet->setCellValue('A' . $no, $key + 1);
+				$sheet->setCellValue('B' . $no, $value['wajibpajak_npwpd']);
+				$sheet->setCellValue('C' . $no, $value['realisasitoko_nama_parent_nama']);
+				$sheet->setCellValue('D' . $no, $value['jenis_nama']);
+				$sheet->setCellValue('E' . $no, $value['wajibpajak_alamat']);
+				$sheet->setCellValue('F' . $no, $value['wajibpajak_nama_penanggungjawab']);
+				$sheet->setCellValue('G' . $no, $value['wajibpajak_telp']);
+				$sheet->setCellValue('H' . $no, $value['wajibpajak_email']);
+				$sheet->setCellValue('I' . $no, $value['toko_kode']);
+				$sheet->setCellValue('J' . $no, $value['toko_registered_at']);
 			}
-			$sheet->getStyle('A7:J'.$no)->applyFromArray($styleArray);
+			$sheet->getStyle('A7:J' . $no)->applyFromArray($styleArray);
 
 			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
@@ -514,7 +516,7 @@ class Laporantoko extends Base_Controller {
 			$filename = 'laporantempatusaha-' . date('d-m-y_H:i:s') . '.xlsx';
 			if (!file_exists(FCPATH . 'assets/laporan/tempat_usaha/')) {
 				mkdir(FCPATH . 'assets/laporan/tempat_usaha/', 0777, true);
-			}		
+			}
 			$file = FCPATH . 'assets/laporan/tempat_usaha/' . $filename;
 			$writer->save($file);
 
@@ -523,7 +525,10 @@ class Laporantoko extends Base_Controller {
 				'file' => $filename
 			]);
 		} catch (\Throwable $th) {
-			print_r('<pre>');print_r($th);print_r('</pre>');exit;
+			print_r('<pre>');
+			print_r($th);
+			print_r('</pre>');
+			exit;
 			$this->response([
 				'success' => false,
 				'message' => $th

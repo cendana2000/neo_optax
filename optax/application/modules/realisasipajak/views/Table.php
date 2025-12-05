@@ -6,7 +6,7 @@
                     <span class="card-icon">
                         <i class="fas fa-table text-primary"></i>
                     </span>
-                    <h3 class="card-label">DATA REALISASI PAJAK</h3>
+                    <h3 class="card-label">DATA REKAP PAJAK</h3>
                 </div>
                 <div class="card-toolbar">
                     <div class="mr-3 pb-3 pb-lg-0">
@@ -18,7 +18,6 @@
                     <div class="btn-group">
                         <button class="btn btn-success btn-sm" onclick="getSpreadsheetRealisasi()"><i class="far fa-file-excel"></i> Excel</button>
                         <button class="btn btn-danger btn-sm" onclick="getPdfRealisasi()"><i class="far fa-file-pdf"></i> PDF</button>
-                        <!-- <button class="btn btn-warning btn-sm" onclick="onRefresh()"><i class="flaticon-refresh"></i> Muat Ulang</button> -->
                     </div>
                 </div>
             </div>
@@ -31,14 +30,6 @@
                         <h5 id="wp_terdaftar">-</h5>
                     </div>
                 </div>
-                <!-- <div class="row">
-                    <div class="col-sm-3">
-                        <h5>Jumlah WP Terkoneksi</h5>
-                    </div>
-                    <div class="col-sm-5">
-                        <h5 id="wp_terkoneksi">-</h5>
-                    </div>
-                </div> -->
                 <div class="table-responsive">
                     <table class="table table-head-custom table-head-bg table-striped table-checkable table-condensed table-hover" id="table-realisasi">
                         <thead>
@@ -47,7 +38,6 @@
                                 <th>NPWPD</th>
                                 <th>Nama NPWPD</th>
                                 <th>Tanggal Transaksi</th>
-                                <!-- <th>Jml Transaksi/Periode</th> -->
                                 <th>Sub Total</th>
                                 <th>Pajak</th>
                                 <th>Total</th>
@@ -63,7 +53,6 @@
                                 <th>NPWPD</th>
                                 <th>Nama NPWPD</th>
                                 <th>Transaksi Terakhir</th>
-                                <!-- <th>Jml Transaksi/Periode</th> -->
                                 <th>Sub Total</th>
                                 <th>Pajak</th>
                                 <th>Total</th>

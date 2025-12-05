@@ -859,7 +859,7 @@ class Postingpajak extends Base_Controller
 		<table style="width:100%;">						
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>

@@ -60,14 +60,6 @@
 				[2, 'desc']
 			],
 			columnDefs: [{
-					// 	targets: 1,
-					// 	render: function(data, type, full, meta) {
-					// 		var {
-					// 			wajibpajak
-					// 		} = meta.settings.json;
-					// 		return wajibpajak.toko_kode;
-					// 	},
-					// },
 					targets: 1,
 					render: function(data, type, full, meta) {
 						var {
@@ -79,10 +71,6 @@
 				{
 					targets: 2,
 					render: function(data, type, full, meta) {
-						// var {
-						// 	wajibpajak
-						// } = meta.settings.json;
-						// return wajibpajak.wajibpajak_npwpd;
 						return moment(full['penjualan_tanggal']).format('DD-MM-YYYY');
 					},
 				},
@@ -93,18 +81,6 @@
 						return timestamp;
 					},
 				},
-				// {
-				// 	targets: 4,
-				// 	render: function(data, type, full, meta) {
-				// 		return 'Rp. ' + $.number(full['penjualan_total_grand'] - (full['penjualan_total_grand'] / 11));
-				// 	},
-				// },
-				// {
-				// 	targets: 5,
-				// 	render: function(data, type, full, meta) {
-				// 		return 'Rp. ' + $.number(full['penjualan_total_grand'] / 11);
-				// 	},
-				// },
 				{
 					targets: 4,
 					render: function(data, type, full, meta) {
@@ -150,7 +126,7 @@
 							}
 						} = meta.settings.json;
 						return `
-								<button type="button" class="btn btn-info btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['penjualan_id']}', '${toko_kode}')">
+								<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['penjualan_id']}', '${toko_kode}')">
 									<span>
 										<i class="fas fa-file-invoice"></i>										
 									</span>
@@ -176,122 +152,6 @@
 			}
 		});
 	}
-
-	// backup untuk menu baru
-	// function loadTable() {
-	// 	let data = {};
-
-	// 	// if (filterBulan != null) {
-	// 	// 	data.filterBulan = filterBulan
-	// 	// }
-
-	// 	HELPER.initTable({
-	// 		el: "table-listwp",
-	// 		url: HELPER.api.index,
-	// 		data: data,
-	// 		searchAble: true,
-	// 		destroyAble: true,
-	// 		responsive: false,
-	// 		order: [
-	// 			[2, 'desc']
-	// 		],
-	// 		columnDefs: [{
-	// 				targets: 1,
-	// 				render: function(data, type, full, meta) {
-	// 					var {
-	// 						wajibpajak
-	// 					} = meta.settings.json;
-	// 					return wajibpajak.toko_wajibpajak_npwpd;
-	// 				},
-	// 			},
-	// 			{
-	// 				targets: 2,
-	// 				render: function(data, type, full, meta) {
-	// 					var {
-	// 						wajibpajak
-	// 					} = meta.settings.json;
-	// 					return wajibpajak.toko_nama;
-	// 					// return moment(full['penjualan_tanggal']).format('DD-MM-YYYY');
-	// 				},
-	// 			},
-	// 			{
-	// 				targets: 3,
-	// 				render: function(data, type, full, meta) {
-	// 					var timestamp = full['log_penjualan_wp_penjualan_tanggal'].substring(20, 11);
-	// 					return timestamp;
-	// 				},
-	// 			},
-	// 			{
-	// 				targets: 4,
-	// 				render: function(data, type, full, meta) {
-	// 					return 'Rp. ' + $.number(full['log_penjualan_wp_total']);
-	// 				},
-	// 			},
-	// 			{
-	// 				targets: 5,
-	// 				render: function(data, type, full, meta) {
-	// 					return moment(full['log_penjualan_wp_penjualan_tanggal']).format('DD-MM-YYYY');
-	// 				},
-	// 			},
-	// 			// {
-	// 			// 	targets: 6,
-	// 			// 	render: function(data, type, full, meta) {
-	// 			// 		let html = '';
-	// 			// 		let mstatus = {
-	// 			// 			aktif: '<span class="label label-inline label-success mr-2">Aktif</span>',
-	// 			// 			batal: '<span class="label label-inline label-warning mr-2">Batal</span>',
-	// 			// 			posting: '<span class="label label-inline label-info mr-2">Sudah Lapor Pajak</span>',
-	// 			// 			retur: '<span class="label label-inline label-danger mr-2">Retur</span>',
-	// 			// 		}
-	// 			// 		if (full['penjualan_status_aktif']) {
-	// 			// 			html += mstatus.batal
-	// 			// 		} else {
-	// 			// 			html += mstatus.aktif
-	// 			// 		}
-	// 			// 		if (full['penjualan_total_retur'] != null) {
-	// 			// 			html += mstatus.retur
-	// 			// 		}
-	// 			// 		if (full['penjualan_lock'] == '1') {
-	// 			// 			html += mstatus.posting
-	// 			// 		}
-	// 			// 		return html;
-	// 			// 	},
-	// 			// },
-	// 			// {
-	// 			// 	targets: -1,
-	// 			// 	render: function(data, type, full, meta) {
-	// 			// 		var {
-	// 			// 			wajibpajak: {
-	// 			// 				toko_kode
-	// 			// 			}
-	// 			// 		} = meta.settings.json;
-	// 			// 		return `
-	// 			// 				<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['penjualan_id']}', '${toko_kode}')">
-	// 			// 					<span>
-	// 			// 						<i class="fas fa-file-invoice"></i>										
-	// 			// 					</span>
-	// 			// 				</button>
-
-	// 			// 				<button type="button" class="btn btn-danger btn-sm btn-elevate" id="btn-prosess" onclick="onDeleteTransaksi('${full['penjualan_id']}', '${toko_kode}')">
-	// 			// 					<span>
-	// 			// 						<i class="fas fa-trash"></i>										
-	// 			// 					</span>
-	// 			// 				</button>
-	// 			// 		`;
-	// 			// 	},
-	// 			// },
-	// 		],
-	// 		// fnDrawCallback: function(settings) {
-	// 		// 	var {
-	// 		// 		sumtotal: {
-	// 		// 			total_nominal_penjualan = 0,
-	// 		// 		}
-	// 		// 	} = settings.json;
-
-	// 		// 	$('#transaksiwp_total_nominal_penjualan').text(`Rp. ${$.number(total_nominal_penjualan)}`);
-	// 		// }
-	// 	});
-	// }	
 
 	function onChangeToko(el) {
 		var val = $(el).val();

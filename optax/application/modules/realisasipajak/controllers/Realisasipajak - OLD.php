@@ -58,9 +58,9 @@ class Realisasipajak extends Base_Controller
 		sum(realisasi_pajak) as total_pajak,
 		sum(realisasi_sub_total) as total_subtotal,
 		sum(realisasi_total) as total_total,")
-		->where($where)
-		->get('pajak_realisasi')
-		->row();
+			->where($where)
+			->get('pajak_realisasi')
+			->row();
 		$opr['sumtotal'] = $get_total;
 		$this->response(
 			$opr
@@ -97,16 +97,16 @@ class Realisasipajak extends Base_Controller
 		$where['realisasi_detail_parent'] = varPost('realisasi_id');
 		$opr = $this->select_dt(varPost(), 'realisasidetail', 'datatable', true, $where);
 		$get_total = $this->db
-		->select("sum(realisasi_detail_jasa) as total_jasa,
+			->select("sum(realisasi_detail_jasa) as total_jasa,
 		sum(realisasi_detail_pajak) as total_pajak,
 		sum(realisasi_detail_sub_total) as total_subtotal,
 		sum(realisasi_detail_total) as total_total,")
-		->where($where)
-		->get('pajak_realisasi_detail')
-		->row();
+			->where($where)
+			->get('pajak_realisasi_detail')
+			->row();
 		$opr['sumtotal'] = $get_total;
 		$this->response(
-			$opr	
+			$opr
 		);
 	}
 
@@ -739,7 +739,7 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -943,7 +943,7 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -1152,7 +1152,7 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -1277,7 +1277,8 @@ class Realisasipajak extends Base_Controller
 			</tr>';
 	}
 
-	function edit_sub_periode(){
+	function edit_sub_periode()
+	{
 		$data = varPost();
 		$id = $data['modal-realisasi_id'];
 		$wajibpajak_npwpd = $data['modal-wajibpajak_npwpd'];
@@ -1299,7 +1300,7 @@ class Realisasipajak extends Base_Controller
 
 		$realisasi_id = $id;
 
-		$del_realisasi_detail = $this->db->where('realisasi_detail_parent = \''.$realisasi_id.'\'')->delete('pajak_realisasi_detail');
+		$del_realisasi_detail = $this->db->where('realisasi_detail_parent = \'' . $realisasi_id . '\'')->delete('pajak_realisasi_detail');
 
 		foreach ($data['time'] as $key => $value) {
 			$kode = $data['receiptno'][$key];
@@ -1326,15 +1327,15 @@ class Realisasipajak extends Base_Controller
 		// die(json_encode($batch));
 		$ops = $this->db->insert_batch('pajak_realisasi_detail', $batch);
 
-		$ops = $this->db->where('realisasi_id = \''.$realisasi_id.'\'')
-		->update('pajak_realisasi', [
-			'realisasi_sub_total' => $sum_subtotal,
-			'realisasi_jasa' => $sum_service,
-			'realisasi_pajak' => $sum_tax,
-			'realisasi_total' => $sum_total,
-		]);
+		$ops = $this->db->where('realisasi_id = \'' . $realisasi_id . '\'')
+			->update('pajak_realisasi', [
+				'realisasi_sub_total' => $sum_subtotal,
+				'realisasi_jasa' => $sum_service,
+				'realisasi_pajak' => $sum_tax,
+				'realisasi_total' => $sum_total,
+			]);
 
-		if($ops === FALSE){
+		if ($ops === FALSE) {
 			return $this->response([
 				'success' => false,
 				'message' => 'Gagal menyimpan periode realisasi'
@@ -1347,15 +1348,16 @@ class Realisasipajak extends Base_Controller
 		]);
 	}
 
-	function delete_sub_periode(){
+	function delete_sub_periode()
+	{
 		$data = varPost();
 		$id = $data['realisasi_id'];
 
 		$ops = $this->db->query("UPDATE pajak_realisasi
-		SET realisasi_deleted_at='".date('Y-m-d H:i:s')."'
-		WHERE realisasi_id='".$id."';");
+		SET realisasi_deleted_at='" . date('Y-m-d H:i:s') . "'
+		WHERE realisasi_id='" . $id . "';");
 
-		if($ops === FALSE){
+		if ($ops === FALSE) {
 			return $this->response([
 				'success' => false,
 				'message' => 'Gagal menghapus periode realisasi'

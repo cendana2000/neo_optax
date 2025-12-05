@@ -23,29 +23,29 @@ class Transaksiwp extends Base_Controller
 		$periodearr = explode(' - ', $periode);
 		$enddate = date('Y-m-d');
 		$startdate = date('Y-m-d');
-		if(is_array($periodearr) && count($periodearr) > 1){
+		if (is_array($periodearr) && count($periodearr) > 1) {
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
 
-    $this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'].$codestore), true);
+		$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 		// $where['log_penjualan_code_store'] = $codestore;
-		$where['penjualan_tanggal >= \''.$startdate.'\' AND penjualan_tanggal <= \''.$enddate.'\''] = null;
-		$opr = $this->select_dt(varPost(), 'transaksiwppos', 'table', false, $where, null, $_ENV['PREFIX_DBPOS'].$codestore);
+		$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
+		$opr = $this->select_dt(varPost(), 'transaksiwppos', 'table', false, $where, null, $_ENV['PREFIX_DBPOS'] . $codestore);
 		$get_total = $this->dbpos
-		->select("sum(penjualan_total_grand) as total_nominal_penjualan")
-		->where($where)
-		->get('pos_penjualan')
-		->row();
+			->select("sum(penjualan_total_grand) as total_nominal_penjualan")
+			->where($where)
+			->get('pos_penjualan')
+			->row();
 		$opr['sumtotal'] = $get_total;
 		$wp = $this->db
-		->select('wajibpajak_nama_penanggungjawab, 
+			->select('wajibpajak_nama_penanggungjawab, 
 		wajibpajak_npwpd, 
 		toko_kode,
 		toko_nama')
-		->get_where('v_pajak_toko', [
-			'toko_kode' => $codestore,
-		])->row();
+			->get_where('v_pajak_toko', [
+				'toko_kode' => $codestore,
+			])->row();
 		$opr['wajibpajak'] = $wp;
 		$this->response(
 			$opr
@@ -516,17 +516,17 @@ class Transaksiwp extends Base_Controller
 	public function spreadsheet()
 	{
 		$data = varPost();
-		
+
 		$codestore = $data['log_penjualan_code_store'];
 		$periode = $data['periode'];
 		$periodearr = explode(' - ', $periode);
 		$enddate = date('Y-m-d');
 		$startdate = date('Y-m-d');
-		if(is_array($periodearr) && count($periodearr) > 1){
+		if (is_array($periodearr) && count($periodearr) > 1) {
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
-		
+
 		// if (empty($data['filterBulan'])) {
 		// 	$masapajak = 'All';
 		// } else {
@@ -580,7 +580,7 @@ class Transaksiwp extends Base_Controller
 				],
 			];
 
-			$namatoko = $this->db->query("SELECT toko_nama from pajak_toko  where toko_kode  = '".$codestore."'")->row_array()['toko_nama'];
+			$namatoko = $this->db->query("SELECT toko_nama from pajak_toko  where toko_kode  = '" . $codestore . "'")->row_array()['toko_nama'];
 			$sheet->mergeCells('D3:G3');
 			$sheet->mergeCells('D4:G4');
 			$sheet->mergeCells('D5:G5');
@@ -636,23 +636,23 @@ class Transaksiwp extends Base_Controller
 					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
 				],
 			];
-			$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'].$codestore), true);
+			$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 			$where = [];
 			// $where['log_penjualan_code_store'] = $codestore;
-			$where['penjualan_tanggal >= \''.$startdate.'\' AND penjualan_tanggal <= \''.$enddate.'\''] = null;
+			$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
 			$ops = $this->dbpos->select("*")
-			->where($where)
-			->order_by('penjualan_tanggal desc')
-			->get('pos_penjualan')
-			->result_array();
+				->where($where)
+				->order_by('penjualan_tanggal desc')
+				->get('pos_penjualan')
+				->result_array();
 			$wp = $this->db
-			->select('wajibpajak_nama_penanggungjawab, 
+				->select('wajibpajak_nama_penanggungjawab, 
 			wajibpajak_npwpd, 
 			toko_kode,
 			toko_nama')
-			->get_where('v_pajak_toko', [
-				'toko_kode' => $codestore,
-			])->row_array();
+				->get_where('v_pajak_toko', [
+					'toko_kode' => $codestore,
+				])->row_array();
 			$no = 7;
 			foreach ($ops as $key => $value) {
 				foreach ($value as $vkey => $vvalue) {
@@ -662,14 +662,14 @@ class Transaksiwp extends Base_Controller
 				}
 				$status = '';
 				$statuslapor = '';
-				if($value['penjualan_status_aktif'] != '-'){
+				if ($value['penjualan_status_aktif'] != '-') {
 					$status = 'Batal';
-				}else{
+				} else {
 					$status = 'Aktif';
 				}
-				if($value['penjualan_lock'] == '1'){
+				if ($value['penjualan_lock'] == '1') {
 					$statuslapor = 'Sudah';
-				}else{
+				} else {
 					$statuslapor = 'Belum';
 				}
 
@@ -679,7 +679,7 @@ class Transaksiwp extends Base_Controller
 				$sheet->setCellValue('C' . $no, $wp['toko_nama']);
 				$sheet->setCellValue('D' . $no, $wp['wajibpajak_npwpd']);
 				$sheet->setCellValue('E' . $no, $value['penjualan_tanggal']);
-				$sheet->setCellValue('F' . $no, 'Rp '.number_format($value['penjualan_total_grand']));
+				$sheet->setCellValue('F' . $no, 'Rp ' . number_format($value['penjualan_total_grand']));
 				$sheet->setCellValue('G' . $no, $value['penjualan_kode']);
 				$sheet->setCellValue('H' . $no, $status);
 				$sheet->setCellValue('I' . $no, $statuslapor);
@@ -710,23 +710,23 @@ class Transaksiwp extends Base_Controller
 				],
 			];
 			$get_total = $this->dbpos
-			->select("sum(penjualan_total_grand) as total_nominal_penjualan")
-			->where($where)
-			->get('pos_penjualan')
-			->row();
+				->select("sum(penjualan_total_grand) as total_nominal_penjualan")
+				->where($where)
+				->get('pos_penjualan')
+				->row();
 			$no += 1;
-			$sheet->mergeCells('A'.$no.':E'.$no);
+			$sheet->mergeCells('A' . $no . ':E' . $no);
 			$sheet->setCellValue('A' . $no, 'Total');
-			$sheet->setCellValue('F' . $no, 'Rp. '.number_format($get_total->total_nominal_penjualan));
+			$sheet->setCellValue('F' . $no, 'Rp. ' . number_format($get_total->total_nominal_penjualan));
 			$sheet->setCellValue('G' . $no, '');
-			$sheet->getStyle('A'.$no.':I' . $no)->applyFromArray($styleArray);
-			$sheet->getStyle('F'.$no)->applyFromArray($styleArray_nominal);
+			$sheet->getStyle('A' . $no . ':I' . $no)->applyFromArray($styleArray);
+			$sheet->getStyle('F' . $no)->applyFromArray($styleArray_nominal);
 
 			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'transaksiwp-'.$codestore.'-' . date('d-m-y-H:i:s') . '.xlsx';
+			$filename = 'transaksiwp-' . $codestore . '-' . date('d-m-y-H:i:s') . '.xlsx';
 			$file = FCPATH . 'assets/laporan/wajibpajak/' . $filename;
 			$writer->save($file);
 
@@ -735,7 +735,10 @@ class Transaksiwp extends Base_Controller
 				'file' => $filename
 			]);
 		} catch (\Throwable $th) {
-			print_r('<pre>');print_r($th);print_r('</pre>');exit;
+			print_r('<pre>');
+			print_r($th);
+			print_r('</pre>');
+			exit;
 			$this->response([
 				'success' => false,
 			]);
@@ -745,13 +748,13 @@ class Transaksiwp extends Base_Controller
 	public function pdf()
 	{
 		$data = varPost();
-		
+
 		$codestore = $data['log_penjualan_code_store'];
 		$periode = $data['periode'];
 		$periodearr = explode(' - ', $periode);
 		$enddate = date('Y-m-d');
 		$startdate = date('Y-m-d');
-		if(is_array($periodearr) && count($periodearr) > 1){
+		if (is_array($periodearr) && count($periodearr) > 1) {
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
@@ -851,12 +854,12 @@ class Transaksiwp extends Base_Controller
 			}
 		</style>';
 
-		$namatoko = $this->db->query("SELECT toko_nama from pajak_toko  where toko_kode  = '".$codestore."'")->row_array()['toko_nama'];
+		$namatoko = $this->db->query("SELECT toko_nama from pajak_toko  where toko_kode  = '" . $codestore . "'")->row_array()['toko_nama'];
 
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
@@ -893,37 +896,37 @@ class Transaksiwp extends Base_Controller
 				<th class="t-center">Status</th>
 				<th class="t-center">Status Lapor Pajak</th>
 			</tr>';
-		$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'].$codestore), true);
+		$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 		$where = [];
 		// $where['log_penjualan_code_store'] = $codestore;
-		$where['penjualan_tanggal >= \''.$startdate.'\' AND penjualan_tanggal <= \''.$enddate.'\''] = null;
+		$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
 		$ops = $this->dbpos->select("*")
-		->where($where)
-		->order_by('penjualan_tanggal desc')
-		->get('pos_penjualan')
-		->result_array();
+			->where($where)
+			->order_by('penjualan_tanggal desc')
+			->get('pos_penjualan')
+			->result_array();
 		$wp = $this->db
-		->select('wajibpajak_nama_penanggungjawab, 
+			->select('wajibpajak_nama_penanggungjawab, 
 		wajibpajak_npwpd, 
 		toko_kode,
 		toko_nama')
-		->get_where('v_pajak_toko', [
-			'toko_kode' => $codestore,
-		])->row_array();
+			->get_where('v_pajak_toko', [
+				'toko_kode' => $codestore,
+			])->row_array();
 		$no = $total = $tbl_no = 1;
 		// print_r('<pre>');print_r($ops);print_r('</pre>');exit;
 		foreach ($ops as $key => $value) {
 			// print_r('<pre>');print_r($value);print_r('</pre>');exit;
 			$status = '';
 			$statuslapor = '';
-			if($value['penjualan_status_aktif']){
+			if ($value['penjualan_status_aktif']) {
 				$status = 'Batal';
-			}else{
+			} else {
 				$status = 'Aktif';
 			}
-			if($value['penjualan_lock'] == '1'){
+			if ($value['penjualan_lock'] == '1') {
 				$statuslapor = 'Sudah';
-			}else{
+			} else {
 				$statuslapor = 'Belum';
 			}
 
@@ -935,18 +938,18 @@ class Transaksiwp extends Base_Controller
 					<td>' . $value['penjualan_tanggal'] . '</td>
 					<td style="text-align: right;">Rp. ' . number_format($value['penjualan_total_grand']) . '</td>
 					<td>' . $value['penjualan_kode'] . '</td>
-					<td>' . $status .'</td>
-					<td>' . $statuslapor .'</td>
+					<td>' . $status . '</td>
+					<td>' . $statuslapor . '</td>
 				</tr>';
 			$tbl_no++;
 			$no++;
 		}
 
 		$get_total = $this->dbpos
-		->select("sum(penjualan_total_grand) as total_nominal_penjualan")
-		->where($where)
-		->get('pos_penjualan')
-		->row();
+			->select("sum(penjualan_total_grand) as total_nominal_penjualan")
+			->where($where)
+			->get('pos_penjualan')
+			->row();
 		$html .= '<tr>
 			<th class="t-center" colspan="5">Total</th>
 			<th class="t-center" style="text-align: right;">Rp. ' . number_format($get_total->total_nominal_penjualan) . '</th>
@@ -959,8 +962,8 @@ class Transaksiwp extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Transaksi Wajib Pajak - '.$codestore,
-			'title'         => 'Transaksi Wajib Pajak - '.$codestore,
+			'file_name'     => 'Transaksi Wajib Pajak - ' . $codestore,
+			'title'         => 'Transaksi Wajib Pajak - ' . $codestore,
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',

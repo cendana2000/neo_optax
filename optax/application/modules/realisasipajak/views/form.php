@@ -6,7 +6,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label"> DATA SUB REALISASI PAJAK</h3>
+					<h3 class="card-label"> DATA RINCIAN REKAP PAJAK</h3>
 				</div>
 				<div class="card-toolbar">
 					<div class="mr-3">
@@ -109,7 +109,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label"> DETAIL REALISASI PAJAK</h3>
+					<h3 class="card-label"> DETAIL RINCIAN REKAP PAJAK</h3>
 				</div>
 
 				<div class="card-toolbar">
@@ -203,7 +203,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label"> HASIL LAPORAN REALISASI PAJAK</h3>
+					<h3 class="card-label"> HASIL LAPORAN REKAP PAJAK</h3>
 				</div>
 
 				<div class="card-toolbar">
@@ -239,7 +239,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">HASIL LAPORAN SUB REALISASI PAJAK</h3>
+					<h3 class="card-label">HASIL LAPORAN SUB REKAP PAJAK</h3>
 				</div>
 
 				<div class="card-toolbar">
@@ -270,12 +270,12 @@
 <div class="row mt-3 rincireport_data_pdf" style="display: none;">
 	<div class="col-12">
 		<div class="card card-custom">
-			<div class="card-header card-header-right ribbon ribbon-clip ribbon-left">
+			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label"> HASIL LAPORAN RINCI REALISASI PAJAK</h3>
+					<h3 class="card-label">HASIL LAPORAN RINCI REKAP PAJAK</h3>
 				</div>
 
 				<div class="card-toolbar">

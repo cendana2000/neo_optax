@@ -45,7 +45,7 @@ class Admin extends Main_Controller
         $data["css_plugin"]     = $this->css_plugin;
         $data["js_plugin"]      = $this->js_plugin;
 
-        $data["page_title"]     = "DASHBOARD OAPI ETAX MANAGER - BAPENDA KOTA MALANG";
+        $data["page_title"]     = "DASHBOARD OAPI ETAX MANAGER - OPTAX";
 
         $data["main_content"]   = $this->load->view("admin/list", $data, true);
         $data["javascript"]     = $this->load->view("admin/javascript", $data, true);

@@ -2,6 +2,7 @@
 	var statistikNominal = undefined;
 	var statistikTotal = undefined;
 	var pos_statistikpenjualan = undefined;
+	var tokoBaruRendered = false;
 
 	$(function() {
 		HELPER.fields = [
@@ -90,8 +91,6 @@
 		$("#akhir_tanggal").parent().removeClass("d-none");
 		$("#bulan").parent().addClass("d-none");
 	}
-
-	let tokoBaruRendered = false;
 
 	function loadTable(type = "tanggal") {
 		tokoBaruRendered = false;

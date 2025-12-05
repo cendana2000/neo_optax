@@ -546,7 +546,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		<script>
 			var stat = <?= ($konfirmasi_result["status"]) ? "true" : "false" ?>;
 			console.log(stat);
-			var pesan = (stat) ? "Nama WP : <?= $nama_wp ?><br>NPWPD : <?= $npwpd ?><br>Masa Pajak : <?= $masa_pajak ?><br></br><b>Konfirmasi</b> pelaporan omzet berhasil dilakukan. Mohon ditunggu untuk pembuatan SURAT PEMBERITAHUAN PAJAK DAERAH (SPTPD) dari petugas pajak daerah BAPENDA KOTA MALANG<br><br><b>Virtual Account</b> untuk pembayaran pajak daerah dapat dilihat di menu <b>History Pelaporan</b> aplikasi <a href='https://persada.malangkota.go.id/backoffice/'>PERSADA</a>" : "Nama WP : <?= $nama_wp ?><br>NPWPD : <?= $npwpd ?><br>Masa Pajak : <?= $masa_pajak ?><br></br>Pelaporan anda sudah terkonfirmasi cek SPTPD anda pada menu <b>History Pelaporan</b> aplikasi PERSADA, Terimakasih.";
+			var pesan = (stat) ? "Nama WP : <?= $nama_wp ?><br>NPWPD : <?= $npwpd ?><br>Masa Pajak : <?= $masa_pajak ?><br></br><b>Konfirmasi</b> pelaporan omzet berhasil dilakukan. Mohon ditunggu untuk pembuatan SURAT PEMBERITAHUAN PAJAK DAERAH (SPTPD) dari petugas pajak daerah OPTAX<br><br><b>Virtual Account</b> untuk pembayaran pajak daerah dapat dilihat di menu <b>History Pelaporan</b> aplikasi <a href='https://persada.malangkota.go.id/backoffice/'>PERSADA</a>" : "Nama WP : <?= $nama_wp ?><br>NPWPD : <?= $npwpd ?><br>Masa Pajak : <?= $masa_pajak ?><br></br>Pelaporan anda sudah terkonfirmasi cek SPTPD anda pada menu <b>History Pelaporan</b> aplikasi PERSADA, Terimakasih.";
 			var title = (stat) ? "Berhasil" : "Mohon Maaf.";
 
 			HELPER.showMessage({

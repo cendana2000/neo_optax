@@ -726,3 +726,17 @@ aside-menu .menu-nav > .menu-item > .menu-heading .menu-arrow,
 .export-dropdown .dropdown-divider {
   margin: 0.4rem 0;
 }
+
+#modal-detail-transaksi .modal-footer {
+    padding-right: 20px !important;
+    padding-bottom: 15px !important;
+}
+
+#btn-detail i {
+    color: #333 !important;  
+}
+
+#exportDropdown i {
+    color: #333 !important;  
+}
+

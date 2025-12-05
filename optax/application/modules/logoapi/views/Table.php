@@ -8,13 +8,24 @@
 					</span>
 					<h3 class="card-label">Log API</h3>
 				</div>
-				<div class="card-toolbar">
-					<div class="card-toolbar">
-						<div class="btn-group" id="button-tool" style="display: none;">
-							<!-- <button class="btn btn-success btn-sm" onclick="getSpreadsheetTransaksiWp()"><i class="far fa-file-excel"></i> Excel</button>
-							<button class="btn btn-danger btn-sm" onclick="getPdfTransaksiWp()"><i class="far fa-file-pdf"></i> PDF</button> -->
-							<button class="btn btn-warning btn-sm" onclick="onRefresh()"><i class="flaticon-refresh"></i> Muat Ulang</button>
-						</div>
+				<div class="card-toolbar gap-2" id="button-tool" style="display: none;">
+					<div class="dropdown">
+						<button class="btn btn-sm btn-light dropdown-toggle" type="button" id="exportDropdown"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-file-export me-1"></i> Export
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+							<li>
+								<a class="dropdown-item" href="javascript:void(0)" onclick="getSpreadsheetTransaksiWp()">
+									<i class="far fa-file-excel text-success me-2"></i> Excel
+								</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="javascript:void(0)" onclick="getPdfTransaksiWp()">
+									<i class="far fa-file-pdf text-danger me-2"></i> PDF
+								</a>
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -37,7 +48,7 @@
 					<div id="next-action" style="display: none;">
 						<div class="row">
 							<div class="col-12" style="margin-top: 25px;" align="right">
-								<button type="button" class="btn btn-primary btn-elevate" id="btn-prosess" onclick="init_table(this)">
+								<button type="button" class="btn btn-sm btn-primary btn-elevate" id="btn-prosess" onclick="init_table(this)">
 									<span>
 										<i class="la la-check"></i>
 										<span>Proses</span>
@@ -60,6 +71,7 @@
 							<th>Penjualan Tanggal</th>
 							<th>Nominal Penjualan</th>
 							<th>Kode Penjualan</th>
+							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -70,7 +82,7 @@
 					<tfoot>
 						<tr>
 							<th class="table-primary" colspan="5">Total</th>
-							<th class="table-primary" colspan="2" id="logoapi_total_nominal_penjualan">Rp. 0</th>
+							<th class="table-primary" colspan="3" id="logoapi_total_nominal_penjualan">Rp. 0</th>
 						</tr>
 					</tfoot>
 
@@ -98,7 +110,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">HASIL LAPORAN TRANSAKSI WAJIB PAJAK</h3>
+					<h3 class="card-label">HASIL LAPORAN TRANSAKSI OUTER API WAJIB PAJAK</h3>
 				</div>
 				<div class="card-toolbar">
 					<button type="button" class="btn btn-sm btn-secondary" onclick="onBackCard(1)"><i class="fa fa-arrow-left"></i> Kembali</button>
@@ -124,4 +136,61 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="modal-detail-transaksi" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="pengaturan_title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-body" style="border-bottom: 2px dotted grey;">
+				<div class="container">
+					<h4 class="d-flex justify-content-center" style="padding-top: 10px;" id="pengaturan_title"></h4>
+					<p class="d-flex justify-content-center text-muted" style="padding-top: 5px; margin-bottom:0px;" id="alamat_wp"></p>
+				</div>
+			</div>
+			<form action="javascript:;" id="form-detail-transaksi">
+				<div class="modal-body">
+					<div class="container">
+						<table class="table table-borderless">
+							<tbody>
+								<tr>
+									<td style="max-width: 100px;">Kode Penjualan</td>
+									<td>:</td>
+									<td id="kode_penjualan"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Tanggal</td>
+									<td>:</td>
+									<td id="tanggal"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Waktu</td>
+									<td>:</td>
+									<td id="waktu"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Sub Total</td>
+									<td>:</td>
+									<td id="sub_total"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Pajak</td>
+									<td>:</td>
+									<td id="pajak"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Grand Total</td>
+									<td>:</td>
+									<td id="grand_total"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer border-0 pt-0 d-flex justify-content-end">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <?php load_view('javascript.php'); ?>

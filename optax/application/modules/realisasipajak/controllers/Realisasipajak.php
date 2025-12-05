@@ -150,8 +150,8 @@ class Realisasipajak extends Base_Controller
 					],
 				],
 			];
-			$sheet->mergeCells('A1:I1');
-			$sheet->setCellValue('A1', 'REALISASI PAJAK');
+			$sheet->mergeCells('A1:H1');
+			$sheet->setCellValue('A1', 'REKAP PAJAK');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'J') as $columnID) {
@@ -164,7 +164,6 @@ class Realisasipajak extends Base_Controller
 			$sheet->mergeCells('A5:C5');
 			$sheet->setCellValue('A3', 'Masa Pajak');
 			$sheet->setCellValue('A4', 'Jumlah WP Terdaftar');
-			$sheet->setCellValue('A5', 'Jumlah WP Terkoneksi');
 
 			$styleArray = [
 				'font' => [
@@ -182,7 +181,6 @@ class Realisasipajak extends Base_Controller
 			$sheet->mergeCells('D5:I5');
 			$sheet->setCellValue('D3', $masapajak);
 			$sheet->setCellValue('D4', $wp_terdaftar);
-			$sheet->setCellValue('D5', $wp_terkoneksi);
 			$sheet->getStyle('D3:D5')->applyFromArray($styleArray);
 
 			// Set Table Header
@@ -208,16 +206,15 @@ class Realisasipajak extends Base_Controller
 					],
 				],
 			];
-			$sheet->getStyle('A7:I7')->applyFromArray($styleArray);
+			$sheet->getStyle('A7:H7')->applyFromArray($styleArray);
 			$sheet->setCellValue('A7', 'No');
 			$sheet->setCellValue('B7', 'NPWPD');
 			$sheet->setCellValue('C7', 'Nama WP');
 			$sheet->setCellValue('D7', 'Transaksi Terakhir');
-			$sheet->setCellValue('E7', 'Jumlah Transaksi');
-			$sheet->setCellValue('F7', 'Omzet(Rp)');
-			$sheet->setCellValue('G7', 'Pajak(Rp)');
-			$sheet->setCellValue('H7', 'Tgl. Pemasangan');
-			$sheet->setCellValue('I7', 'Jenis Pajak');
+			$sheet->setCellValue('E7', 'Omzet(Rp)');
+			$sheet->setCellValue('F7', 'Pajak(Rp)');
+			$sheet->setCellValue('G7', 'Tgl. Pemasangan');
+			$sheet->setCellValue('H7', 'Jenis Pajak');
 
 			// Set Borders
 			$styleArray = [
@@ -256,19 +253,21 @@ class Realisasipajak extends Base_Controller
 				$sheet->setCellValue('B' . $no, $value['realisasi_parent_npwpd']);
 				$sheet->setCellValue('C' . $no, $value['realisasi_parent_nama']);
 				$sheet->setCellValue('D' . $no, $value['realisasi_parent_transaksi_terakhir']);
-				$sheet->setCellValue('E' . $no, $value['realisasi_parent_jml_transaksi']);
-				$sheet->setCellValue('F' . $no, $value['realisasi_parent_omzet']);
-				$sheet->setCellValue('G' . $no, $value['realisasi_parent_total_pajak']);
-				$sheet->setCellValue('H' . $no, $value['realisasi_parent_tanggal_daftar']);
-				$sheet->setCellValue('I' . $no, $value['realisasi_parent_jenis_pajak']);
+				$sheet->setCellValue('E' . $no, $value['realisasi_parent_sub_total']);
+				$sheet->setCellValue('F' . $no, $value['realisasi_parent_sub_total'] / 10);
+				$sheet->setCellValue('G' . $no, $value['realisasi_parent_tanggal_daftar']);
+				$sheet->setCellValue('H' . $no, $value['realisasi_parent_jenis_pajak']);
 			}
-			$sheet->getStyle('A7:I' . $no)->applyFromArray($styleArray);
+			$sheet->getStyle('A7:H' . $no)->applyFromArray($styleArray);
 
 			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'realisasipajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			$filename = 'rekappajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			if (!file_exists(FCPATH . 'assets/laporan/monitor_realisasi/')) {
+				mkdir(FCPATH . 'assets/laporan/monitor_realisasi/', 0777, true);
+			}
 			$file = FCPATH . 'assets/laporan/monitor_realisasi/' . $filename;
 			$writer->save($file);
 
@@ -327,7 +326,7 @@ class Realisasipajak extends Base_Controller
 				],
 			];
 			$sheet->mergeCells('A1:H1');
-			$sheet->setCellValue('A1', 'SUB REALISASI PAJAK');
+			$sheet->setCellValue('A1', 'SUB REKAP PAJAK');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'H') as $columnID) {
@@ -431,7 +430,10 @@ class Realisasipajak extends Base_Controller
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'subrealisasipajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			$filename = 'subrekappajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			if (!file_exists(FCPATH . 'assets/laporan/monitor_realisasi/')) {
+				mkdir(FCPATH . 'assets/laporan/monitor_realisasi/', 0777, true);
+			}
 			$file = FCPATH . 'assets/laporan/monitor_realisasi/' . $filename;
 			$writer->save($file);
 
@@ -483,7 +485,7 @@ class Realisasipajak extends Base_Controller
 				],
 			];
 			$sheet->mergeCells('A1:H1');
-			$sheet->setCellValue('A1', 'RINCIAN REALISASI PAJAK');
+			$sheet->setCellValue('A1', 'RINCIAN REKAP PAJAK');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'H') as $columnID) {
@@ -624,7 +626,10 @@ class Realisasipajak extends Base_Controller
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'rincianrealisasipajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			$filename = 'rincianrekappajak-' . date('d-m-y-H:i:s') . '.xlsx';
+			if (!file_exists(FCPATH . 'assets/laporan/monitor_realisasi/')) {
+				mkdir(FCPATH . 'assets/laporan/monitor_realisasi/', 0777, true);
+			}
 			$file = FCPATH . 'assets/laporan/monitor_realisasi/' . $filename;
 			$writer->save($file);
 
@@ -735,18 +740,17 @@ class Realisasipajak extends Base_Controller
 		</style>';
 
 		$wp_terdaftar = $this->db->query("select count(*) as wp_terdaftar from pajak_wajibpajak pw where wajibpajak_status  = '2' and wajibpajak_deleted_at is null")->row_array()['wp_terdaftar'];
-		$wp_terkoneksi = $this->db->query("select count(*) as wp_terkoneksi from pajak_toko where toko_status = '2'")->row_array()['wp_terkoneksi'];
 
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4>REALISASI PAJAK</h4><br>
+						<h4>REKAP PAJAK</h4><br>
 				</td>
 			</tr>
 		</table>
@@ -759,10 +763,6 @@ class Realisasipajak extends Base_Controller
 				<td width="20%">Jumlah WP Terdaftar</td>
 				<td>: ' . $wp_terdaftar . '</td>
 			</tr>
-			<!-- <tr>
-				<td width="20%">Jumlah WP Terkoneksi</td>
-				<td>: ' . $wp_terkoneksi . '</td>
-			</tr> -->
 		</table>
 		<br>
 		<table class="laporan" cellspacing=0 style="width:100%; border-collapse: collapse;">
@@ -771,7 +771,6 @@ class Realisasipajak extends Base_Controller
 				<th class="t-center">NPWPD</th>
 				<th class="t-center">Nama WP</th>
 				<th class="t-center">Transaksi Terakhir</th>
-				<th class="t-center">Jumlah <br> Transaksi</th>
 				<th class="t-center">Sub Total(Rp)</th>
 				<th class="t-center">Pajak(Rp)</th>
 				<th class="t-center">Total(Rp)</th>
@@ -802,22 +801,13 @@ class Realisasipajak extends Base_Controller
 					<td>' . $value['realisasi_parent_npwpd'] . '</td>
 					<td>' . $value['realisasi_parent_nama'] . '</td>
 					<td>' . $value['realisasi_parent_transaksi_terakhir'] . '</td>
-					<td style="text-align: right;">' . number_format($value['realisasi_parent_jml_transaksi']) . '</td>
 					<td style="text-align: right;">' . number_format($value['realisasi_parent_sub_total']) . '</td>
 					<td style="text-align: right;">' . number_format($value['realisasi_parent_pajak']) . '</td>
 					<td style="text-align: right;">' . number_format($value['realisasi_parent_total_pajak']) . '</td>
-					<!-- <td>' . $value['realisasi_parent_tanggal_daftar'] . '</td> -->
 					<td>' . $value['realisasi_parent_jenis_pajak'] . '</td>
 				</tr>';
 			$tbl_no++;
 			$no++;
-			if ($hal == 1) $total = 60;
-			else $total = 80;
-			if ($no > $total) {
-				$no = 1;
-				$hal++;
-				$html .= '</table><div style="page-break-after: always"></div>' . $this->header($dtCaption, $hal);
-			}
 		}
 
 		$html .= '</table>';
@@ -826,8 +816,8 @@ class Realisasipajak extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Realisasi Pajak',
-			'title'         => 'Realisasi Pajak',
+			'file_name'     => 'Rekap Pajak',
+			'title'         => 'Rekap Pajak',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -970,13 +960,13 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4>PELAPORAN OMZET WAJIB PAJAK</h4><br>
+						<h4>REKAP OMZET WAJIB PAJAK</h4><br>
 				</td>
 			</tr>
 		</table>
@@ -1069,8 +1059,8 @@ class Realisasipajak extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Realisasi Pajak',
-			'title'         => 'Realisasi Pajak',
+			'file_name'     => 'Sub Rekap Pajak',
+			'title'         => 'Sub Rekap Pajak',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -1208,13 +1198,13 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4>PELAPORAN OMZET WAJIB PAJAK</h4><br>
+						<h4>REKAP OMZET WAJIB PAJAK</h4><br>
 				</td>
 			</tr>
 		</table>
@@ -1377,8 +1367,8 @@ class Realisasipajak extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Realisasi Pajak',
-			'title'         => 'Realisasi Pajak',
+			'file_name'     => 'Sub Rekap Pajak Merge',
+			'title'         => 'Sub Rekap Pajak Merge',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -1514,13 +1504,13 @@ class Realisasipajak extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4>RINCIAN REALISASI PAJAK</h4><br>
+						<h4>RINCIAN REKAP PAJAK</h4><br>
 				</td>
 			</tr>
 		</table>
@@ -1608,8 +1598,8 @@ class Realisasipajak extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Realisasi Pajak',
-			'title'         => 'Realisasi Pajak',
+			'file_name'     => 'Rincian Rekap Pajak',
+			'title'         => 'Rincian Rekap Pajak',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',

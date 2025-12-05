@@ -35,11 +35,24 @@ class Logoapi extends Base_Controller
 		$get_total = $this->db
 			->select("sum(realisasi_total) as total_penjualan")
 			->where($where)
-			->get('v_log_oapi_v2')
+			->get('v_log_oapi_v3')
 			->row();
 		$opr['sumtotal'] = $get_total;
 		$this->response(
 			$opr
+		);
+	}
+
+	function detailTransaksi()
+	{
+		$realisasi_id = varPost("realisasi_id");
+		$operation = $this->db
+			->select("*")
+			->where('realisasi_id', $realisasi_id)
+			->get('v_log_oapi_v3')
+			->row();
+		$this->response(
+			$operation
 		);
 	}
 
@@ -517,13 +530,6 @@ class Logoapi extends Base_Controller
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
-
-		// if (empty($data['filterBulan'])) {
-		// 	$masapajak = 'All';
-		// } else {
-		// 	$bulan = explode('-', $data['filterBulan']);
-		// 	$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		// }
 		try {
 			$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$sheet = $spreadsheet->getActiveSheet();
@@ -547,7 +553,7 @@ class Logoapi extends Base_Controller
 				],
 			];
 			$sheet->mergeCells('A1:G1');
-			$sheet->setCellValue('A1', 'TRANSAKSI WAJIB PAJAK');
+			$sheet->setCellValue('A1', 'TRANSAKSI OUTER API WAJIB PAJAK');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'J') as $columnID) {
@@ -626,11 +632,11 @@ class Logoapi extends Base_Controller
 				],
 			];
 			$where = [];
-			$where['log_penjualan_code_store'] = $codestore;
-			$where['log_penjualan_wp_penjualan_tanggal >= \'' . $startdate . '\' AND log_penjualan_wp_penjualan_tanggal <= \'' . $enddate . '\''] = null;
+			$where['toko_kode'] = $codestore;
+			$where['realisasi_tanggal >= \'' . $startdate . '\' AND realisasi_tanggal <= \'' . $enddate . '\''] = null;
 			$ops = $this->db->select("*")
 				->where($where)
-				->get('v_pajak_penjualan_wp')
+				->get('v_log_oapi_v3')
 				->result_array();
 			$no = 7;
 			foreach ($ops as $key => $value) {
@@ -641,12 +647,12 @@ class Logoapi extends Base_Controller
 				}
 				$no += 1;
 				$sheet->setCellValue('A' . $no, $key + 1);
-				$sheet->setCellValue('B' . $no, $value['log_penjualan_code_store']);
+				$sheet->setCellValue('B' . $no, $value['toko_kode']);
 				$sheet->setCellValue('C' . $no, $value['toko_nama']);
-				$sheet->setCellValue('D' . $no, $value['toko_wajibpajak_npwpd']);
-				$sheet->setCellValue('E' . $no, $value['log_penjualan_wp_penjualan_tanggal']);
-				$sheet->setCellValue('F' . $no, 'Rp ' . number_format($value['log_penjualan_wp_total']));
-				$sheet->setCellValue('G' . $no, $value['log_penjualan_wp_penjualan_kode']);
+				$sheet->setCellValue('D' . $no, $value['realisasi_wajibpajak_npwpd']);
+				$sheet->setCellValue('E' . $no, $value['realisasi_tanggal']);
+				$sheet->setCellValue('F' . $no, 'Rp ' . number_format($value['realisasi_total']));
+				$sheet->setCellValue('G' . $no, $value['realisasi_no']);
 				$sheet->getStyle('F' . $no)->applyFromArray($styleArray_nominal);
 			}
 			$sheet->getStyle('A7:G' . $no)->applyFromArray($styleArray);
@@ -674,9 +680,9 @@ class Logoapi extends Base_Controller
 				],
 			];
 			$get_total = $this->db
-				->select("sum(log_penjualan_wp_total) as total_nominal_penjualan")
+				->select("sum(realisasi_total) as total_nominal_penjualan")
 				->where($where)
-				->get('v_pajak_penjualan_wp')
+				->get('v_log_oapi_v3')
 				->row();
 			$no += 1;
 			$sheet->mergeCells('A' . $no . ':E' . $no);
@@ -691,7 +697,10 @@ class Logoapi extends Base_Controller
 
 			// Save the new .xlsx file
 			$filename = 'logoapi-' . $codestore . '-' . date('d-m-y-H:i:s') . '.xlsx';
-			$file = FCPATH . 'assets/laporan/wajibpajak/' . $filename;
+			if (!file_exists(FCPATH . 'assets/laporan/logoapi/')) {
+				mkdir(FCPATH . 'assets/laporan/logoapi/', 0777, true);
+			}
+			$file = FCPATH . 'assets/laporan/logoapi/' . $filename;
 			$writer->save($file);
 
 			$this->response([
@@ -722,12 +731,6 @@ class Logoapi extends Base_Controller
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
-		// if (empty($data['filterBulan'])) {
-		// 	$masapajak = 'All';
-		// } else {
-		// 	$bulan = explode('-', $data['filterBulan']);
-		// 	$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		// }
 		$hal = 1;
 		$html = '<style>
 			*, table, p, li{
@@ -823,13 +826,13 @@ class Logoapi extends Base_Controller
 		$html .= '<table style="width:100%;">
 			<tr>
 				<td class="left">
-					<p>BAPENDA KOTA MALANG</p>
+					<p>OPTAX</p>
 				</td>
 				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4>TRANSAKSI WAJIB PAJAK</h4><br>
+						<h4>TRANSAKSI OUTER API WAJIB PAJAK</h4><br>
 				</td>
 			</tr>
 		</table>
@@ -859,31 +862,31 @@ class Logoapi extends Base_Controller
 				<th class="t-center">Kode Penjualan</th>
 			</tr>';
 		$where = [];
-		$where['log_penjualan_code_store'] = $codestore;
-		$where['log_penjualan_wp_penjualan_tanggal >= \'' . $startdate . '\' AND log_penjualan_wp_penjualan_tanggal <= \'' . $enddate . '\''] = null;
+		$where['toko_kode'] = $codestore;
+		$where['realisasi_tanggal >= \'' . $startdate . '\' AND realisasi_tanggal <= \'' . $enddate . '\''] = null;
 		$ops = $this->db->select("*")
 			->where($where)
-			->get('v_pajak_penjualan_wp')
+			->get('v_log_oapi_v3')
 			->result_array();
 		$no = $total = $tbl_no = 1;
 		foreach ($ops as $key => $value) {
 			$html .= '<tr>
 					<td>' . $tbl_no . '</td>
-					<td>' . $value['log_penjualan_code_store'] . '</td>
+					<td>' . $value['toko_kode'] . '</td>
 					<td>' . $value['toko_nama'] . '</td>
-					<td>' . $value['toko_wajibpajak_npwpd'] . '</td>
-					<td>' . $value['log_penjualan_wp_penjualan_tanggal'] . '</td>
-					<td style="text-align: right;">Rp. ' . number_format($value['log_penjualan_wp_total']) . '</td>
-					<td>' . $value['log_penjualan_wp_penjualan_kode'] . '</td>
+					<td>' . $value['realisasi_wajibpajak_npwpd'] . '</td>
+					<td>' . $value['realisasi_tanggal'] . '</td>
+					<td style="text-align: right;">Rp. ' . number_format($value['realisasi_total']) . '</td>
+					<td>' . $value['realisasi_no'] . '</td>
 				</tr>';
 			$tbl_no++;
 			$no++;
 		}
 
 		$get_total = $this->db
-			->select("sum(log_penjualan_wp_total) as total_nominal_penjualan")
+			->select("sum(realisasi_total) as total_nominal_penjualan")
 			->where($where)
-			->get('v_pajak_penjualan_wp')
+			->get('v_log_oapi_v3')
 			->row();
 		$html .= '<tr>
 			<th class="t-center" colspan="5">Total</th>
@@ -897,8 +900,8 @@ class Logoapi extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Transaksi Wajib Pajak - ' . $codestore,
-			'title'         => 'Transaksi Wajib Pajak - ' . $codestore,
+			'file_name'     => 'Transaksi Outer API Wajib Pajak - ' . $codestore,
+			'title'         => 'Transaksi Outer API Wajib Pajak - ' . $codestore,
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',

@@ -8,62 +8,27 @@
 					</span>
 					<h3 class="card-label">Transaksi Objek Pajak</h3>
 				</div>
-				<!-- <div class="card-toolbar">
-					<div class="card-toolbar">
-						<div class="btn-group" id="button-tool" style="display: none;">
-							<button class="btn btn-success btn-sm" onclick="getSpreadsheetTransaksiWp()"><i class="far fa-file-excel"></i> Excel</button>
-							<button class="btn btn-danger btn-sm" onclick="getPdfTransaksiWp()"><i class="far fa-file-pdf"></i> PDF</button>
-							<button class="btn btn-warning btn-sm" onclick="onRefresh()"><i class="flaticon-refresh"></i> Muat Ulang</button>
-						</div>
-					</div>
-				</div> -->
-				<div class="card-toolbar">
-					<div class="export-dropdown">
-						<div class="btn-group">
-							<button type="button" id="button-tool" style="display: none;" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-								<i class="fas fa-download"></i>Export Data
-							</button>
-							<ul class="dropdown-menu">
-								<li><a class="dropdown-item" href="javascript:void(0)" onclick="getSpreadsheetTransaksiWp()">
-										<i class="fas fa-file-excel text-success"></i> Export ke Excel
-									</a></li>
-								<li><a class="dropdown-item" href="javascript:void(0)" onclick="getPdfTransaksiWp()">
-										<i class="fas fa-file-pdf text-danger"></i> Export ke PDF
-									</a></li>
-							</ul>
-						</div>
+				<div class="card-toolbar gap-2" id="button-tool" style="display: none;">
+					<div class="dropdown">
+						<button class="btn btn-sm btn-light dropdown-toggle" type="button" id="exportDropdown"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-file-export me-1"></i> Export
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+							<li>
+								<a class="dropdown-item" href="javascript:void(0)" onclick="getSpreadsheetTransaksiWp()">
+									<i class="far fa-file-excel text-success me-2"></i> Excel
+								</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="javascript:void(0)" onclick="getPdfTransaksiWp()">
+									<i class="far fa-file-pdf text-danger me-2"></i> PDF
+								</a>
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
-			<!-- <div class="card-body table-responsive border-bottom">
-				<form action="javascript:init_table()" name="pricelist-form" id="pricelist-form">
-					<div class="form-group">
-						<label for="example-search-input" class="form-label text-dark">Pilih Toko</label>
-						<select class="form-control select2" id="select_toko" onchange="onChangeToko(this)">
-						</select>
-					</div>
-					<div class="form-group">
-						<label for="example-search-input" class="form-label text-dark">Pilih Periode</label>
-						<div class="input-group input-group-sm">
-							<input type="text" class="form-control daterange" name="periode" id="periode" value="" placeholder="Pilih Bulan" />
-							<div class="input-group-append"><span class="input-group-text"><i class="la la-calendar-check-o "></i></span></div>
-						</div>
-					</div>
-					<div id="next-action" style="display: none;">
-						<div class="row">
-							<div class="col-6" style="margin-top: 25px;" align="left">
-								<button type="button" class="btn btn-primary btn-elevate" id="btn-prosess" onclick="init_table(this)">
-									<span>
-										<i class="la la-check"></i>
-										<span>Proses</span>
-									</span>
-								</button>
-							</div>
-						</div>
-						<div class="kt-separator kt-separator--md kt-separator--dashed"></div>
-					</div>
-				</form>
-			</div> -->
 			<div class="card-body table-responsive border-bottom">
 				<form action="javascript:init_table()" name="pricelist-form" id="pricelist-form">
 					<div class="form-group row">
@@ -84,7 +49,7 @@
 					<div id="next-action" style="display: none;">
 						<div class="row">
 							<div class="col-12" align="right">
-								<button type="button" class="btn btn-primary btn-elevate" id="btn-prosess" onclick="init_table(this)">
+								<button type="button" class="btn btn-sm btn-primary btn-elevate" id="btn-prosess" onclick="init_table(this)">
 									<span>
 										<i class="la la-check"></i>
 										<span>Proses</span>
@@ -113,7 +78,7 @@
 					</thead>
 					<tbody>
 						<tr class="no-list">
-							<td colspan="9" class="text-center">Price List Tidak Tersedia</td>
+							<td colspan="9" class="text-center">Tidak Ada Data</td>
 						</tr>
 					</tbody>
 					<tfoot>
@@ -228,9 +193,8 @@
 						<!-- <span class="form-text text-muted">Centang jika ingin menampilkan bidang ini pada struk</span> -->
 					</div>
 				</div>
-
-				<div class="card-footer d-flex justify-content-end">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<div class="modal-footer border-0 pt-0 d-flex justify-content-end">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				</div>
 			</form>
 		</div>

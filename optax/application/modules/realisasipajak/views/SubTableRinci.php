@@ -3,7 +3,7 @@
         <div class="card card-custom">
             <div class="card-header card-header-right ribbon ribbon-clip ribbon-left">
                 <div class="ribbon-target" style="top: 12px;">
-                    <span class="ribbon-inner bg-primary"></span>DETAIL REALISASI PAJAK
+                    <span class="ribbon-inner bg-primary"></span>DETAIL RINCIAN REKAP PAJAK
                 </div>
             </div>
             <form action="">
