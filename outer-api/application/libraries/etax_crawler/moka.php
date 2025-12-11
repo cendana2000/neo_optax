@@ -28,14 +28,17 @@ class Moka
         #3 mengambil data parameter yang dibutuhkan untuk curl ke endpoint data transaksi
         $method         = $get_data_setting["data"][0]["method"];
         $curl_link      = $get_data_setting["data"][0]["link_curl"];
-        $start_date     = date("Y-m-01\T00:00:00\Z", strtotime($start_date));
-        $end_date       = date("Y-m-t\T23:59:59\Z", strtotime($end_date));
+        $start_date = date('Y-m-01\T00:00:00', strtotime($start_date));
+        $end_date   = date('Y-m-t\T23:59:59', strtotime($end_date));
+        var_dump($start_date, $end_date);
+
         $curl_link      = str_replace(array("{{start_date}}", "{{end_date}}", "{{next_cursor}}"), array($start_date, $end_date, $next_cursor), $curl_link);
         $curlopt_header = str_replace(array("{{token}}"), array($token), $get_data_setting["data"][0]["curlopt_header"]);
 
         #4 mengambil data dari endpoint data transaksi
         $curl_response = $this->do_crawl($curl_link, $curlopt_header, $method);
-
+        var_dump($curl_response);
+        die;
         #5 olah data dan sesuaikan kayak dipersada
         $data_curl      = json_decode($curl_response);
         $data_transaksi = $data_curl->orders;
@@ -83,9 +86,7 @@ class Moka
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_POSTFIELDS => $post_field,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
+            CURLOPT_HTTPHEADER => preg_split("/\r\n|\n|\r/", trim($header)),
         ));
 
         $response = curl_exec($curl);

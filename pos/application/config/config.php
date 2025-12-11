@@ -23,8 +23,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// $config['base_url']    = 'https://pos-ptpis.sekawanmedia.co.id/dev/pos-v2/';
-$config['base_url']    = 'http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . str_replace('//', '/', dirname($_SERVER['SCRIPT_NAME']) . '/');
+$config['base_url'] = isset($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : '';
+// $config['base_url']    = 'http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . str_replace('//', '/', dirname($_SERVER['SCRIPT_NAME']) . '/');
 
 
 $config['base_assets'] =  $config['base_url'] . 'assets/';

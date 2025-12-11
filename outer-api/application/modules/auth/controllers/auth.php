@@ -47,7 +47,7 @@ class Auth extends Main_Controller
 
         $data["css_plugin"]     = $this->css_plugin;
         $data["js_plugin"]      = $this->js_plugin;
-        $data["page_title"]     = "E-TAX CRAWLER - LOGIN";
+        $data["page_title"]     = "API SYNCRONIZER - LOGIN";
         $data["main_content"]   = $this->load->view("auth/form_login", $data, true);
         $data["javascript"]     = $this->load->view("auth/javascript", $data, true);
 

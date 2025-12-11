@@ -41,8 +41,7 @@ class DashboardModel extends Base_Model
 		if (!$year) $year = date('Y');
 		if (!$month) $month = date('m');
 
-		$sql = "WITH pos_latest as (
-				-- ambil baris log_penjualan_wp dengan tanggal terbaru per store
+		$sql = "WITH pos_latest as (				
 				select
 					lpw.*
 				from
@@ -53,9 +52,6 @@ class DashboardModel extends Base_Model
 						max(log_penjualan_wp_penjualan_tanggal) as max_tgl
 					from
 						log_penjualan_wp
-						-- optional: filter by year/month here, contoh:
-						-- AND extract(year from log_penjualan_wp_penjualan_tanggal) = 2025
-						-- AND extract(month from log_penjualan_wp_penjualan_tanggal) = 9
 					group by
 						log_penjualan_code_store
 				) m on
@@ -85,7 +81,10 @@ class DashboardModel extends Base_Model
 					end)
 					)::float as jumlah_pajak,
 					'POS'::text as sumber_data,
-					lpw.log_penjualan_wp_penjualan_tanggal as tanggal_transaksi
+					(
+						lpw.log_penjualan_wp_penjualan_tanggal::timestamp
+						+ COALESCE(lpw.log_penjualan_wp_penjualan_time, '00:00:00'::time)
+					) AS tanggal_transaksi
 				from
 					pos_latest lpw
 				join pajak_toko pt on
@@ -95,8 +94,7 @@ class DashboardModel extends Base_Model
 				left join pajak_jenis pj on
 					pj.jenis_kode = pw3.wajibpajak_sektor_nama
 				),
-				persada_latest as (
-				-- ambil baris pajak_realisasi dengan tanggal terbaru per wajibpajak
+				persada_latest as (				
 				select
 					pr.*
 				from
@@ -108,10 +106,7 @@ class DashboardModel extends Base_Model
 					from
 						pajak_realisasi
 					where
-						realisasi_deleted_at is null
-						-- optional: filter by year/month:
-						-- AND extract(year from realisasi_tanggal) = 2025
-						-- AND extract(month from realisasi_tanggal) = 9
+						realisasi_deleted_at is null																		
 					group by
 						realisasi_wajibpajak_npwpd
 				) m on
