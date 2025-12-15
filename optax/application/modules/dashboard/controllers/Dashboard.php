@@ -20,19 +20,26 @@ class Dashboard extends Base_Controller
 	{
 		$var = varGet();
 
-		if ($var['type'] == "tanggal") {
+		if (empty($var['type'])) {
+			$bulan = date('Y-m-01');
+			$begin = new DateTime($bulan);
+			$end   = (new DateTime($bulan))->modify('+1 month');
+			$rawbegin = $begin->format('Y-m-d');
+			$rawend   = (clone $end)->modify('-1 day')->format('Y-m-d');
+			$rawtahun = $begin->format('Y');
+		} else if ($var['type'] == "tanggal") {
 			$begin = new DateTime($var['awal_tanggal']);
-			$end = (new DateTime($var['akhir_tanggal']))->modify('+1 day');
+			$end   = (new DateTime($var['akhir_tanggal']))->modify('+1 day');
 			$rawbegin = $var['awal_tanggal'];
-			$rawend = $var['akhir_tanggal'];
-			$rawtahun = date_format($begin, 'Y');
+			$rawend   = $var['akhir_tanggal'];
+			$rawtahun = $begin->format('Y');
 		} else if ($var['type'] == "bulan") {
 			$bulan = $var['bulan'] . '-01';
 			$begin = new DateTime($bulan);
-			$end = (new DateTime($bulan))->modify('+1 month');
-			$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
-			$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
-			$rawtahun = date_format(new DateTime($bulan), 'Y');
+			$end   = (new DateTime($bulan))->modify('+1 month');
+			$rawbegin = $begin->format('Y-m-d');
+			$rawend   = (clone $end)->modify('-1 day')->format('Y-m-d');
+			$rawtahun = $begin->format('Y');
 		}
 
 		$interval = DateInterval::createFromDateString('1 Day');
@@ -311,6 +318,7 @@ class Dashboard extends Base_Controller
 		LIMIT 6")->result_array();
 
 		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir();
+		$data['transaksi_terakhir_all'] = $this->dashboard->getTransaksiTerakhirAll();
 
 		$this->response($data);
 	}

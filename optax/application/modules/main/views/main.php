@@ -60,6 +60,9 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	<!--end::Layout Themes-->
 	<link href="assets/css/custom.css?v=1.1" rel="stylesheet" type="text/css" />
+	<link
+		rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.9.4/dist/css/tempus-dominus.min.css" />
 
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -483,7 +486,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		});
 	</script>
 	<!--end::Global Config-->
-
+	<script src="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.9.4/dist/js/tempus-dominus.min.js"></script>
 	<!--begin::Global Theme Bundle(used by all pages)-->
 	<script type="text/javascript" src="assets/plugins/global/plugins.bundle.js?v=1.0.12"></script>
 	<script type="text/javascript" src="assets/plugins/custom/prismjs/prismjs.bundle.js?v=1.0.12"></script>
@@ -502,7 +505,6 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script type="text/javascript" src="assets/helper/fnReloadAjax.js"></script>
 	<!-- <script src="<?php echo $this->config->item('base_theme') ?>plugins/jquery.number.min.js" type="text/javascript"></script> -->
 	<script type="text/javascript" src="assets/plugins/custom/jqueryNumber/jquery.number.min.js"></script>
-
 	<!--end::Page Vendors-->
 	<script>
 		BASE_URL = "<?php echo base_url() ?>index.php/";

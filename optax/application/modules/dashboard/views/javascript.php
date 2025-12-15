@@ -181,6 +181,7 @@
 						<tr>
 							<td class="text-nowrap">${v.nama_wp}</td>
 							<td>${v.npwpd}</td>
+							<td>${v.no_transaksi}</td>
 							<td class="text-end">${$.number(v.sub_total)}</td>
 							<td class="text-end">${$.number(v.jumlah_pajak)}</td>
 							<td class="text-end text-nowrap">${v.tanggal_transaksi}</td>
@@ -865,6 +866,60 @@
 		if (status === 'text-danger') return '#f1416c';
 		if (status === 'text-dark') return '#181c32';
 		return '#888';
+	}
+
+	function onDetailTransaksiTerakhir() {
+		HELPER.block();
+		$.ajax({
+			url: HELPER.api.table,
+			dataType: 'json',
+			success: function(res) {
+				const tbody = $('#table-transaksi-terakhir-detail tbody');
+				tbody.html('');
+
+				HELPER.toggleForm({
+					tohide: 'dashboard_data',
+					toshow: 'transaksi_detail_data'
+				});
+
+				HELPER.unblock();
+
+				if (res.transaksi_terakhir_all && res.transaksi_terakhir_all.length > 0) {
+					$.each(res.transaksi_terakhir_all, function(i, v) {
+						tbody.append(`
+						<tr>
+							<td class="text-center">${i + 1}</td>
+							<td class="text-nowrap">${v.nama_wp}</td>
+							<td>${v.npwpd}</td>
+							<td>${v.no_transaksi}</td>
+							<td class="text-end">${$.number(v.sub_total)}</td>
+							<td class="text-end">${$.number(v.jumlah_pajak)}</td>
+							<td class="text-end text-nowrap">${v.tanggal_transaksi}</td>
+						</tr>
+					`);
+					});
+				} else {
+					tbody.append(`
+					<tr>
+						<td colspan="6" class="text-center text-muted">
+							Tidak ada transaksi terakhir
+						</td>
+					</tr>
+				`);
+				}
+			},
+			error: function() {
+				HELPER.unblock();
+			}
+		});
+	}
+
+
+	function backToDashboard() {
+		HELPER.toggleForm({
+			tohide: 'transaksi_detail_data',
+			toshow: 'dashboard_data'
+		});
 	}
 
 	document.addEventListener("DOMContentLoaded", function() {
