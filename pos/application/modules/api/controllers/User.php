@@ -199,4 +199,95 @@ class User extends Base_Controller
 
     $this->response($toko);
   }
+
+  public function ping_user()
+  {
+    try {
+      $id       = varPost('pos_user_id');
+      $today    = date('Y-m-d');
+
+      $user = $this->dbmp->where('pos_user_id', $id)->get('pos_user')->row();
+
+      if (!$user) {
+        throw new Exception('User Tidak Ditemukan');
+      }
+
+      // $this->dbmp->table('pos_user')->where('pos_user_id', $id)->update(['mobile_last_active' => date('Y-m-d H:i:s')]);
+
+      if (!empty($user->pos_user_email)) {
+        $wajibpajak = $this->dbmp
+          ->where('wajibpajak_email', $user->pos_user_email)
+          ->get('pajak_wajibpajak')
+          ->row();
+
+        if ($wajibpajak) {
+          $this->dbmp->where('wajibpajak_email', $user->pos_user_email);
+          $this->dbmp->update(
+            'pajak_wajibpajak',
+            ['mobile_last_active' => date('Y-m-d H:i:s')]
+          );
+        }
+      }
+
+      $hour     = date('G');
+      $record   = $this->dbmp
+        ->where('log_user_id', $id)
+        ->get($this->Log->get_table())
+        ->row();
+
+      if ($record) {
+        $isNewDay = ($record->log_tanggal != $today);
+        $updateData = [
+          'log_tanggal'      => $today,
+          'log_device_id'    => $this->request->post('device_id'),
+          'log_device_model' => $this->request->post('model'),
+          'log_last_active'  => date('Y-m-d H:i:s'),
+        ];
+
+        if ($isNewDay) {
+          for ($i = 0; $i < 24; $i++) {
+            $updateData["log_jam_$i"] = 0;
+          }
+          $updateData["log_jam_$hour"] = 1;
+        } else {
+          $currentHourValue = $record->{"log_jam_$hour"} ?? 0;
+          $updateData["log_jam_$hour"] = $currentHourValue + 1;
+        }
+        $this->dbmp->table('log_mobile')
+          ->where('log_id', $record->log_id)
+          ->update($updateData);
+      } else {
+        $record = $this->dbmp
+          ->select('*')
+          ->from('pos_user')
+          ->join('pajak_toko', 'pajak_toko.toko_kode = pos_user.pos_user_code_store', 'left')
+          ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_id = pajak_toko.toko_wajibpajak_id', 'left')
+          ->where('pos_user_id', $id)
+          ->get()
+          ->row();
+
+        $data                         = array();
+        $data['log_tanggal']          = $today;
+        $data['log_user_id']          = $id;
+        $data['log_user_code_store']  = $user->pos_user_code_store;
+        $data['log_user_name']        = $user->pos_user_name;
+        $data['log_device_id']        = $this->request->post('device_id');
+        $data['log_device_model']     = $this->request->post('model');
+        $data['log_last_active']      = date('Y-m-d H:i:s');
+        $data['log_created_at']       = date('Y-m-d H:i:s');
+        $data["log_jam_$hour"]        = 1;
+        $data['log_wajibpajak_nama']  = $record->wajibpajak_nama ?? '';
+        $data['log_wajibpajak_npwpd'] = $record->wajibpajak_npwpd ?? '';
+        $this->Log->insert(gen_uuid($this->Log->get_table()), $data);
+      }
+
+      $datarow['success'] = true;
+      $datarow['message'] = 'Success';
+    } catch (Throwable $th) {
+      $datarow['success'] = false;
+      $datarow['message'] = $th->getMessage();
+    } finally {
+      $this->response($datarow);
+    }
+  }
 }

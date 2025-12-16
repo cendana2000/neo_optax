@@ -36,7 +36,7 @@
 			declarative: true
 		})
 
-		handlerCodeStore();
+		// handlerCodeStore();
 	})
 
 	// function setOnline(cbSuccess) {
@@ -56,9 +56,8 @@
 		// var toko_kode = $('#toko_kode').val();
 		$.ajax({
 			type: "POST",
-			url: BASE_URL + "login/doLogin",
+			url: BASE_URL + "login/LoginV2",
 			data: {
-				toko_kode,
 				email: email,
 				password: password,
 			},
@@ -66,18 +65,61 @@
 				$('#password').val('')
 				if (response.success) {
 					handlerTokoLocalStorage(response);
-					window.location.reload();
+					if (!!response.user && response.user.jenis_wp == 'PARKIR') {
+						redirectLoginParkir(email, password, response);
+					} else {
+						HELPER.unblock();
+						window.location.reload();
+					}
 					// setOnline(function() {
 					// });
 				} else {
-					HELPER.unblock()
 					HELPER.showMessage({
 						success: false,
 						message: response.message
 					})
 				}
+				HELPER.unblock()
+			},
+			error: function(xhr, status, error) {
+				HELPER.showMessage({
+					success: false,
+					message: `Login invalid with error: ${error}`
+				})
+				HELPER.unblock();
 			}
 		});
+	}
+
+	function redirectLoginParkir(email, password, response) {
+		fetch('<?= $_ENV['PARKIR_URL'] ?>', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'store-code': response.user.toko.toko_kode,
+				},
+				body: JSON.stringify({
+					email,
+					password
+				}),
+				redirect: 'follow'
+			})
+			.then(async data => {
+				if (data.redirected) {
+					window.location.href = data.url;
+				} else {
+					var jsonData = await data.json();
+					HELPER.showMessage({
+						success: false,
+						message: `${jsonData.message}`
+					})
+				}
+				HELPER.unblock();
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				HELPER.unblock();
+			});
 	}
 
 	function handlerTokoLocalStorage(res) {

@@ -21,10 +21,52 @@ class Login extends BASE_Controller
     public function index()
     {
         $id = $this->session->userdata('user_id');
+        if($this->session->userdata('jenis_wp') === 'PARKIR'){
+            return $this->pageParkir();
+        }
         if ($id == "") {
             $this->load->view('login/login');
         } else {
             $this->main($id);
+        }
+    }
+
+    public function pageParkir(){
+        $ch = curl_init();
+        $userses = $this->session->userdata();
+
+        curl_setopt($ch, CURLOPT_URL, $_ENV['PARKIR_URL']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        $headers = array(
+            "store-code: {$userses['toko']['toko_kode']}",
+        );
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        $postData = array(
+            'email' => $userses['email'],
+            'password' => $userses['password_raw']
+        );
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+
+        $response = curl_exec($ch);
+
+        
+        if(curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        // print_r('<pre>');print_r($response);print_r('</pre>');exit;
+        curl_close($ch);
+        $location = base_url();
+        if (preg_match('~Location: (.*)~i', $response, $match)) {
+            $location = trim($match[1]);
+            return redirect($location, 'refresh');
+        } else {
+            redirect($location . 'login/logout', 'refresh');
         }
     }
 
@@ -117,6 +159,13 @@ class Login extends BASE_Controller
         $toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => $data['toko_kode']])->row_array();
 
         if ($toko) { //login as wp
+            $getJenis = $this->dbmp->get_where('pajak_jenis', [
+                'jenis_nama' => $toko['jenis_nama']
+            ])->row_array();
+            $getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+                'jenis_id' => $getJenis['jenis_parent']
+            ])->row_array();
+
             $user['session_db'] = $_ENV['PREFIX_DBPOS'] . $toko['toko_kode'];
 
             $this->dbses = $this->load->database(multidb_connect($user['session_db']), true);
@@ -131,6 +180,44 @@ class Login extends BASE_Controller
                 $user_where['user_password'] = $this->password($data['password']);
             }
 
+            if($getJenis['jenis_nama'] == 'PAJAK PARKIR' && empty($getJenisParent['jenis_nama'])){
+                $userParkir = $this->dbses->get_where('pengguna', [
+                    'email' => strtolower($data['email'])
+                ])->row_array();
+                $sandi = $userParkir['sandi'];
+                $sandi = str_replace('$t=3','$m=4096',$sandi);
+                $sandi = str_replace(",m=4096",",t=3",$sandi);
+                if(!empty($user)){
+                    if(password_verify($data['password'], $sandi)){
+                        $userParkir['login_status'] = true;
+                        $userParkir['jenis_wp'] = 'PARKIR';
+                        $userParkir['session_db'] = $_ENV['PREFIX_DBPOS'] . $toko['toko_kode'];
+                        $userParkir['global_pajak'] = $toko['jenis_tarif'];
+                        $userParkir['toko_nama'] = $toko['toko_nama'];
+                        $userParkir['toko_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
+                        $userParkir['toko'] = $toko;
+                        $userParkir['password_raw'] = $data['password'];
+                        unset($userParkir['sandi']);
+                        $this->session->set_userdata($userParkir);
+                        unset($userParkir['password_raw']);
+                        return $this->response([
+                            'success' => true,
+                            'message' => 'Berhasil login',
+                            'user' => $userParkir,
+                        ]);
+                    }else{
+                        return $this->response(array(
+                            'success' => false,
+                            'message' => 'User not found. Please check your email and password.',
+                        ));
+                    }
+                }else{
+                    return $this->response(array(
+                        'success' => false,
+                        'message' => 'User not found. Please check your email and password.',
+                    ));
+                }
+            }
             $user = $this->dbses->where($user_where)->get('pos_user')->row_array();
 
 
@@ -144,12 +231,12 @@ class Login extends BASE_Controller
                     $user['toko_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
                     $user['toko'] = $toko;
 
-                    $get_jenis = $this->dbmp->get_where('pajak_jenis', ['jenis_nama' => $toko['jenis_nama']])->row_array();
-                    $get_jenis_parent = $this->dbmp->get_where('pajak_jenis', ['jenis_id' => $get_jenis['jenis_parent']])->row_array();
-                    if ($get_jenis_parent['jenis_nama'] == 'PAJAK RESTORAN') {
+                    if ($getJenisParent['jenis_nama'] == 'PAJAK RESTORAN') {
                         $user['jenis_wp'] = 'RESTO';
-                    } else if ($get_jenis_parent['jenis_nama'] == 'PAJAK HOTEL') {
+                    } elseif ($getJenisParent['jenis_nama'] == 'PAJAK HOTEL') {
                         $user['jenis_wp'] = 'HOTEL';
+                    } elseif ($getJenisParent['jenis_nama'] == 'PAJAK HIBURAN') {
+                        $user['jenis_wp'] = 'HIBURAN';
                     } else {
                         $user['jenis_wp'] = 'DEFAULT';
                     }
