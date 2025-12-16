@@ -253,9 +253,9 @@ class User extends Base_Controller
           $currentHourValue = $record->{"log_jam_$hour"} ?? 0;
           $updateData["log_jam_$hour"] = $currentHourValue + 1;
         }
-        $this->dbmp->table('log_mobile')
+        $this->dbmp
           ->where('log_id', $record->log_id)
-          ->update($updateData);
+          ->update('log_mobile', $updateData);
       } else {
         $record = $this->dbmp
           ->select('*')

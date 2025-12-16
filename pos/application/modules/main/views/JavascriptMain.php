@@ -1,6 +1,6 @@
 <script type="text/javascript">
-	var avatar5 = new KTImageInput('user_foto');
-	var fv;
+	var pingTimer = null;
+	var BASE_URL_MONITORING = '<?= $_ENV['PAJAK_URL'] ?>'
 	$(function() {
 		moment.locale('id');
 		HELPER.set_role_access(<?= $role ?>)
@@ -33,8 +33,8 @@
 
 		// detailProject()
 		// loadProject()
-
-		loadQr();
+		startPingInterval();
+		// loadQr();
 	})
 
 	function loadQr() {
@@ -180,29 +180,44 @@
 			}
 		})
 	}
+
+	function startPingInterval() {
+		$.ajax({
+			url: BASE_URL_MONITORING + "/conf/get",
+			method: "POST",
+			success: function(res) {
+				if (!res.success) return;
+				let mobileConfig = res.data.mobile_interval_ping || [];
+				let pingConf = mobileConfig.find(c => c.conf_code === "mobile_interval_ping");
+
+				let intervalMinute = pingConf ? parseInt(pingConf.conf_value) : 10;
+				let intervalMs = intervalMinute * 60 * 1000;
+
+				// console.log("Ping interval setiap", intervalMinute, "menit");
+
+				if (pingTimer) {
+					clearInterval(pingTimer);
+				}
+				pingTimer = setInterval(() => {
+					sendPing();
+				}, intervalMs);
+			}
+		});
+	}
+
+	function sendPing() {
+		$.ajax({
+			url: BASE_URL + "main/ping",
+			method: "POST",
+			xhrFields: {
+				withCredentials: true
+			},
+			success: function(res) {
+				console.log("Ping OK:", res.message);
+			},
+			error: function() {
+				console.log("Ping failed");
+			}
+		});
+	}
 </script>
-
-
-<!-- <script type="module">
-	import {
-		io
-	} from "<?= base_url() ?>socketserver/node_modules/socket.io/client-dist/socket.io.esm.min.js";
-
-	var socket = io("<?= $_ENV['SOCKET_CONNECT']; ?>"); //Server Sekawan
-	// var socket = io("wss://192.168.100.59:3000"); //IP Sena
-
-	// Web socket
-	const userdata = <?= json_encode($this->session->userdata()); ?>;
-	window.socket = socket;
-
-	let dataDiri = {
-		'user_id': userdata.user_id,
-		'toko_id': userdata.toko.toko_id,
-		'toko_nama': userdata.toko.toko_nama,
-		'user_nama': userdata.user_nama,
-	};
-	window.userdata = dataDiri;
-	$(document).ready(function() {
-		socket.emit('user_data', dataDiri);
-	});
-</script> -->

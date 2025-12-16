@@ -15,3 +15,5 @@
 # Environment
 *.envconfig
 *.log
+
+.env
