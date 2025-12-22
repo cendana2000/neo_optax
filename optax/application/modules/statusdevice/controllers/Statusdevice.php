@@ -261,10 +261,9 @@ class Statusdevice extends Base_Controller
     {
         try {
             $record      = $this->db
-                ->table($this->statusdevice->get_tablename())
                 ->where('v_status_device.toko_id', $toko_id)
-                ->get()
-                ->getRow();
+                ->get($this->statusdevice->get_tablename())
+                ->row();
 
             if (!$record) {
                 throw new Exception('Data Tidak Ditemukan');
@@ -369,20 +368,30 @@ class Statusdevice extends Base_Controller
 
         $dtCaption  = '';
 
-        $records    = $this->db->table($this->lastactivity->get_table_name())
-            ->join('pajak_toko', 'pajak_toko.toko_kode = log_mobile.log_user_code_store', 'left')
-            ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd', 'left');
+        $table = $this->lastactivity->get_table_name();
 
-        if ($v = varPost('tanggal')) {
-            $records->where('log_tanggal', $v);
+        $this->db->from($table);
+        $this->db->join(
+            'pajak_toko',
+            'pajak_toko.toko_kode = log_mobile.log_user_code_store',
+            'left'
+        );
+        $this->db->join(
+            'pajak_wajibpajak',
+            'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd',
+            'left'
+        );
+
+        if ($v = $this->input->post('tanggal')) {
+            $this->db->where('log_tanggal', $v);
         }
 
-        if ($v = varPost('code_store')) {
-            $records->where('log_user_code_store', $v);
+        if ($v = $this->input->post('code_store')) {
+            $this->db->where('log_user_code_store', $v);
         }
 
-        $records    = $records->get()
-            ->getResult();
+        $query  = $this->db->get();
+        $records = $query->result();   // array of object
 
         $html .= '<table style="width:100%;">
 			<tr>
@@ -525,20 +534,30 @@ class Statusdevice extends Base_Controller
                     ->setAutoSize(true);
             }
 
-            $records    = $this->db->table($this->lastactivity->get_table_name())
-                ->join('pajak_toko', 'pajak_toko.toko_kode = log_mobile.log_user_code_store', 'left')
-                ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd', 'left');
+            $table = $this->lastactivity->get_table_name();
 
-            if ($v = varPost('tanggal')) {
-                $records->where('log_tanggal', $v);
+            $this->db->from($table);
+            $this->db->join(
+                'pajak_toko',
+                'pajak_toko.toko_kode = log_mobile.log_user_code_store',
+                'left'
+            );
+            $this->db->join(
+                'pajak_wajibpajak',
+                'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd',
+                'left'
+            );
+
+            if ($v = $this->input->post('tanggal')) {
+                $this->db->where('log_tanggal', $v);
             }
 
-            if ($v = varPost('code_store')) {
-                $records->where('log_user_code_store', $v);
+            if ($v = $this->input->post('code_store')) {
+                $this->db->where('log_user_code_store', $v);
             }
 
-            $records    = $records->get()
-                ->getResult();
+            $query  = $this->db->get();
+            $records = $query->result();   // array of object
 
             $styleArray = [
                 'font' => [
@@ -624,8 +643,8 @@ class Statusdevice extends Base_Controller
             $sheet->getStyle('A2:F' . $no)->applyFromArray($styleArray);
 
             $writer         = new Xlsx($spreadsheet);
-            $filename       = 'subrealisasipajak-' . date('d-m-y-H-i-s') . '.xlsx';
-            $folder         = FCPATH . 'assets/laporan/monitor_realisasi/';
+            $filename       = 'statusdevice-' . date('d-m-y-H-i-s') . '.xlsx';
+            $folder         = FCPATH . 'assets/laporan/status_device/';
             $file           = $folder . $filename;
 
             if (!is_dir($folder)) {

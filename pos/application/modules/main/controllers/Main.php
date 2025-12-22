@@ -103,13 +103,13 @@ class Main extends Base_Controller
 
     public function ping()
     {
-        $email = $this->session->userdata('user_role_access_email');
+        $email = $this->session->userdata('user_email');
         $userId = $this->session->userdata('user_id');
         $codeStore = $this->session->userdata('toko_kode');
-        $userName = $this->session->userdata('user_role_access_nama') ?? $this->session->userdata('pos_user_name');
+        $userName = $this->session->userdata('user_role_access_nama') ?? $this->session->userdata('user_nama');
 
         $wpNama = $this->session->userdata('toko_nama') ?? '';
-        $wpNpwpd = $this->session->userdata('toko_wajibpajak_npwpd') ?? '';
+        $wpNpwpd = $this->session->userdata('npwpd') ?? '';
 
         if (!$email || !$userId) {
             $this->response([
@@ -142,9 +142,9 @@ class Main extends Base_Controller
             ->row_array();
 
         if ($wajibpajak) {
-            $result = $this->dbmp->table('pajak_wajibpajak')
+            $result = $this->dbmp
                 ->where('wajibpajak_email', strtolower($email))
-                ->update(['web_last_active' => date('Y-m-d H:i:s')]);
+                ->update('pajak_wajibpajak', ['web_last_active' => date('Y-m-d H:i:s')]);
         } else {
             $this->response([
                 'success' => false,

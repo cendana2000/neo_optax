@@ -41,13 +41,11 @@ class BASE_Controller extends MX_Controller
         }
 
 
-        $this->db = $this->load->database(multidb_connect($this->session->userdata('session_db')), true);
+        // $this->db = $this->load->database(multidb_connect($this->session->userdata('session_db')), true);
         $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
     }
 
-    public function index()
-    {
-    }
+    public function index() {}
 
     function model($modelName = null)
     {
@@ -605,10 +603,18 @@ class BASE_Controller extends MX_Controller
     public function getMonth()
     {
         $month = array(
-            '01' => 'Januari',   '02' => 'Februari',     '03' => 'Maret',
-            '04' => 'April',     '05' => 'Mei',          '06' => 'Juni',
-            '07' => 'Juli',      '08' => 'Agustus',      '09' => 'September',
-            '10' => 'Oktober',   '11' => 'November',     '12' => 'Desember'
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
         );
 
         return $month;

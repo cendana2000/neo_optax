@@ -204,7 +204,7 @@
                     }
                 },
                 {
-                    target: 3,
+                    targets: 3,
                     width: '220px',
                     orderable: false,
                     render: function(data, type, full, meta) {
@@ -212,7 +212,7 @@
                     }
                 },
                 {
-                    target: 4,
+                    targets: 4,
                     width: '220px',
                     orderable: false,
                     render: function(data, type, full, meta) {
@@ -220,7 +220,7 @@
                     }
                 },
                 {
-                    target: 5,
+                    targets: 5,
                     orderable: false,
                     render: function(data, type, full, meta) {
                         return `<button data-id="${full['toko_id']}" class="btn btn-sm btn-light-primary btn-detail"><i class="fa fa-info-circle"></i></button>`;
