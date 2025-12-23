@@ -15,6 +15,10 @@ class Kategori extends Base_Controller
 
 	public function index()
 	{
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+
 		$this->response(
 			$this->db->get('pos_kategori')->result_array()
 		);
@@ -23,7 +27,6 @@ class Kategori extends Base_Controller
 	public function mobile_read()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
 		}
@@ -32,6 +35,10 @@ class Kategori extends Base_Controller
 
 		if ($filter != NULL) {
 			$this->db->like('kategori_barang_nama', strtoupper($filter));
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
 		}
 
 		$this->response([
@@ -120,12 +127,14 @@ class Kategori extends Base_Controller
 		// $data['mobileDb'] = 'posprod_0crge';
 
 		if (array_key_exists('mobileDb', $data)) {
-			$this->db = $this->load->database(multidb_connect($data['mobileDb']), true);
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
 				$this->db->like('kategori_barang_nama', $filter);
 			} else {
 				$filter = "";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$this->response($this->db->get_where("pos_kategori", ['kategori_barang_aktif' => '1'])->result_array());
 		}
@@ -136,7 +145,8 @@ class Kategori extends Base_Controller
 		$kelompokbarang = $this->kelompokbarang->select(array(
 			'filters_static' => array(
 				'kategori_barang_aktif' => '1'
-			), 'sort_static' => 'kategori_barang_nama asc'
+			),
+			'sort_static' => 'kategori_barang_nama asc'
 		));
 		$opr = $this->buildTree($kelompokbarang['data']);
 		$operation = array(
@@ -294,6 +304,7 @@ class Kategori extends Base_Controller
 					'kategori_barang_tipe' => 'parent',
 					'kategori_barang_parent' => ($value[3] != '#') ? md5($value[3]) : '#',
 					'kategori_barang_aktif' => 1,
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_kategori', $batch);

@@ -101,7 +101,12 @@ class TransaksipembelianModel extends Base_Model
 		$bulan = date('Ym', strtotime($tgl));
 		// if($prefix == 'KS') $bulan = date('Y', strtotime($tgl)).'-';
 		if ($prefix == 'KS') $bulan = date('mY', strtotime($tgl)) . '-';
-		$kode = $this->db->query('SELECT pembelian_kode FROM pos_pembelian_barang WHERE pembelian_kode like \'' . $bulan . '%\' order by pembelian_kode desc limit 1')->result_array();
+
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$kode = $this->db->query('SELECT pembelian_kode FROM pos_pembelian_barang WHERE pembelian_kode like \'' . $bulan . '%\' ' . $where . ' order by pembelian_kode desc limit 1')->result_array();
 		if (isset($kode[0]['pembelian_kode'])) {
 			$last_kode = explode('-', $kode[0]['pembelian_kode']);
 			$last_kode = explode('/', $last_kode[1]);
@@ -111,7 +116,7 @@ class TransaksipembelianModel extends Base_Model
 		}
 		// $bulan = str_replace('-', '', $bulan);
 		$tanggal = date('ymd');
-		return $tanggal .'.'. $last_kode . '/' . $prefix;
+		return $tanggal . '.' . $last_kode . '/' . $prefix;
 	}
 }
 

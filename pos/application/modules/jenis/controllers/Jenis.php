@@ -36,13 +36,15 @@ class Jenis extends Base_Controller
 	public function select_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
 				$this->db->like('jenis_nama', $filter);
 			} else {
 				$filter = "";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$this->response($this->db->get_where("pos_jenis", ['jenis_deleted_at' => null])->result_array());
 		}
@@ -115,6 +117,7 @@ class Jenis extends Base_Controller
 					'jenis_deskripsi' => $value[2],
 					'jenis_include_stok' => $value[3],
 					'jenis_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_jenis', $batch);

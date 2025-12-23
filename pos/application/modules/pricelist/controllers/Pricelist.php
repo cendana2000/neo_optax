@@ -29,6 +29,10 @@ class Pricelist extends Base_Controller
 		$where = ($data['fdata']['barang_kategori_barang']) ? 'AND barang_kategori_barang = \'' . $data['fdata']['barang_kategori_barang'] . '\'' : '';
 		$where .= ' AND barang_deleted_at is null';
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where .= ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE concat(barang_kode, barang_nama) like \'%' . $data['q'] . '%\' ' . $where)->result_array();
 
 		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, \' - \', barang_nama) as text FROM v_pos_barang WHERE concat(barang_kode, barang_nama) like \'%' . $data['q'] . '%\' ' . $where . ' LIMIT ' . $data['page'] . $data['limit'])->result_array();
@@ -160,6 +164,9 @@ class Pricelist extends Base_Controller
 		}
 		if ($data['barang_id']) $where[] = 'barang_id = \'' . $data['barang_id'] . '\'';
 		$where[] = 'barang_deleted_at is null';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where[] = 'wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$where = (count($where) > 0) ? 'where ' . implode(' AND ', $where) : '';
 		$stok = $this->db->query('SELECT barang_kode, barang_nama, kategori_barang_nama, barang_satuan_kode, 
 									barang_harga, barang_satuan_opt_kode, barang_harga_opt, barang_satuan_opt2_kode, barang_harga_opt2 FROM v_pos_barang  ' . $where . ' ORDER BY barang_nama asc')->result_array();
@@ -310,6 +317,9 @@ class Pricelist extends Base_Controller
 		</style>';
 
 		$where = [];
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where[] = 'wajibpajak_id =' . $this->db->escape($wp_id);
+		}
 		if ($data['ftype'] == 'form') {
 			if ($data['barang_kategori_barang']) {
 				$where[] = 'barang_kategori_barang = \'' . $data['barang_kategori_barang'] . '\' OR barang_kategori_parent = \'' . $data['barang_kategori_barang'] . '\' ';
@@ -508,6 +518,9 @@ class Pricelist extends Base_Controller
 		</style>';
 
 		$where = [];
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where[] = 'wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		if ($data['ftype'] == 'form') {
 			if ($data['barang_kategori_barang']) {
 				$where[] = 'barang_kategori_barang = \'' . $data['barang_kategori_barang'] . '\' OR barang_kategori_parent = \'' . $data['barang_kategori_barang'] . '\' ';

@@ -96,6 +96,8 @@ class LoginV2 extends BASE_Controller
 			} else {
 				$posUser['jenis_wp'] = 'DEFAULT';
 			}
+
+			$posUser['toko'] = $toko;
 			// $this->session->set_userdata($posUser);
 			$this->session->set_userdata([
 				'is_login'      => true,
@@ -109,6 +111,7 @@ class LoginV2 extends BASE_Controller
 				'npwpd'         => $toko['toko_wajibpajak_npwpd'],
 				'global_pajak'  => $toko['jenis_tarif'],
 				'wajibpajak_id' => $posUser['wajibpajak_id'],
+				'pemda_id'		=> $toko['pemda_id'],
 				'jenis_wp'		=> $posUser['jenis_wp']
 			]);
 			$operation = array(

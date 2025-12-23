@@ -158,10 +158,8 @@ class Profile extends BASE_Controller
                     $this->image_lib->initialize($resize);
                     $this->image_lib->resize();
                 }
-                $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
-
-                $this->dbmp->where('pos_user_id', $user_id);
-                $this->dbmp->update('pos_user', [
+                $this->db->where('pos_user_id', $user_id);
+                $this->db->update('pos_user', [
                     'pos_user_photo' => $new_file
                 ]);
             }

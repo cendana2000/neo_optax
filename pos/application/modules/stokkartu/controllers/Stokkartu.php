@@ -43,10 +43,15 @@ class Stokkartu extends Base_Controller
 		$where = ($data['fdata']['barang_supplier_id']) ? 'barang_supplier_id = \'' . $data['fdata']['barang_supplier_id'] . '\' AND ' : '';
 		// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\') ')->result_array();
+
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\') ' . $where1)->result_array();
 		$return = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama, barang_harga, barang_stok, barang_kode as saved FROM v_pos_barang 
 		WHERE jenis_include_stok = 1 
-		AND ' . $where . ' (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\') 
+		AND ' . $where . ' (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\')  ' . $where1 . '
 		ORDER BY barang_nama 
 		LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		// , " (stok: ", barang_stok, ")"

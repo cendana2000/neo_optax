@@ -71,6 +71,9 @@ class StokkartuModel extends Base_Model
 
 	public function insert_kartu_new($data, $trans)
 	{
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$br = $this->db->select('barang_stok, barang_satuan')
 			->get_where('pos_barang', array('barang_id' => $data['kartu_barang_id']))
 			->result_array();
@@ -85,6 +88,9 @@ class StokkartuModel extends Base_Model
 			// $data['kartu_satuan_id'] = $barang['barang_satuan'];
 			$data['kartu_stok_akhir'] = $data['kartu_stok_akhir'] ?? ($data['kartu_stok_awal'] + $data['kartu_stok_masuk'] - $data['kartu_stok_keluar']);
 			$data['kartu_kode'] = $this->gen_kode(false, $trans);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$data['wajibpajak_id'] = $wp_id;
+			}
 			$opt = $this->db->insert('pos_kartu_stok', $data);
 			$this->db->where('barang_id', $data['kartu_barang_id'])
 				->update('pos_barang', ['barang_stok' => $data['kartu_stok_akhir'], 'barang_harga_pokok' => $data['kartu_harga']]);
@@ -105,6 +111,7 @@ class StokkartuModel extends Base_Model
 					'stok_updated'		=> date('Y-m-d H:i:s'),
 					'stok_user_id'		=> $this->session->userdata('user_id'),
 					'stok_satuan_id'	=> $data['kartu_satuan_id'],
+					'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 				));
 				// 'stok_user_nama'	=> $this->session->userdata('user_id'),
 				// 'stok_kategori_id' 	=> $this->config->item('base_gudang'),
@@ -124,10 +131,10 @@ class StokkartuModel extends Base_Model
 						->update('pos_stok');
 					/*, [
 						 	'stok_qty' 			=> $data['kartu_stok_akhir'],
-							'stok_updated'		=> date('Y-m-d H:i:s'),
+							 'stok_updated'		=> date('Y-m-d H:i:s'),
 							'stok_user_id'		=> $this->session->userdata('user_id'),
 							'stok_satuan_id'	=> $data['kartu_satuan_id'],
-						 ]);*/
+							]);*/
 				} else {
 					$this->db->insert('pos_stok', array(
 						'stok_id' 			=> gen_uuid($this->get_table()),
@@ -137,6 +144,7 @@ class StokkartuModel extends Base_Model
 						'stok_updated'		=> date('Y-m-d H:i:s'),
 						'stok_user_id'		=> $this->session->userdata('user_id'),
 						'stok_satuan_id'	=> $data['kartu_satuan_id'],
+						'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 					));
 				}
 			}
@@ -147,9 +155,15 @@ class StokkartuModel extends Base_Model
 
 	public function insert_kartu($data, $trans)
 	{
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$br = $this->db->select('barang_stok, barang_satuan, barang_kategori_barang')
 			->get_where('pos_barang', array('barang_id' => $data['kartu_barang_id']))
 			->result_array();
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$gd = $this->db->select('*')
 			->get_where('pos_stok', array('stok_barang_id' => $data['kartu_barang_id'], 'stok_gudang_id' => $this->config->item('base_gudang'), 'stok_periode' => date('Y-m', strtotime($data['kartu_tanggal']))))
 			->result_array();
@@ -162,7 +176,13 @@ class StokkartuModel extends Base_Model
 			// $data['kartu_stok_akhir'] = $data['kartu_stok_awal']+$data['kartu_stok_masuk']-$data['kartu_stok_keluar'];
 			$data['kartu_stok_akhir'] = $data['kartu_stok_akhir'] ?? ($data['kartu_stok_awal'] + $data['kartu_stok_masuk'] - $data['kartu_stok_keluar']);
 			$data['kartu_kode'] = $this->gen_kode(false, $trans);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$data['wajibpajak_id'] = $wp_id;
+			}
 			$opt = $this->db->insert('pos_kartu_stok', $data);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$this->db->where('barang_id', $data['kartu_barang_id'])
 				->update('pos_barang', ['barang_stok' => $data['kartu_stok_akhir'], 'barang_harga_pokok' => $data['kartu_harga'], 'barang_yearly' => 1]);
 			if ($gd) {
@@ -184,6 +204,7 @@ class StokkartuModel extends Base_Model
 					'stok_updated'		=> date('Y-m-d H:i:s'),
 					'stok_user_id'		=> $this->session->userdata('user_id'),
 					'stok_satuan_id'	=> $data['kartu_satuan_id'],
+					'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 				));
 				// 'stok_user_nama'	=> $this->session->userdata('user_id'),
 				// 'stok_kategori_id' 	=> $this->config->item('base_gudang'),
@@ -202,11 +223,11 @@ class StokkartuModel extends Base_Model
 						->set('stok_satuan_id', $data['kartu_satuan_id'])
 						->update('pos_stok');
 					/*, [
-						 	'stok_qty' 			=> $data['kartu_stok_akhir'],
+						'stok_qty' 			=> $data['kartu_stok_akhir'],
 							'stok_updated'		=> date('Y-m-d H:i:s'),
 							'stok_user_id'		=> $this->session->userdata('user_id'),
 							'stok_satuan_id'	=> $data['kartu_satuan_id'],
-						 ]);*/
+							]);*/
 				} else {
 					$this->db->insert('pos_stok', array(
 						'stok_id' 			=> gen_uuid($this->get_table()),
@@ -216,6 +237,7 @@ class StokkartuModel extends Base_Model
 						'stok_updated'		=> date('Y-m-d H:i:s'),
 						'stok_user_id'		=> $this->session->userdata('user_id'),
 						'stok_satuan_id'	=> $data['kartu_satuan_id'],
+						'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 					));
 				}
 			}
@@ -226,11 +248,15 @@ class StokkartuModel extends Base_Model
 
 	public function insert_kartu_mobile($mobileDb = null, $data, $trans)
 	{
-		$this->db = $this->load->database(multidb_connect($mobileDb), true);
-
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$br = $this->db->select('barang_stok, barang_satuan, barang_kategori_barang')
 			->get_where('pos_barang', array('barang_id' => $data['kartu_barang_id']))
 			->result_array();
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$gd = $this->db->select('*')
 			->get_where('pos_stok', array('stok_barang_id' => $data['kartu_barang_id'], 'stok_gudang_id' => $this->config->item('base_gudang'), 'stok_periode' => date('Y-m', strtotime($data['kartu_tanggal']))))
 			->result_array();
@@ -243,6 +269,9 @@ class StokkartuModel extends Base_Model
 			// $data['kartu_stok_akhir'] = $data['kartu_stok_awal']+$data['kartu_stok_masuk']-$data['kartu_stok_keluar'];
 			$data['kartu_stok_akhir'] = $data['kartu_stok_akhir'] ?? ($data['kartu_stok_awal'] + $data['kartu_stok_masuk'] - $data['kartu_stok_keluar']);
 			$data['kartu_kode'] = $this->gen_kode(false, $trans);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$data['wajibpajak_id'] = $wp_id;
+			}
 			$opt = $this->db->insert('pos_kartu_stok', $data);
 			$this->db->where('barang_id', $data['kartu_barang_id'])
 				->update('pos_barang', ['barang_stok' => $data['kartu_stok_akhir'], 'barang_harga_pokok' => $data['kartu_harga'], 'barang_yearly' => 1]);
@@ -265,6 +294,7 @@ class StokkartuModel extends Base_Model
 					'stok_updated'		=> date('Y-m-d H:i:s'),
 					'stok_user_id'		=> $this->session->userdata('user_id'),
 					'stok_satuan_id'	=> $data['kartu_satuan_id'],
+					'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 				));
 				// 'stok_user_nama'	=> $this->session->userdata('user_id'),
 				// 'stok_kategori_id' 	=> $this->config->item('base_gudang'),
@@ -297,6 +327,7 @@ class StokkartuModel extends Base_Model
 						'stok_updated'		=> date('Y-m-d H:i:s'),
 						'stok_user_id'		=> $this->session->userdata('user_id'),
 						'stok_satuan_id'	=> $data['kartu_satuan_id'],
+						'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 					));
 				}
 			}
@@ -310,8 +341,14 @@ class StokkartuModel extends Base_Model
 		$succes = true;
 		/*else{
 		}*/
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$kartu_awal = $this->db->select('kartu_id, kartu_kode, kartu_barang_id, kartu_stok_awal, kartu_stok_masuk, kartu_stok_keluar, kartu_stok_akhir, kartu_harga, kartu_transaksi, kartu_transaksi_kode')
 			->get_where('pos_kartu_stok', array('kartu_id' => $data['kartu_id']))->result_array();
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$gd = $this->db->select('*')
 			->get_where('pos_stok', array('stok_barang_id' => $data['kartu_barang_id'], 'stok_gudang_id' => $this->config->item('base_gudang')))
 			->result_array();

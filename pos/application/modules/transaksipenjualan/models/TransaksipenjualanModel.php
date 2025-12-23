@@ -90,7 +90,12 @@ class TransaksipenjualanModel extends Base_Model
 
 	public function gen_kode_penjualan($value = false, $trans)
 	{
-		$kode = $this->db->query('SELECT penjualan_tanggal, penjualan_kode FROM pos_penjualan order by penjualan_created desc limit 1')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' WHERE wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
+		$kode = $this->db->query('SELECT penjualan_tanggal, penjualan_kode FROM pos_penjualan ' . $where . ' order by penjualan_created desc limit 1')->result_array();
 		if (isset($kode[0]['penjualan_kode'])) {
 			if ($kode[0]['penjualan_tanggal'] < date('Y-m-d', strtotime($trans['penjualan_tanggal']))) {
 				$last_kode = '001';
@@ -106,10 +111,11 @@ class TransaksipenjualanModel extends Base_Model
 
 	public function gen_nomor_antrian($isMobile = false, $mobileDb = '')
 	{
-		if ($isMobile) {
-			$this->db = $this->load->database(multidb_connect($mobileDb), true);
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' WHERE wajibpajak_id=' . $this->db->escape($wp_id);
 		}
-		$antrian = $this->db->query('SELECT * FROM pos_penjualan order by penjualan_created desc limit 1')->result_array();
+		$antrian = $this->db->query('SELECT * FROM pos_penjualan ' . $where . ' order by penjualan_created desc limit 1')->result_array();
 
 		if (isset($antrian[0]['penjualan_no_antrian'])) {
 			if ($antrian[0]['penjualan_tanggal'] < date('Y-m-d')) {

@@ -85,13 +85,8 @@ class Base_model extends CI_Model
     function __construct(&$model_config = null)
     {
         parent::__construct();
-        $this->dboapi = $this->load->database(multidb_connect('pos_oapi_dialoogi'), true);
-        $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
 
         $this->set_model($model_config);
-        if (!empty($this->session->userdata('session_db'))) {
-            $this->db = $this->load->database(multidb_connect($this->session->userdata('session_db')), true);
-        }
     }
 
     function init_fields($fields = null)
@@ -727,6 +722,12 @@ class Base_model extends CI_Model
             // $this->db->where(array($this->get_primary()=>$id));
         }
         if (!empty($id)) {
+            if ($this->db->field_exists('wajibpajak_id', $this->get_table())) {
+                if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                    $this->db->where('wajibpajak_id', $wp_id);
+                }
+            }
+
             if ($mapped) {
                 $this->db->select($this->alias_fields($this->get_fields_name(true)));
             } else {
@@ -752,8 +753,6 @@ class Base_model extends CI_Model
 
     function read_mobile($mobileDb, $id = null, $rendered = false, $mapped = true, $untrack = false)
     {
-        $this->db = $this->load->database(multidb_connect($mobileDb), true);
-
         $this->event('before_read');
         $record = null;
 
@@ -932,6 +931,12 @@ class Base_model extends CI_Model
                         }
                     }
                     if ($run_query === true) {
+                        if ($this->db->field_exists('wajibpajak_id', $this->get_table())) {
+                            if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                                $data['wajibpajak_id'] = $wp_id;
+                            }
+                        }
+
                         // echo "in";
                         $query = $this->db->insert($this->get_table(), $data);
                         // echo $this->db->last_query();
@@ -970,8 +975,6 @@ class Base_model extends CI_Model
 
     function insert_mobile($mobileDb = null, $id = null, $data = null, $fn = null, $return_record = true)
     {
-        $this->db = $this->load->database(multidb_connect($mobileDb), true);
-
         $this->event('before_insert');
 
         $response = array('success' => false, 'message' => $this->get_response('insert_failed'), 'id' => null, 'record' => null);
@@ -1136,6 +1139,12 @@ class Base_model extends CI_Model
                     }
 
                     if ($run_query === true) {
+                        if ($this->db->field_exists('wajibpajak_id', $this->get_table())) {
+                            if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                                $this->db->where('wajibpajak_id', $wp_id);
+                            }
+                        }
+
                         $query = $this->db->update($this->get_table(), $data, $sql_where);
                         $this->set_lastquery($this->db->last_query());
 
@@ -1200,6 +1209,11 @@ class Base_model extends CI_Model
 
         if ($this->exist($id, true)) {
             $record = $this->read($id, false, true);
+            if ($this->db->field_exists('wajibpajak_id', $this->get_table())) {
+                if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                    $this->db->where('wajibpajak_id', $wp_id);
+                }
+            }
             $query = $this->db->delete($this->get_table(), $sql_where);
             $this->set_lastquery($this->db->last_query());
             if ($query) {
@@ -1425,6 +1439,24 @@ class Base_model extends CI_Model
             }
         }
 
+        if (!isset($config['without_global_scope'])) {
+            if ($this->db->field_exists('wajibpajak_id', $sql_table)) {
+                if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                    $sql_where .= ' AND ' . $sql_table . '.wajibpajak_id=' . $this->db->escape($wp_id);
+                }
+            }
+        }
+
+        if (array_key_exists('without_global_scope', $config)) {
+            if (!$config['without_global_scope']) {
+                if ($this->db->field_exists('wajibpajak_id', $sql_table)) {
+                    if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                        $sql_where .= ' AND ' . $sql_table . '.wajibpajak_id=' . $this->db->escape($wp_id);
+                    }
+                }
+            }
+        }
+
         // custom filters
         if (array_key_exists('filters_query', $config) and is_array($config['filters_query']) and !empty($config['filters_query'])) {
             $config['filters_query'] = varApplyIf($config['filters_query'], array(
@@ -1531,7 +1563,6 @@ class Base_model extends CI_Model
 
     function select_mobile($mobileDb = null, $config = null, $fn = null)
     {
-        $this->db = $this->load->database(multidb_connect($mobileDb), true);
         $this->event('before_select');
 
         // initializing variables

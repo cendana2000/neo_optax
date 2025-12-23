@@ -42,8 +42,6 @@ class Mobile extends Base_Controller
 					$this->output->_display();
 					exit;
 				}
-				$this->db = $this->load->database(multidb_connect($decodedToken->session_db), true);
-				$this->dbname = $decodedToken->session_db;
 			}
 		}
 	}

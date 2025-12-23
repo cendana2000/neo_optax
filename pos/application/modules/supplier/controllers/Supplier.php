@@ -39,9 +39,13 @@ class Supplier extends Base_Controller
 	{
 		$data = varPost();
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
-		$total = $this->db->query('SELECT count(supplier_id) total FROM pos_supplier WHERE supplier_deleted_at IS NULL AND concat(supplier_kode, supplier_nama) like \'%' . $data['q'] . '%\'')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(supplier_id) total FROM pos_supplier WHERE supplier_deleted_at IS NULL AND concat(supplier_kode, supplier_nama) like \'%' . $data['q'] . '%\' ' . $where . '')->result_array();
 
-		$return = $this->db->query('SELECT supplier_id as id, concat(supplier_kode, \' - \', supplier_nama) as text, supplier_kode FROM pos_supplier WHERE supplier_deleted_at IS NULL AND concat(supplier_kode, supplier_nama) like \'%' . $data['q'] . '%\' ORDER BY supplier_kode, supplier_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$return = $this->db->query('SELECT supplier_id as id, concat(supplier_kode, \' - \', supplier_nama) as text, supplier_kode FROM pos_supplier WHERE supplier_deleted_at IS NULL AND concat(supplier_kode, supplier_nama) like \'%' . $data['q'] . '%\' ' . $where . ' ORDER BY supplier_kode, supplier_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
 
@@ -346,6 +350,7 @@ class Supplier extends Base_Controller
 					'supplier_hp' => $value[6],
 					'supplier_rekening' => $value[7],
 					'supplier_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_supplier', $batch);

@@ -168,6 +168,10 @@ class Laporanretur extends Base_Controller
 				<th class="t-center">JML. HARGA</th>
 				<th class="t-center">TOTAL</th>
 			</tr>';
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$retur = $this->db->select('retur_pembelian_id,retur_pembelian_tanggal, retur_pembelian_kode, retur_pembelian_total')
 			->from('pos_retur_pembelian_barang')
 			->where($filter)
@@ -185,6 +189,9 @@ class Laporanretur extends Base_Controller
 				$color = "";
 			} else {
 				$color = "background-color:#c6ccc8";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$detail =  $this->db->select('barang_kode, barang_nama, retur_pembelian_detail_retur_qty, retur_pembelian_detail_qty_barang, retur_pembelian_detail_harga, retur_pembelian_detail_jumlah,barang_satuan_konversi, retur_pembelian_detail_satuan_kode')
 				->from('v_pos_retur_pembelian_barang_detail')
@@ -387,6 +394,9 @@ class Laporanretur extends Base_Controller
 				<th class="t-center">JML. HARGA</th>
 				<th class="t-center">TOTAL</th>
 			</tr>';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$retur = $this->db->select('retur_penjualan_id,retur_penjualan_tanggal, retur_penjualan_kode, retur_penjualan_total')
 			->from('pos_retur_penjualan_barang')
 			->where($filter)
@@ -403,6 +413,9 @@ class Laporanretur extends Base_Controller
 				$color = "";
 			} else {
 				$color = "background-color:#c6ccc8";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$detail =  $this->db->select('barang_kode, barang_nama, retur_penjualan_detail_qty,retur_penjualan_detail_retur_qty, retur_penjualan_detail_harga, retur_penjualan_detail_jumlah, retur_penjualan_detail_satuan_kode')
 				->from('v_pos_retur_penjualan_detail')
@@ -482,6 +495,9 @@ class Laporanretur extends Base_Controller
 					'retur_pembelian_tanggal <=' => $data['tanggal_sampai']
 				];
 			}
+		}
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
 		}
 		$ops = $this->db->select('retur_pembelian_id,retur_pembelian_tanggal, retur_pembelian_kode, retur_pembelian_total')
 			->from('pos_retur_pembelian_barang')

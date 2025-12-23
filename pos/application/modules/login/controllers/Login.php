@@ -74,7 +74,7 @@ class Login extends BASE_Controller
     {
         $data = varPost();
 
-        $toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => $data['toko_kode']])->row_array();
+        $toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $data['toko_kode']])->row_array();
         if (isset($toko['toko_kode']) && !empty($toko['toko_kode'])) {
             $op = array(
                 'success' => true,
@@ -156,13 +156,13 @@ class Login extends BASE_Controller
     {
         $data = varPost();
 
-        $toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => $data['toko_kode']])->row_array();
+        $toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $data['toko_kode']])->row_array();
 
         if ($toko) { //login as wp
-            $getJenis = $this->dbmp->get_where('pajak_jenis', [
+            $getJenis = $this->db->get_where('pajak_jenis', [
                 'jenis_nama' => $toko['jenis_nama']
             ])->row_array();
-            $getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+            $getJenisParent = $this->db->get_where('pajak_jenis', [
                 'jenis_id' => $getJenis['jenis_parent']
             ])->row_array();
 

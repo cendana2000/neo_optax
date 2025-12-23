@@ -86,7 +86,7 @@ class Main extends Base_Controller
 
     public function changeLog()
     {
-        $operation = $this->dbmp->query('SELECT * FROM sys_change_log 
+        $operation = $this->db->query('SELECT * FROM sys_change_log 
         WHERE change_log_which_app = 1 
         ORDER BY change_log_change_date DESC
         LIMIT 3')->result_array();
@@ -136,13 +136,13 @@ class Main extends Base_Controller
 
     private function updateWebLastActive($email)
     {
-        $wajibpajak = $this->dbmp
+        $wajibpajak = $this->db
             ->where('wajibpajak_email', strtolower($email))
             ->get('pajak_wajibpajak')
             ->row_array();
 
         if ($wajibpajak) {
-            $result = $this->dbmp
+            $result = $this->db
                 ->where('wajibpajak_email', strtolower($email))
                 ->update('pajak_wajibpajak', ['web_last_active' => date('Y-m-d H:i:s')]);
         } else {
@@ -170,7 +170,7 @@ class Main extends Base_Controller
 
         $deviceId = 'web_' . md5($userId . session_id());
 
-        $record = $this->dbmp
+        $record = $this->db
             ->where('log_user_id', $userId)
             ->get('log_mobile')
             ->row();
@@ -193,7 +193,7 @@ class Main extends Base_Controller
                 $currentHourValue = $record->{"log_jam_$hour"} ?? 0;
                 $updateData["log_jam_$hour"] = $currentHourValue + 1;
             }
-            $this->dbmp
+            $this->db
                 ->where('log_id', $record->log_id)
                 ->update('log_mobile', $updateData);
         } else {
@@ -216,7 +216,7 @@ class Main extends Base_Controller
                     $data["log_jam_$i"] = 0;
                 }
             }
-            $this->dbmp->insert('log_mobile', $data);
+            $this->db->insert('log_mobile', $data);
         }
     }
 }

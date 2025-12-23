@@ -46,9 +46,13 @@ class Transaksipembelian extends Base_Controller
 	}
 	public function get_barang()
 	{
-		$barang = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama as text, TO_BASE64(concat(barang_satuan,"||",barang_satuan_opt,"||",IFNULL(barang_isi, 0),"||",IFNULL(barang_harga, 0),"||",IFNULL(barang_harga_pokok, 0))) saved FROM v_pos_barang WHERE concat(barang_kode,barang_barcode) like "%' . varPost('val') . '%" LIMIT 1')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$barang = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama as text, TO_BASE64(concat(barang_satuan,"||",barang_satuan_opt,"||",IFNULL(barang_isi, 0),"||",IFNULL(barang_harga, 0),"||",IFNULL(barang_harga_pokok, 0))) saved FROM v_pos_barang WHERE concat(barang_kode,barang_barcode) like "%' . varPost('val') . '%" ' . $where . ' LIMIT 1')->result_array();
 		if (!$barang) {
-			$barang = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama as text FROM v_pos_barang_barcode WHERE barang_barcode_kode = "' . varPost('val') . '" LIMIT 1')->result_array();
+			$barang = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama as text FROM v_pos_barang_barcode WHERE barang_barcode_kode = "' . varPost('val') . '"  ' . $where . ' LIMIT 1')->result_array();
 		}
 		$this->response($barang);
 	}
@@ -62,18 +66,25 @@ class Transaksipembelian extends Base_Controller
 		$where = ($data['fdata']['barang_supplier_id']) ? 'barang_supplier_id = \'' . $data['fdata']['barang_supplier_id'] . '\' AND ' : '';
 		// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
+
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$total = $this->db->query('SELECT 
 			count(barang_id) total 
 		FROM v_pos_barang 
 		WHERE (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\')
 		AND barang_deleted_at IS NULL 
+		' . $where1 . '
 		AND jenis_include_stok = 1')->result_array();
+
 		$return = $this->db->query('SELECT 
 			barang_id as id, barang_kode, barang_nama, barang_harga_beli, barang_stok, barang_kode as saved 
 		FROM v_pos_barang 
 		WHERE barang_deleted_at IS NULL 
 		AND jenis_include_stok = 1 
-		AND (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\') 
+		AND (barang_nama like \'%' . $data['q'] . '%\' OR barang_kode like \'%' . $data['q'] . '%\') ' . $where1 . '
 		ORDER BY barang_nama LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		// , " (stok: ", barang_stok, ")"
 		$new_return = [];
@@ -112,7 +123,11 @@ class Transaksipembelian extends Base_Controller
 
 		if ($filter != '') {
 			// Query Baru
-			$data['aaData'] = $this->db->query("SELECT * FROM v_pos_pembelian_barang WHERE pembelian_supplier_id = '$filter' AND pembelian_bayar_opsi = 'K' AND pembelian_bayar_sisa > 0")->result_array();
+			$where = '';
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+			}
+			$data['aaData'] = $this->db->query("SELECT * FROM v_pos_pembelian_barang WHERE pembelian_supplier_id = '$filter' AND pembelian_bayar_opsi = 'K' AND pembelian_bayar_sisa > 0 $where")->result_array();
 			$data["iTotalRecords"] = count($data['aaData']);
 			$data["iTotalDisplayRecords"] = count($data['aaData']);
 			$data["sEcho"] = 0;
@@ -227,6 +242,9 @@ class Transaksipembelian extends Base_Controller
 			// $trx = $this->transaksipembelian->read($res['id'], false, true);
 			// print_r($this->db->last_query());
 			// print_r($res['id']);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$res['record'] = $this->db->get_where('v_pos_pembelian_barang', ['pembelian_id' => $res['id']])->row_array();
 
 			foreach ($data['pembelian_detail_barang_id'] as $key => $value) {

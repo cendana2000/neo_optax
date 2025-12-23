@@ -166,6 +166,10 @@ class Laporanpembelian extends Base_Controller
 				<th class="t-center">Tunai</th>
 				<th class="t-center">Kredit</th>
 			</tr>';
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$pembelian = $this->db->select('pembelian_tanggal, pembelian_kode, pembelian_jumlah_item, pembelian_jatuh_tempo,  supplier_kode, supplier_nama, pembelian_bayar_opsi, pembelian_bayar_jumlah, pembelian_bayar_sisa, pembelian_bayar_grand_total')
 			->from('v_pos_pembelian_barang')
 			->where($filter)
@@ -365,6 +369,9 @@ class Laporanpembelian extends Base_Controller
 				<th class="t-center">TUNAI</th>
 				<th class="t-center">KREDIT</th>
 			</tr>';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$pembelian = $this->db->select('pembelian_tanggal, pembelian_kode, pembelian_jumlah_item, pembelian_jatuh_tempo,  supplier_kode, supplier_nama, pembelian_bayar_opsi, pembelian_bayar_jumlah, pembelian_bayar_sisa')
 			->from('v_pos_pembelian_barang')
 			->where($filter)
@@ -578,6 +585,9 @@ class Laporanpembelian extends Base_Controller
 				<th class="t-center">No Bayar</th>
 				<th class="t-center">Tanggal Bayar</th>
 			</tr>';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('pos_pembelian_barang.wajibpajak_id', $wp_id);
+		}
 		$pembelian = $this->db
 			->select('pembelian_tanggal,pembelian_bayar_opsi, pembelian_kode, pembelian_jatuh_tempo, pembelian_bayar_jumlah, pos_pembelian_barang.pembelian_bayar_sisa, pembelian_bayar_grand_total,pembayaran_detail_retur, string_agg(DISTINCT pembayaran_kode, \', \') AS pembayaran_kode, pembayaran_tanggal, pembayaran_detail_potongan')
 			->from('pos_pembelian_barang')
@@ -787,6 +797,10 @@ class Laporanpembelian extends Base_Controller
 			</tr>';
 		/*<th class="t-center">No Bayar</th>
 				<th class="t-center">Tanggal Bayar</th>*/
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('pos_pembelian_barang.wajibpajak_id', $wp_id);
+		}
 		$pembelian = $this->db
 			->select('supplier_kode, supplier_nama, sum(pembelian_bayar_jumlah) pembelian_bayar_jumlah, sum(pembelian_bayar_sisa) pembelian_bayar_sisa, sum(pembelian_bayar_grand_total) pembelian_bayar_grand_total, sum(case when(pembelian_bayar_opsi=\'T\') then pembelian_bayar_grand_total else 0 end) bayar_tunai, sum(pembayaran_detail_retur) pembayaran_detail_retur, sum(pembayaran_detail_potongan) pembayaran_detail_potongan')
 			->from('pos_pembelian_barang')
@@ -855,6 +869,9 @@ class Laporanpembelian extends Base_Controller
 		} else {
 			$filter = ['to_date(cast(pembelian_tanggal as TEXT), \'YYYY-MM-DD\') =' => $data['tanggal']];
 			$dtCaption = 'Tanggal : ' . $tanggal;
+		}
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
 		}
 		$ops = $this->db->select('pembelian_tanggal, pembelian_kode, pembelian_jumlah_item, pembelian_jatuh_tempo,  supplier_kode, supplier_nama, pembelian_bayar_opsi, pembelian_bayar_jumlah, pembelian_bayar_sisa, pembelian_bayar_grand_total')
 			->from('v_pos_pembelian_barang')

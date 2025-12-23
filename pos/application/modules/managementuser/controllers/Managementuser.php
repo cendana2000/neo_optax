@@ -218,8 +218,13 @@ class ManagementUser extends Base_Controller
   {
     $data = varPost();
     if (!empty($data['mobileDb'])) {
-      $this->db = $this->load->database(multidb_connect($data['mobileDb']), true);
+      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+        $this->db->where('wajibpajak_id', $wp_id);
+      }
       $user = $this->db->get_where('pos_user', ['user_email' => $data['email']])->row_array();
+      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+        $this->db->where('wajibpajak_id', $wp_id);
+      }
       $dataMenu = $this->db->get_where('v_sys_menu_role_mobile', ['pos_suser_id' => $user['pos_suser_id']])->result_array();
 
       $this->response([

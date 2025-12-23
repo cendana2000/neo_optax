@@ -7,7 +7,6 @@ use chillerlan\QRCode\QROptions;
 
 class Transaksipenjualan extends Base_Controller
 {
-	protected $db;
 	public function __construct()
 	{
 		parent::__construct();
@@ -149,15 +148,10 @@ class Transaksipenjualan extends Base_Controller
 
 	public function load_data_mobile()
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		$var = varPost();
 		$filter = trim(varPost('valSearch'));
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
 		}
@@ -207,7 +201,6 @@ class Transaksipenjualan extends Base_Controller
 			if ($decodedToken != false) {
 				// $this->response($decodedToken);
 				if (!empty($decodedToken->session_db)) {
-					$this->db = $this->load->database(multidb_connect($decodedToken->session_db), true);
 					$this->load_menu();
 					// $this->response($decodedToken);
 					return;
@@ -243,14 +236,9 @@ class Transaksipenjualan extends Base_Controller
 
 	public function load_menu($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 		}
 
 
@@ -272,6 +260,10 @@ class Transaksipenjualan extends Base_Controller
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
 			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id=" . $this->db->escape($wp_id);
 		}
 
 		if (isset($valOrder) && $valOrder != NULL) {
@@ -336,16 +328,11 @@ class Transaksipenjualan extends Base_Controller
 	}
 	public function load_menu_rental($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
 
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 		}
-
 
 		$valSearch = trim(varPost('valSearch'));
 		$valKategori = trim(varPost('valKategori'));
@@ -365,6 +352,10 @@ class Transaksipenjualan extends Base_Controller
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
 			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id=" . $this->db->escape($wp_id);
 		}
 
 		if (isset($valOrder) && $valOrder != NULL) {
@@ -428,16 +419,10 @@ class Transaksipenjualan extends Base_Controller
 
 	public function load_menu_hiburan($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 		}
-
 
 		$valSearch = trim(varPost('valSearch'));
 		$valKategori = trim(varPost('valKategori'));
@@ -457,6 +442,10 @@ class Transaksipenjualan extends Base_Controller
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
 			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id=" . $this->db->escape($wp_id);
 		}
 
 		if (isset($valOrder) && $valOrder != NULL) {
@@ -520,28 +509,24 @@ class Transaksipenjualan extends Base_Controller
 
 	public function load_menu_mobile($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		$isMobile = false;
 		$jenisUsaha = '';
 
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$isMobile = true;
 
 			$kode_toko = explode('_', varPost('mobileDb'));
-			$toko = $this->dbmp->where([
+			$toko = $this->db->where([
 				'toko_kode' => $kode_toko[1]
 			])->get('v_pajak_toko')->row_array();
 
-			$getJenis = $this->dbmp->get_where('pajak_jenis', [
+			$getJenis = $this->db->get_where('pajak_jenis', [
 				'jenis_nama' => $toko['jenis_nama']
 			])->row_array();
-			$getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+
+			$getJenisParent = $this->db->get_where('pajak_jenis', [
 				'jenis_id' => $getJenis['jenis_parent']
 			])->row_array();
 
@@ -570,6 +555,10 @@ class Transaksipenjualan extends Base_Controller
 		if ($valKategori != NULL) {
 			$childKategori = $this->get_category_hierarchy($valKategori);
 			$filter .= " AND pos_barang.barang_kategori_barang = '$valKategori' " . $childKategori;
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id=" . $this->db->escape($wp_id);
 		}
 
 		if (isset($valOrder) && $valOrder != NULL) {
@@ -645,12 +634,17 @@ class Transaksipenjualan extends Base_Controller
 		}
 		$where = ($data['fdata']['barang_supplier_id']) ? 'barang_supplier_id = "' . $data['fdata']['barang_supplier_id'] . '" AND ' : '';
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ')->result_array();
+
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND pos_barang.wajibpajak_id ' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ' . $where1)->result_array();
 
 		// Query Lama
 		$return = $this->db->query("SELECT barang_id as id, barang_kode, barang_nama, barang_harga, 
 		barang_stok, barang_stok as saved FROM pos_barang JOIN pos_barang_satuan 
-		ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent")->result_array();
+		ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent WHERE 1=1 $where1")->result_array();
 
 		// Query Baru
 		$return = $this->db->query("SELECT barang_id as id, barang_kode, barang_nama, barang_harga, SUM(pos_pembelian_barang_detail.pembelian_detail_qty) as barang_stok, barang_stok as saved 
@@ -659,6 +653,7 @@ class Transaksipenjualan extends Base_Controller
 			ON pos_barang.barang_id = pos_barang_satuan.barang_satuan_parent
 		JOIN  pos_pembelian_barang_detail 
 			ON  pos_barang.barang_id  = pos_pembelian_barang_detail.pembelian_detail_barang_id 
+		WHERE 1=1 $where1
 		GROUP BY pos_pembelian_barang_detail.pembelian_detail_barang_id")->result_array();
 
 		// , " (stok: ", barang_stok, ")"
@@ -679,7 +674,6 @@ class Transaksipenjualan extends Base_Controller
 		$id_penjualan['penjualan_id'] = varPost('penjualan_id');
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
 		}
@@ -767,7 +761,6 @@ class Transaksipenjualan extends Base_Controller
 		$data = varPost();
 		if (array_key_exists('mobileDb', $data)) {
 			$user['session_db'] = $data['mobileDb'];
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$this->session->set_userdata($user);
 		}
 		$detail = $this->transaksipenjualandetail->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
@@ -829,7 +822,6 @@ class Transaksipenjualan extends Base_Controller
 		$data = varPost();
 		if (array_key_exists('mobileDb', $data)) {
 			$user['session_db'] = $data['mobileDb'];
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$this->session->set_userdata($user);
 		}
 		$detail = $this->transaksipenjualandetail->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
@@ -891,7 +883,6 @@ class Transaksipenjualan extends Base_Controller
 		$data = varPost();
 		if (array_key_exists('mobileDb', $data)) {
 			$user['session_db'] = $data['mobileDb'];
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$this->session->set_userdata($user);
 		}
 		$detail = $this->transaksipenjualandetailhiburan->select(['filters_static' => ['penjualan_detail_parent' => $data['penjualan_id']]]);
@@ -995,7 +986,6 @@ class Transaksipenjualan extends Base_Controller
 		$db['default']['db_debug'] = TRUE;
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
 		}
@@ -1059,7 +1049,7 @@ class Transaksipenjualan extends Base_Controller
 		$operation = $this->transaksipenjualan->insert($id, $data, function ($res) use ($data) {
 			$user  = $this->session->userdata();
 
-			$query_log_penjualan = $this->dbmp->query("SELECT * FROM log_penjualan_wp where log_penjualan_wp_penjualan_id = '" . $res['id'] . "'");
+			$query_log_penjualan = $this->db->query("SELECT * FROM log_penjualan_wp where log_penjualan_wp_penjualan_id = '" . $res['id'] . "'");
 			$result_cek = $query_log_penjualan->result_array();
 			if (count($result_cek) == 0) {
 				$dataSend = [
@@ -1072,7 +1062,7 @@ class Transaksipenjualan extends Base_Controller
 					'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
 				];
 
-				$this->dbmp->insert(
+				$this->db->insert(
 					'log_penjualan_wp',
 					$dataSend
 				);
@@ -1148,7 +1138,9 @@ class Transaksipenjualan extends Base_Controller
 	{
 		$data = varPost();
 
-		$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 
 		$user = $this->db->get_where('v_user', ['user_email' => $data['user_email']])->row_array();
 		$user['code_store'] = explode('_', $data['mobileDb'])[1];
@@ -1215,7 +1207,7 @@ class Transaksipenjualan extends Base_Controller
 				'log_penjualan_code_store' => $user['code_store']
 			];
 
-			$this->dbmp->insert(
+			$this->db->insert(
 				'log_penjualan_wp',
 				$dataSend
 			);
@@ -1285,7 +1277,6 @@ class Transaksipenjualan extends Base_Controller
 		$db['default']['db_debug'] = TRUE;
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
 		}
@@ -1324,15 +1315,15 @@ class Transaksipenjualan extends Base_Controller
 			$user  = $this->session->userdata();
 
 			$query_log = 'SELECT * FROM log_penjualan_wp WHERE log_penjualan_wp_penjualan_id = \'' . $data['penjualan_id'] . '\'';
-			$getQueryLog =	$this->dbmp->query($query_log)->result();
+			$getQueryLog =	$this->db->query($query_log)->result();
 
 			if (!empty($getQueryLog)) {
 				foreach ($getQueryLog as $row) {
 					// Memeriksa apakah ada baris dengan log_penjualan_wp_penjualan_id tertentu
 					if ($row->log_penjualan_wp_penjualan_id == $data['penjualan_id']) {
-						$this->dbmp->set('log_penjualan_deleted_at', date('Y-m-d H:i:s'));
-						$this->dbmp->where('log_penjualan_wp_penjualan_id', $data['penjualan_id']);
-						$this->dbmp->update('log_penjualan_wp');
+						$this->db->set('log_penjualan_deleted_at', date('Y-m-d H:i:s'));
+						$this->db->where('log_penjualan_wp_penjualan_id', $data['penjualan_id']);
+						$this->db->update('log_penjualan_wp');
 						break; // Keluar dari loop setelah update dilakukan
 					}
 				}
@@ -1347,7 +1338,7 @@ class Transaksipenjualan extends Base_Controller
 				'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
 			];
 
-			$this->dbmp->insert(
+			$this->db->insert(
 				'log_penjualan_wp',
 				$dataSend
 			);
@@ -1774,6 +1765,10 @@ class Transaksipenjualan extends Base_Controller
 			$metode_pembayaran = 'Cash';
 		} else {
 			$metode_pembayaran = 'Kredit';
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
 		}
 
 		$detail = $this->db->select('*')
@@ -2252,6 +2247,9 @@ class Transaksipenjualan extends Base_Controller
 	public function tprint2($id)
 	{
 		$data = varPost();
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$jual = $this->db->select('*')
 			->where('penjualan_id', $id)
 			->from('v_pos_penjualan')->get()->result_array();
@@ -2259,6 +2257,9 @@ class Transaksipenjualan extends Base_Controller
 		$html = '';
 		if ($jual) {
 			$jual = $jual[0];
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$detail = $this->db->select('*')
 				->where('penjualan_detail_parent', $id)
 				->order_by('penjualan_detail_order', 'asc')
@@ -2516,9 +2517,15 @@ class Transaksipenjualan extends Base_Controller
 	public function cetak($value = '')
 	{
 		if ($value) {
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$data = $this->db->where('penjualan_id', $value)
 				->get('v_pos_penjualan_barang')
 				->row_array();
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$detail = $this->db->where('penjualan_detail_parent', $value)
 				->get('v_pos_penjualan_barang_detail')
 				->result_array();
@@ -2788,6 +2795,7 @@ class Transaksipenjualan extends Base_Controller
 				'sales_id' 			=> gen_uuid($this->pembayaran->get_table()),
 				'sales_supplier_id' => $data['pembayaran_piutang_supplier_id'],
 				'sales_nama' 		=> $data['pembayaran_piutang_sales'],
+				'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id'),
 			));
 		}
 

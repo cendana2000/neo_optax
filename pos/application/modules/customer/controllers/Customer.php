@@ -37,13 +37,15 @@ class Customer extends Base_Controller
 	public function select_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
 				$this->db->like('customer_nama', $filter);
 			} else {
 				$filter = "";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$this->response($this->db->get_where("pos_customer", ['customer_deleted_at' => null])->result_array());
 		}
@@ -54,11 +56,15 @@ class Customer extends Base_Controller
 		$data = varPost();
 		// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
-		$total = $this->db->query('SELECT count(customer_id) total FROM pos_customer WHERE customer_deleted_at IS NULL AND concat(customer_kode, customer_nama) like \'%' . $data['q'] . '%\'')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(customer_id) total FROM pos_customer WHERE customer_deleted_at IS NULL AND concat(customer_kode, customer_nama) like \'%' . $data['q'] . '%\' ' . $where . '')->result_array();
 
 		$return = $this->db->query('SELECT customer_id as id, concat(customer_kode, \' - \', customer_nama) as text, customer_kode FROM pos_customer 
 		WHERE customer_deleted_at IS NULL 
-		AND concat(customer_kode, customer_nama) like \'%' . $data['q'] . '%\' 
+		AND concat(customer_kode, customer_nama) like \'%' . $data['q'] . '%\' ' . $where . '
 		LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
@@ -74,11 +80,13 @@ class Customer extends Base_Controller
 	public function store_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			unset($data['mobileDb']);
 			$data['customer_id'] = gen_uuid();
 			$data['customer_created_at'] = date('Y-m-d H:i:s');
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$data['wajibpajak_id'] = $wp_id;
+			}
 			if ($this->db->insert('pos_customer', $data)) {
 				$res = [
 					'success' => true,
@@ -95,7 +103,6 @@ class Customer extends Base_Controller
 	public function update_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			unset($data['mobileDb']);
 			$data['customer_created_at'] = date('Y-m-d H:i:s');
@@ -123,7 +130,6 @@ class Customer extends Base_Controller
 	public function delete_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 
 			if ($this->customer->checkRelasi($data) > 0) {
@@ -153,7 +159,6 @@ class Customer extends Base_Controller
 	function read_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$this->response([
 				'success' => true,
 				'data' => $this->db->get_where('pos_customer', ['customer_id' => varPost('id')])->row_array()
@@ -218,9 +223,10 @@ class Customer extends Base_Controller
 					'customer_kode' => $value[1],
 					'customer_nama' => $value[2],
 					'customer_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
-			
+
 			$this->db->insert_batch('pos_customer', $batch);
 			$response = [
 				'success' => true,

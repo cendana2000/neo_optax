@@ -53,11 +53,16 @@ class Dashboard extends Base_Controller
       array_push($categories, $dt->format("d M Y"));
     }
 
+    $where = '';
+    if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+      $where = ' AND pp.wajibpajak_id=' . $this->db->escape($wp_id);
+    }
+
     // QUERY 1
     $oppembelian = $this->db->query("SELECT SUM(COALESCE(pembelian_total, 0)) as pembelian_total, SUM(COALESCE(pembelian_bayar_jumlah, 0)) as total_pembayaran, pembelian_tanggal, pembelian_bayar_opsi 
     FROM pos_pembelian_barang pp 
     WHERE pembelian_tanggal BETWEEN '" . $rawbegin . "' and '" . $rawend . "' 
-    AND pembelian_deleted_at IS NULL
+    AND pembelian_deleted_at IS NULL $where
     GROUP BY pembelian_tanggal, pembelian_bayar_opsi
     ORDER BY pembelian_tanggal ASC, pembelian_bayar_opsi ASC");
 
@@ -97,7 +102,7 @@ class Dashboard extends Base_Controller
     $oppenjualan = $this->db->query("SELECT SUM(COALESCE(penjualan_total_grand,0) - COALESCE(penjualan_total_retur,0)) as penjualan_total, SUM(COALESCE(penjualan_total_bayar, 0)) as total_pembayaran, penjualan_tanggal::date, penjualan_metode 
     FROM pos_penjualan pp
     WHERE penjualan_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "'
-    AND penjualan_status_aktif IS NULL
+    AND penjualan_status_aktif IS NULL $where
     GROUP BY penjualan_tanggal::date, penjualan_metode
     ORDER BY penjualan_tanggal::date ASC, penjualan_metode ASC");
     // print_r('<pre>');print_r($oppenjualan->result());print_r('</pre>');
@@ -136,8 +141,8 @@ class Dashboard extends Base_Controller
 
     // QUERY 3
     $opstok = $this->db->query("SELECT SUM(COALESCE(barang_stok, 0)) as total_stok_barang 
-    FROM pos_barang
-    WHERE barang_deleted_at IS NULL");
+    FROM pos_barang pp
+    WHERE pp.barang_deleted_at IS NULL $where");
 
     // QUERY 4
     // $opterlaris = $this->db->query("SELECT SUM(COALESCE(kartu_stok_keluar, 0)) as total_kartu_stok_keluar,
@@ -156,6 +161,11 @@ class Dashboard extends Base_Controller
     // ORDER BY total_kartu_stok_keluar DESC
     // LIMIT 10");
 
+    $where = '';
+    if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+      $where = ' AND pb.wajibpajak_id=' . $this->db->escape($wp_id);
+    }
+
     /*
      *  All barang (Stok, Non stok, and Rental) 
      */
@@ -167,7 +177,7 @@ class Dashboard extends Base_Controller
     from pos_penjualan_detail ppd 
     left join pos_barang pb on ppd.penjualan_detail_barang_id = pb.barang_id
     where ppd.penjualan_detail_tanggal between '" . $rawbegin . " 00:00:00' and '" . $rawend . " 23:59:59'
-    AND pb.barang_deleted_at IS NULL
+    AND pb.barang_deleted_at IS NULL $where
     group by ppd.penjualan_detail_barang_id, pb.barang_harga, pb.barang_nama, pb.barang_thumbnail
     order by total_kartu_stok_keluar desc
     limit 10");

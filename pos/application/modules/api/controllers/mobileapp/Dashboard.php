@@ -10,9 +10,6 @@ class Dashboard extends Base_Controller
 		parent::__construct();
 		$this->load->model(array());
 		$this->auth = AUTHORIZATION::Auth();
-		if (!empty($this->auth->session_db)) {
-			$this->db = $this->load->database(multidb_connect($this->auth->session_db), true);
-		}
 	}
 
 	public function index()

@@ -92,22 +92,23 @@ class Conf extends Base_Controller
 
 	public function get_config_mobile($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		$isMobile = false;
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$isMobile = true;
+		}
+
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
 		}
 
 		$query = "
 			SELECT conf_id, conf_code, conf_title, conf_value, conf_group, conf_type
 			FROM pos_config
 			WHERE conf_id = 'conf_7'
+			$where
 			LIMIT 1
 		";
 		$row = $this->db->query($query)->row_array();

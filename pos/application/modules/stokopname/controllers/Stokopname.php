@@ -36,9 +36,13 @@ class Stokopname extends Base_Controller
 	{
 		$data = varPost();
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE concat(barang_kode, barang_nama) like "%' . $data['q'] . '%"')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE concat(barang_kode, barang_nama) like "%' . $data['q'] . '%" ' . $where)->result_array();
 
-		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, " - ", barang_nama) as text, TO_BASE64(concat(barang_satuan,"||",satuan_kode,"||",IFNULL(barang_harga, 0),"||",IFNULL(barang_stok, 0))) saved FROM v_pos_barang WHERE concat(barang_kode, barang_nama) like "%' . $data['q'] . '%" LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, " - ", barang_nama) as text, TO_BASE64(concat(barang_satuan,"||",satuan_kode,"||",IFNULL(barang_harga, 0),"||",IFNULL(barang_stok, 0))) saved FROM v_pos_barang WHERE concat(barang_kode, barang_nama) like "%' . $data['q'] . '%" ' . $where . ' LIMIT ' . $data['page'] . $data['limit'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
 
@@ -622,9 +626,13 @@ class Stokopname extends Base_Controller
 		$where = 'barang_deleted_at is null AND';
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like \'' . $data['q'] . '%\' OR barang_kode like \'' . $data['q'] . '%\') ')->result_array();
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like \'' . $data['q'] . '%\' OR barang_kode like \'' . $data['q'] . '%\') ' . $where1)->result_array();
 
-		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, \' - \', barang_nama) as text, barang_stok as saved FROM v_pos_barang WHERE jenis_include_stok = 1 AND ' . $where . ' (barang_nama like \'' . $data['q'] . '%\' OR barang_kode like \'' . $data['q'] . '%\') ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, \' - \', barang_nama) as text, barang_stok as saved FROM v_pos_barang WHERE jenis_include_stok = 1 AND ' . $where . ' (barang_nama like \'' . $data['q'] . '%\' OR barang_kode like \'' . $data['q'] . '%\') ' . $where1 . ' ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
 }

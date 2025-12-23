@@ -72,6 +72,9 @@ class User extends Base_Controller
     {
         $data = varPost();
 
+        if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+            $this->db->where('wajibpajak_id', $wp_id);
+        }
         $arPegawai = $this->db->get_where('pos_pegawai', ['pegawai_id' => $data['user_nama']])->row_array();
 
         $data['user_nama'] = $arPegawai['pegawai_nama'];

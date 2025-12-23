@@ -33,7 +33,7 @@ class Returpenjualan extends Base_Controller
 		$filter = array(
 			"retur_penjualan_deleted_at" => null,
 		);
-		if(!empty($var['tanggal1'])){
+		if (!empty($var['tanggal1'])) {
 			$filter['retur_penjualan_tanggal BETWEEN \'' . $var['tanggal1'] . '\' AND \'' . $var['tanggal2'] . '\' '] = null;
 		}
 		$this->response(
@@ -121,10 +121,14 @@ class Returpenjualan extends Base_Controller
 		$data = varPost();
 		// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
-		$total = $this->db->query('SELECT count(penjualan_id) total FROM v_pos_penjualan WHERE concat(penjualan_tanggal,penjualan_kode, COALESCE(customer_nama, \'\')) like \'%' . $data['q'] . '%\'')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(penjualan_id) total FROM v_pos_penjualan WHERE concat(penjualan_tanggal,penjualan_kode, COALESCE(customer_nama, \'\')) like \'%' . $data['q'] . '%\' AND penjualan_metode = \'K\' ' . $where . '')->result_array();
 		$return = $this->db->query('SELECT penjualan_id as id, concat(TO_CHAR(penjualan_tanggal, \'DD-MM-YYYY\'),\'/\', penjualan_kode, COALESCE(concat(\' - \', customer_nama), \'\')) as text FROM v_pos_penjualan 
 		WHERE concat(penjualan_tanggal, penjualan_kode, COALESCE(customer_nama, \'\')) like \'%' . $data['q'] . '%\' 
-		AND penjualan_metode = \'K\' order by penjualan_created desc 
+		AND penjualan_metode = \'K\' ' . $where . ' order by penjualan_created desc 
 		LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total'], 'qr' => $this->db->last_query()));
 	}

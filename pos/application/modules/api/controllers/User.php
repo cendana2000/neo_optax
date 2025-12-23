@@ -16,7 +16,6 @@ class User extends Base_Controller
 
   public function auth_header()
   {
-    $this->db = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
     print_r('here');
     print_r('<pre>');
     print_r($this->config->item('api_pos_token'));
@@ -32,8 +31,6 @@ class User extends Base_Controller
 
   public function all($val = '')
   {
-    $this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $val), true);
-
     $data = varPost();
 
     $where = [];
@@ -44,8 +41,10 @@ class User extends Base_Controller
 
   public function get_data_user($user_id)
   {
-    $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
-    $data = $this->dbmp->where(['pos_user_id' => $user_id])->get('pos_user')->row_array();
+    if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+      $this->db->where('wajibpajak_id', $wp_id);
+    }
+    $data = $this->db->where(['pos_user_id' => $user_id])->get('pos_user')->row_array();
 
     if (!empty($data['pos_user_photo'])) {
       $data['pos_user_photo'] = base_url() . "dokumen/user/" . $data['pos_user_photo'];
@@ -62,7 +61,6 @@ class User extends Base_Controller
   public function update()
   {
     $data = varPost();
-    $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
 
     foreach ($data as $key => $value) {
       if (preg_match('/<[^>]*>/', $value)) {
@@ -85,7 +83,10 @@ class User extends Base_Controller
 
     if ($filess) {
 
-      $read = $this->dbmp->where(['pos_user_id' => $data['pos_user_id']])->get('pos_user')->row_array();
+      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+        $this->db->where('wajibpajak_id', $wp_id);
+      }
+      $read = $this->db->where(['pos_user_id' => $data['pos_user_id']])->get('pos_user')->row_array();
       $this->upload->initialize($config);
       $_FILES['upload_field_name']['name']        = $_FILES['pos_user_photo']['name'];
       $_FILES['upload_field_name']['type']        = $_FILES['pos_user_photo']['type'];
@@ -130,8 +131,10 @@ class User extends Base_Controller
         }
       }
     }
-    $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
-    $operation = $this->dbmp->update('pos_user', $data, ['pos_user_id' => $data['pos_user_id']]);
+    if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+      $this->db->where('wajibpajak_id', $wp_id);
+    }
+    $operation = $this->db->update('pos_user', $data, ['pos_user_id' => $data['pos_user_id']]);
 
     if (!empty($operation['record'])) {
       $this->session->set_userdata($operation['record']);
@@ -148,15 +151,17 @@ class User extends Base_Controller
 
     if ($data['pos_user_id']) {
       $user_id = $data['pos_user_id'];
-      $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
 
-      $user = $this->dbmp->where('pos_user_id', $data['pos_user_id'])->get('pos_user')->row_array();
+      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+        $this->db->where('wajibpajak_id', $wp_id);
+      }
+      $user = $this->db->where('pos_user_id', $data['pos_user_id'])->get('pos_user')->row_array();
       $user_pass = $user['user_password'];
       $new_pass = $this->password($data['password_new']);
       $old_pass = $this->password($data['password_old']);
 
       if ($user_pass == $old_pass) {
-        $update = $this->dbmp->update('pos_user', ['pos_user_password' => $new_pass], ['pos+user_id' => $user_id]);
+        $update = $this->db->update('pos_user', ['pos_user_password' => $new_pass], ['pos+user_id' => $user_id]);
         if ($update['success']) {
           $operation = [
             'success' => true,
@@ -189,8 +194,7 @@ class User extends Base_Controller
       'toko_kode' => $toko_kode
     ];
 
-    $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
-    $toko = $this->dbmp->where($filter)->get('v_pajak_toko')->row_array();
+    $toko = $this->db->where($filter)->get('v_pajak_toko')->row_array();
 
     // base_url jika connect ke optax(localhost://8801)??
     if (!empty($toko['toko_logo'])) {
@@ -206,23 +210,24 @@ class User extends Base_Controller
       $id       = varPost('pos_user_id');
       $today    = date('Y-m-d');
 
-      $user = $this->dbmp->where('pos_user_id', $id)->get('pos_user')->row();
+      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+        $this->db->where('wajibpajak_id', $wp_id);
+      }
+      $user = $this->db->where('pos_user_id', $id)->get('pos_user')->row();
 
       if (!$user) {
         throw new Exception('User Tidak Ditemukan');
       }
 
-      // $this->dbmp->table('pos_user')->where('pos_user_id', $id)->update(['mobile_last_active' => date('Y-m-d H:i:s')]);
-
       if (!empty($user->pos_user_email)) {
-        $wajibpajak = $this->dbmp
+        $wajibpajak = $this->db
           ->where('wajibpajak_email', $user->pos_user_email)
           ->get('pajak_wajibpajak')
           ->row();
 
         if ($wajibpajak) {
-          $this->dbmp->where('wajibpajak_email', $user->pos_user_email);
-          $this->dbmp->update(
+          $this->db->where('wajibpajak_email', $user->pos_user_email);
+          $this->db->update(
             'pajak_wajibpajak',
             ['mobile_last_active' => date('Y-m-d H:i:s')]
           );
@@ -230,7 +235,7 @@ class User extends Base_Controller
       }
 
       $hour     = date('G');
-      $record   = $this->dbmp
+      $record   = $this->db
         ->where('log_user_id', $id)
         ->get($this->Log->get_table())
         ->row();
@@ -253,11 +258,11 @@ class User extends Base_Controller
           $currentHourValue = $record->{"log_jam_$hour"} ?? 0;
           $updateData["log_jam_$hour"] = $currentHourValue + 1;
         }
-        $this->dbmp
+        $this->db
           ->where('log_id', $record->log_id)
           ->update('log_mobile', $updateData);
       } else {
-        $record = $this->dbmp
+        $record = $this->db
           ->select('*')
           ->from('pos_user')
           ->join('pajak_toko', 'pajak_toko.toko_kode = pos_user.pos_user_code_store', 'left')

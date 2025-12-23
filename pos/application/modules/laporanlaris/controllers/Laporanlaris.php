@@ -153,6 +153,10 @@ class Laporanlaris extends Base_Controller
 			$where .= ' OR ';
 			$where .= $_where . ' AND barang_kategori_parent = \'' . $data['barang_kategori_barang'] . '\'';
 		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where .= ' AND pos_barang.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		// print_r('<pre>');print_r($where);print_r('</pre>');exit;
 		$stok = $this->db->query('SELECT barang_kode, barang_nama, kategori_barang_nama, 
 		barang_harga, SUM(penjualan_detail_qty_barang) total 

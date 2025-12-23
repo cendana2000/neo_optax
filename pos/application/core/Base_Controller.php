@@ -39,10 +39,6 @@ class BASE_Controller extends MX_Controller
             ];
             $this->config->set_item('config_fcm', base64_encode(base64_encode(json_encode($dataKeyFcm))));
         }
-
-
-        // $this->db = $this->load->database(multidb_connect($this->session->userdata('session_db')), true);
-        $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
     }
 
     public function index() {}
@@ -71,6 +67,17 @@ class BASE_Controller extends MX_Controller
         foreach ($this->$modelname->get_view_mode($vmode) as $key => $value) {
             array_push($columns, array('db' => $value, 'dt' => $value));
         }
+
+        if (!$filterQuery) {
+            $filterQuery = [];
+        }
+
+        if ($this->db->field_exists('wajibpajak_id', $table)) {
+            if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                $filterQuery['wajibpajak_id'] = $wp_id;
+            }
+        }
+
         $_filterQuery  = ($filterQuery !== null) ? $this->_where($filterQuery) : null;
         $_filterRecord = ($filterRecord !== null) ? $this->_where($filterRecord) : null;
 

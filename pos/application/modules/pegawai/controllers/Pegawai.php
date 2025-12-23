@@ -91,6 +91,7 @@ class Pegawai extends Base_Controller
 					'pegawai_hp' => $value[4],
 					'pegawai_jk' => $value[5],
 					'pegawai_is_aktif' => 1,
+					'wajibpajak_id' => $this->sesion->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_pegawai', $batch);

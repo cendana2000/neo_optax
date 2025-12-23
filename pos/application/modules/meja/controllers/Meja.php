@@ -37,7 +37,6 @@ class Meja extends Base_Controller
 	public function select_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
@@ -54,11 +53,15 @@ class Meja extends Base_Controller
 		$data = varPost();
 		// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
-		$total = $this->db->query('SELECT count(meja_id) total FROM pos_meja WHERE meja_deleted_at IS NULL AND concat(meja_kode, meja_nama) like \'%' . $data['q'] . '%\'')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(meja_id) total FROM pos_meja WHERE meja_deleted_at IS NULL AND concat(meja_kode, meja_nama) like \'%' . $data['q'] . '%\' ' . $where . '')->result_array();
 
 		$return = $this->db->query('SELECT meja_id as id, concat(meja_kode, \' - \', meja_nama) as text, meja_kode FROM pos_meja 
-		WHERE meja_deleted_at IS NULL 
-		AND concat(meja_kode, meja_nama) like \'%' . $data['q'] . '%\' 
+		WHERE meja_deleted_at IS NULL
+		AND concat(meja_kode, meja_nama) like \'%' . $data['q'] . '%\' ' . $where . '
 		LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
@@ -152,6 +155,7 @@ class Meja extends Base_Controller
 					'meja_kode' => $this->meja->gen_kode(false) . '/' . $no++,
 					'meja_nama' => $value[1],
 					'meja_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_meja', $batch);

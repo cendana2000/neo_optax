@@ -19,7 +19,6 @@ class Postingpajak extends Base_Controller
 			'wajibpajak/WajibpajakModel' => 'wajibpajak',
 			'postingpajak/RealisasipajakparentfiltercreatedModel' => 'RealisasipajakparentfiltercreatedModel'
 		));
-		$this->db->database = $_ENV['PAJAK_DBNAME'];
 	}
 
 
@@ -44,7 +43,10 @@ class Postingpajak extends Base_Controller
 		];
 
 		$opr = $this->select_dt(varPost(), 'RealisasipajakparentfiltercreatedModel', 'table', true, $where);
-		$sumtotal = $this->dbmp->select('sum(realisasi_parent_omzet) as omzet, 
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+		$sumtotal = $this->db->select('sum(realisasi_parent_omzet) as omzet, 
 			sum(realisasi_parent_total_pajak) as pajak,
 			sum(realisasi_parent_jml_transaksi) as jml_trf')->where($where)->get('v_realisasi_parent_filter_with_created')->row();
 		$opr['sumtotal'] = [
@@ -70,7 +72,10 @@ class Postingpajak extends Base_Controller
 		$where['realisasi_deleted_at'] = null;
 		$where['realisasi_wajibpajak_npwpd'] = $user['toko_wajibpajak_npwpd'];
 
-		$op = $this->dbmp->get_where('pajak_realisasi', $where)->result_array();
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+		$op = $this->db->get_where('pajak_realisasi', $where)->result_array();
 		if (count($op) > 0) {
 			$this->response(array(
 				'success' => true,
@@ -87,13 +92,15 @@ class Postingpajak extends Base_Controller
 	{
 		$data = varPost();
 
-		$toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$this->db->where('toko_wajibpajak_id', $wp_id);
+		}
+		$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
 
 		$where['realisasi_deleted_at'] = null;
 		$where['realisasi_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
 
-
-		$op = $this->dbmp->query("SELECT DATE_TRUNC('month',realisasi_tanggal) as realisasi_tanggal, sum(realisasi_pajak) as realisasi_pajak
+		$op = $this->db->query("SELECT DATE_TRUNC('month',realisasi_tanggal) as realisasi_tanggal, sum(realisasi_pajak) as realisasi_pajak
 		FROM pajak_realisasi WHERE realisasi_deleted_at IS NULL 
 		AND realisasi_wajibpajak_npwpd = '{$toko['toko_wajibpajak_npwpd']}'
 		GROUP BY DATE_TRUNC('month',realisasi_tanggal) ORDER BY realisasi_tanggal DESC")->result_array();
@@ -117,13 +124,16 @@ class Postingpajak extends Base_Controller
 	{
 		$data = varPost();
 
-		$toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
+		$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
 
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$this->db->where('realisasi_wajibpajak_id', $wp_id);
+		}
 		$where['realisasi_deleted_at'] = null;
 		$where['realisasi_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
 		$where['to_char(realisasi_tanggal, \'YYYY-MM\') = \'' . $data['realisasi_tanggal'] . '\''] = null;
-		$this->dbmp->order_by('realisasi_tanggal DESC');
-		$op = $this->dbmp->get_where('pajak_realisasi', $where)->result_array();
+		$this->db->order_by('realisasi_tanggal DESC');
+		$op = $this->db->get_where('pajak_realisasi', $where)->result_array();
 
 
 		if (count($op) > 0) {
@@ -208,10 +218,10 @@ class Postingpajak extends Base_Controller
 			$batch = [];
 
 			// Use PAJAK DB
-			$dataWp = $this->dbmp->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
+			$dataWp = $this->db->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
 
 
-			$existrealisasi = $this->dbmp->get_where('pajak_realisasi', array(
+			$existrealisasi = $this->db->get_where('pajak_realisasi', array(
 				'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
 				'realisasi_wajibpajak_npwpd' => $dataWp->wajibpajak_npwpd,
 				'realisasi_tanggal' => $periode,
@@ -223,9 +233,13 @@ class Postingpajak extends Base_Controller
 				// );
 				// $dataDetail = $this->penjualan->select(array('filters_static' => $where))['data'];
 
+				$where = '';
+				if ($wp_id = $this->session->userdata('wajipajak_id')) {
+					$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+				}
 				$dataDetail = $this->db->query("select * from v_pos_penjualan 
 				where penjualan_total_bayar >= (penjualan_total_grand - coalesce (penjualan_total_retur, 0)) 
-				and penjualan_status_aktif is null 
+				and penjualan_status_aktif is null $where
 				and penjualan_tanggal = '" . $periode . "' 
 				order by penjualan_created asc")->result_array();
 
@@ -259,12 +273,12 @@ class Postingpajak extends Base_Controller
 					foreach ($dataDetail as $key => $value) {
 						$this->db->update('pos_penjualan', array('penjualan_lock' => '1'), array('penjualan_id' => $value['penjualan_id']));
 					}
-					$this->dbmp->insert_batch('pajak_realisasi_detail', $batch);
+					$this->db->insert_batch('pajak_realisasi_detail', $batch);
 				}
 
 				// Insert data parent laporan realisasi
 				// Use PAJAK DB
-				$this->dbmp->insert('pajak_realisasi', [
+				$this->db->insert('pajak_realisasi', [
 					'realisasi_id' => $realisasi_id,
 					'realisasi_no' => date('ymd') . '-' . substr(uniqid('', true), strlen(uniqid('', true)) - 4, strlen(uniqid('', true))),
 					'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
@@ -278,7 +292,7 @@ class Postingpajak extends Base_Controller
 					'realisasi_created_by' => $user['user_id'],
 				]);
 
-				// print_r($this->dbmp->last_query());exit;
+				// print_r($this->db->last_query());exit;
 
 				array_push($save_success, $periode);
 			} else {
@@ -299,10 +313,9 @@ class Postingpajak extends Base_Controller
 	public function store_mobile()
 	{
 		$data = varPost();
-		$user = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
+		$user = $this->db->get_where('v_pajak_pos', ['toko_kode' => explode('_', $data['mobileDb'])[1]])->row_array();
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 
 			if (empty($data['tanggal'])) {
 				return $this->response([
@@ -347,10 +360,10 @@ class Postingpajak extends Base_Controller
 				$batch = [];
 
 				// Use PAJAK DB
-				$dataWp = $this->dbmp->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
+				$dataWp = $this->db->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
 
 
-				$existrealisasi = $this->dbmp->get_where('pajak_realisasi', array(
+				$existrealisasi = $this->db->get_where('pajak_realisasi', array(
 					'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
 					'realisasi_wajibpajak_npwpd' => $dataWp->wajibpajak_npwpd,
 					'realisasi_tanggal' => $periode,
@@ -398,12 +411,12 @@ class Postingpajak extends Base_Controller
 						foreach ($dataDetail as $key => $value) {
 							$this->db->update('pos_penjualan', array('penjualan_lock' => '1'), array('penjualan_id' => $value['penjualan_id']));
 						}
-						$this->dbmp->insert_batch('pajak_realisasi_detail', $batch);
+						$this->db->insert_batch('pajak_realisasi_detail', $batch);
 					}
 
 					// Insert data parent laporan realisasi
 					// Use PAJAK DB
-					$this->dbmp->insert('pajak_realisasi', [
+					$this->db->insert('pajak_realisasi', [
 						'realisasi_id' => $realisasi_id,
 						'realisasi_no' => date('ymd') . '-' . substr(uniqid('', true), strlen(uniqid('', true)) - 4, strlen(uniqid('', true))),
 						'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
@@ -417,7 +430,7 @@ class Postingpajak extends Base_Controller
 						'realisasi_created_by' => $user['user_id'],
 					]);
 
-					// print_r($this->dbmp->last_query());exit;
+					// print_r($this->db->last_query());exit;
 
 					array_push($save_success, $periode);
 				} else {
@@ -838,6 +851,9 @@ class Postingpajak extends Base_Controller
 		$filter = [];
 		$filter = "penjualan_tanggal between '" . $data['first_date'] . "' AND '" . $data['end_date'] . "'";
 		$dtCaption = 'Bulan : ' . $bulan;
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$filter['wajibpajak_id'] = $wp_id;
+		}
 		$penjualan = $this->db->select(
 			"penjualan_tanggal, penjualan_pajak_persen, 
 			SUM(penjualan_jasa) AS penjualan_jasa,
@@ -1117,6 +1133,10 @@ class Postingpajak extends Base_Controller
 				<th>JUMLAH</th>
 			</tr>';
 		// $penjualan = $this->db->query('select penjualan_tanggal, COUNT(IF(penjualan_total_bayar>0,penjualan_total_bayar, null)) total_tunai, sum(penjualan_total_bayar) tunai, COUNT(IF(penjualan_total_kredit>0, penjualan_total_kredit, null)) total_kredit, sum(penjualan_total_kredit) kredit FROM pos_penjualan WHERE DATE_FORMAT(penjualan_tanggal, "%Y-%m") = "'.$data['bulan'].'" GROUP BY penjualan_tanggal')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$penjualan = $this->db->query('SELECT 
 				penjualan_tanggal, 
 				COUNT(case when(penjualan_metode != \'K\') then penjualan_total_bayar else null end) total_tunai, 
@@ -1137,7 +1157,7 @@ class Postingpajak extends Base_Controller
 				) as hpp 
 				on penjualan_detail_tanggal=penjualan_tanggal 
 			WHERE penjualan_status_aktif IS NULL 
-			AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $ym . '\' 
+			AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $ym . '\' ' . $where . '
 			GROUP BY penjualan_tanggal, hpp, penjualan_pajak_persen')->result_array();
 
 		$total = $nota_tunai = $nota_kredit = $total_tunai = $total_kredit = $hpp = 0;

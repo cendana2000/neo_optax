@@ -65,7 +65,9 @@ class Custommenu extends Base_Controller
 
 			$data = varPost();
 
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$this->response($this->db->get_where("v_pos_barang_custom", ['custom_menu_deleted_at' => null, 'barang_id' => $data['barang_id']])->result_array());
 		}
 	}
@@ -130,6 +132,7 @@ class Custommenu extends Base_Controller
 						'custom_menu_nama' => $value[1],
 						'custom_menu_harga' => $value[2],
 						'custom_menu_created_at' => date('Y-m-d H:i:s'),
+						'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 					];
 				}
 			}

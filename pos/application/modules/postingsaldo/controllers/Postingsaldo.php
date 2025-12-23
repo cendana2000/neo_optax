@@ -77,6 +77,11 @@ class Postingsaldo extends Base_Controller
 		$parent = gen_uuid($this->Postingsaldo->get_table());
 		// $bulan = date('Y-m', strtotime("+1 month", $data['posting_bulan'].'-01'));
 
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_barang.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		// posting_gudang_id is commented
 		// posting detail barang
 		$event_posting_detail = $this->db->query('
@@ -151,8 +156,16 @@ class Postingsaldo extends Base_Controller
 			LEFT JOIN (SELECT retur_penjualan_detail_barang_id, SUM(retur_penjualan_detail_retur_qty_barang) rjual_last FROM pos_retur_penjualan_detail WHERE to_char(retur_penjualan_detail_tanggal, \'YYYY-MM\') > \'' . $data['posting_bulan'] . '\' GROUP BY retur_penjualan_detail_barang_id) rjl ON rjl.retur_penjualan_detail_barang_id = barang_id
 			LEFT JOIN (SELECT retur_penjualan_detail_barang_id, SUM(retur_penjualan_detail_retur_qty_barang) rjual_current, SUM(retur_penjualan_detail_jumlah) rjual_current_nilai FROM pos_retur_penjualan_detail WHERE to_char(retur_penjualan_detail_tanggal, \'YYYY-MM\') = \'' . $data['posting_bulan'] . '\' GROUP BY retur_penjualan_detail_barang_id) rjc ON rjc.retur_penjualan_detail_barang_id = barang_id
 			LEFT JOIN (SELECT opname_detail_barang_id, SUM(opname_detail_qty_koreksi) opname_current, SUM(opname_detail_nilai) opname_current_nilai FROM pos_stock_opname_detail WHERE to_char(opname_detail_tanggal, \'YYYY-MM\') = \'' . $data['posting_bulan'] . '\' GROUP BY opname_detail_barang_id) op ON op.opname_detail_barang_id = barang_id
-		 WHERE barang_yearly > 0 ORDER BY barang_kode
+		 WHERE barang_yearly > 0 ' . $where . ' ORDER BY barang_kode
 		');
+
+		$f1 = '';
+		$f2 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$f1 = 'AND EXISTS(SELECT 1 FROM pos_barang WHERE pos_barang.barang_id=pos_posting_saldo_detail.posting_detail_barang_id AND wajibpajak_id=' . $this->db->escape($wp_id) . ')';
+			$f2 = 'AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		// final posting
 		$event_posting = $this->db->query('INSERT INTO pos_posting_saldo(
 				posting_id,
@@ -181,7 +194,8 @@ class Postingsaldo extends Base_Controller
 				posting_persediaan_photocopy, 
 				posting_created, 
 				posting_aktif,
-				posting_penjualan_potongan
+				posting_penjualan_potongan,
+				wajibpajak_id
 				) SELECT 
 				\'' . $parent . '\',
 				\'' . $data['posting_bulan'] . '\',
@@ -250,10 +264,10 @@ class Postingsaldo extends Base_Controller
 				SUM(posting_detail_akhir_stok) ak_stok,
 				SUM(posting_detail_akhir_nilai) ak_stok_nilai,
 				SUM(posting_detail_hpp_nilai) hpp,
-				SUM(posting_detail_laba) laba FROM pos_posting_saldo_detail WHERE posting_detail_bulan = \'' . $data['posting_bulan'] . '\') f1 CROSS JOIN
-				(SELECT SUM(penjualan_total_potongan) jual_potongan FROM pos_penjualan WHERE to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['posting_bulan'] . '\') f2
+				SUM(posting_detail_laba) laba FROM pos_posting_saldo_detail WHERE posting_detail_bulan = \'' . $data['posting_bulan'] . '\' ' . $f1 . ') f1 CROSS JOIN
+				(SELECT SUM(penjualan_total_potongan) jual_potongan FROM pos_penjualan WHERE to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['posting_bulan'] . '\' ' . $f2 . ') f2
 				');
-			
+
 		// print_r('<pre>');print_r($this->db->last_query());print_r('</pre>');exit;
 
 		// update saldo awal barang
@@ -262,6 +276,12 @@ class Postingsaldo extends Base_Controller
 											SET barang_awal = posting_detail_akhir_stok, barang_awal_nilai = posting_detail_akhir_nilai 
 										   WHERE posting_detail_bulan = \'' . $data['posting_bulan'] . '\'');
 		*/
+
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pbs.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		$update_barang = $this->db->query('UPDATE
 			pos_barang pbu
 		SET
@@ -271,13 +291,25 @@ class Postingsaldo extends Base_Controller
 			pos_barang pbs
 			LEFT JOIN pos_posting_saldo_detail ON pbs.barang_id = posting_detail_barang_id
 		WHERE
-			posting_detail_bulan = \'' . $data['posting_bulan'] . '\'');
+			posting_detail_bulan = \'' . $data['posting_bulan'] . '\'' . $where);
 
 		// Locking data transaction
 		// $show = $this->db->update('pos_posting_saldo', ['posting_aktif'=>'1'], ['posting_bulan' => $data['posting_bulan'],'posting_gudang_id' => $this->config->item('base_gudang')]);
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$lock_pembelian = $this->db->update('pos_pembelian_barang', ['pembelian_lock' => '1'], ['to_char(pembelian_tanggal, \'YYYY-MM\')=' => $data['posting_bulan']]);
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$lock_penjualan = $this->db->update('pos_penjualan', ['penjualan_lock' => '1'], ['to_char(penjualan_tanggal, \'YYYY-MM\')=' => $data['posting_bulan']]);
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$lock_retur_pembelian = $this->db->update('pos_retur_pembelian_barang', ['retur_pembelian_lock' => '1'], ['to_char(retur_pembelian_tanggal, \'YYYY-MM\')=' => $data['posting_bulan']]);
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$lock_retur_penjualan = $this->db->update('pos_retur_penjualan_barang', ['retur_penjualan_lock' => '1'], ['to_char(retur_penjualan_tanggal, \'YYYY-MM\')=' => $data['posting_bulan']]);
 
 		// $message = 'insert_detail is ' . $event_posting_detail . ', insert_final is ' . $event_posting . ', update_barang is ' . $update_barang;

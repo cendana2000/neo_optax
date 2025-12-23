@@ -722,6 +722,11 @@ class Base_model extends CI_Model
             $where = array($this->get_primary() => $id);
             // $this->db->where(array($this->get_primary()=>$id));
         }
+        if ($this->db->field_exists('wajibpajak_id', $this->get_view())) {
+            if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                $where['wajibpajak_id'] = $wp_id;
+            }
+        }
         if (!empty($id)) {
             if ($mapped) {
                 $this->db->select($this->alias_fields($this->get_fields_name(true)));

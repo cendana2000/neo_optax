@@ -36,13 +36,15 @@ class Satuan extends Base_Controller
 	public function select_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
 				$this->db->like('satuan_nama', $filter);
 			} else {
 				$filter = "";
+			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
 			}
 			$this->response($this->db->get_where("pos_satuan", ['satuan_deleted_at' => null])->result_array());
 		}
@@ -117,6 +119,7 @@ class Satuan extends Base_Controller
 					'satuan_nama' => $value[2],
 					'satuan_aktif' => 1,
 					'satuan_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_satuan', $batch);

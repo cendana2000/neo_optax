@@ -715,6 +715,9 @@ class Pembayaranpiutang extends Base_Controller
 	public function print_tanda_terima($value = '')
 	{
 		$data = varPost();
+		if ($wp_id = $this->session->userdata('wajipajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$pembayaran = $this->db->where('pembayaran_piutang_id', $data['pembayaran_piutang_id'])
 			->get('v_pos_pembayaran_piutang')
 			->row_array();

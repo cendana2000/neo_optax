@@ -38,7 +38,11 @@ class Rekening extends Base_Controller
 				'paket' => 'Cash',
 			];
 		} else {
-			$data = $this->db->query("SELECT rekening_id, CONCAT(rekening_bank, ' - ', rekening_no,' - ', rekening_nama) as paket FROM pos_rekening WHERE rekening_id = '$id'")->row_array();
+			$where = '';
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+			}
+			$data = $this->db->query("SELECT rekening_id, CONCAT(rekening_bank, ' - ', rekening_no,' - ', rekening_nama) as paket FROM pos_rekening WHERE rekening_id = '$id' $where")->row_array();
 		}
 
 		$this->response($data);
@@ -47,7 +51,11 @@ class Rekening extends Base_Controller
 	function select($value = '')
 	{
 		$data['success'] = true;
-		$data['data'] = $this->db->query("SELECT rekening_id, CONCAT(rekening_bank, ' - ', rekening_no,' - ', rekening_nama) as paket FROM pos_rekening")->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$data['data'] = $this->db->query("SELECT rekening_id, CONCAT(rekening_bank, ' - ', rekening_no,' - ', rekening_nama) as paket FROM pos_rekening WHERE 1=1 $where")->result_array();
 		array_unshift($data['data'], ['rekening_id' => 'Cash', 'paket' => 'Cash']);
 		$this->response($data);
 	}
@@ -64,7 +72,11 @@ class Rekening extends Base_Controller
 
 		$data = varPost();
 
-		$return = $this->db->query("SELECT rekening_id as id, CONCAT(rekening_bank, ' - ', rekening_no, ' - ', rekening_nama) as text FROM pos_rekening WHERE rekening_deleted_at IS NULL")->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$return = $this->db->query("SELECT rekening_id as id, CONCAT(rekening_bank, ' - ', rekening_no, ' - ', rekening_nama) as text FROM pos_rekening WHERE rekening_deleted_at IS NULL $where")->result_array();
 		$this->response(array('items' => $return, 'total_count' => count($return)));
 	}
 
@@ -118,6 +130,7 @@ class Rekening extends Base_Controller
 					'rekening_no' => $value[2],
 					'rekening_bank' => $value[3],
 					'rekening_created_at' => date('Y-m-d H:i:s'),
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 			}
 			$this->db->insert_batch('pos_rekening', $batch);

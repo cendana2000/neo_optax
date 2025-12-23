@@ -30,8 +30,8 @@ class Notification extends Base_Controller {
 
 		print_r('<pre>');print_r($ses);print_r('</pre>');exit;
 
-		$get_jenis = $this->dbmp->get_where('pajak_jenis', ['jenis_nama' => $ses['toko']['jenis_nama']])->row_array();
-		$get_jenis_parent = $this->dbmp->get_where('pajak_jenis', ['jenis_id' => $get_jenis['jenis_parent']])->row_array();
+		$get_jenis = $this->db->get_where('pajak_jenis', ['jenis_nama' => $ses['toko']['jenis_nama']])->row_array();
+		$get_jenis_parent = $this->db->get_where('pajak_jenis', ['jenis_id' => $get_jenis['jenis_parent']])->row_array();
 		if ($get_jenis_parent['jenis_nama'] == 'PAJAK RESTORAN') {
 			print_r('<pre>');print_r('RESTO');print_r('</pre>');exit;
 		} else if ($get_jenis_parent['jenis_nama'] == 'PAJAK HOTEL') {

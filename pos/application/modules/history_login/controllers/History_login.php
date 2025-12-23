@@ -31,8 +31,8 @@ class History_login extends Base_Controller
 			'history_last_login' => date('Y-m-d H:i:s'),
 		];
 
-		$this->dbmp->db_debug = false;
-		if ($this->dbmp->insert('history_login', $dataSend)) {
+		$this->db->db_debug = false;
+		if ($this->db->insert('history_login', $dataSend)) {
 			$this->response([
 				'success' => true,
 				'socket_id' => $data['socket_id']
@@ -41,13 +41,13 @@ class History_login extends Base_Controller
 			$_POST = json_decode(file_get_contents("php://input"), true);
 			$data = $_POST;
 
-			$this->dbmp->db_debug = false;
-			$this->dbmp->where([
+			$this->db->db_debug = false;
+			$this->db->where([
 				'history_wp_id' => $data['toko_id'],
 				'history_user_id' => $data['user_id']
 			]);
-			$this->dbmp->set($dataSend);
-			if ($this->dbmp->update('history_login')) {
+			$this->db->set($dataSend);
+			if ($this->db->update('history_login')) {
 				$this->response([
 					'success' => true,
 					'socket_id' => $data['socket_id']
@@ -65,9 +65,9 @@ class History_login extends Base_Controller
 		$_POST = json_decode(file_get_contents("php://input"), true);
 		$data = $_POST;
 
-		$this->dbmp->db_debug = false;
+		$this->db->db_debug = false;
 
-		if ($this->dbmp->query("UPDATE history_login SET history_is_online = 0, history_last_login = '" . date('Y-m-d H:i:s') . "' WHERE history_socket_id ='" . $data['socket_id'] . "'")) {
+		if ($this->db->query("UPDATE history_login SET history_is_online = 0, history_last_login = '" . date('Y-m-d H:i:s') . "' WHERE history_socket_id ='" . $data['socket_id'] . "'")) {
 			$this->response([
 				'success' => true,
 				'socket_id' => $data['socket_id']

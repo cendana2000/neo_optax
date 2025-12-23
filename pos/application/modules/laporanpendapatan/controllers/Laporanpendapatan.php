@@ -177,6 +177,12 @@ class Laporanpendapatan extends Base_Controller
 				$filter_pembelian = "WHERE pembelian_tanggal  = '$cDate'";
 				$dtCaption = 'Tanggal : ' . $data['tanggal'];
 
+				if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+					$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+					$filter_pembelian .= $where;
+					$filter_penjualan .= $where;
+				}
+
 				$pendapatan = $this->db->query("SELECT (SELECT SUM(pembelian_bayar_grand_total) FROM pos_pembelian_barang $filter_pembelian) as total_pembelian,
 			(SELECT SUM(penjualan_total_grand) as total FROM pos_penjualan $filter_penjualan) as total_penjualan")->row_array();
 				// print_r('<pre>');print_r($cDate);print_r('</pre>');
@@ -213,6 +219,12 @@ class Laporanpendapatan extends Base_Controller
 			$filter_penjualan = "WHERE penjualan_tanggal = '$tanggal'";
 			$filter_pembelian = "WHERE pembelian_tanggal = '$tanggal'";
 			$dtCaption = 'Tanggal : ' . $data['tanggal'];
+
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+				$filter_pembelian .= $where;
+				$filter_penjualan .= $where;
+			}
 
 			$pembelian = $this->db->query("SELECT (SELECT SUM(pembelian_bayar_grand_total) FROM pos_pembelian_barang $filter_pembelian) as total_pembelian,
 			(SELECT SUM(penjualan_total_grand) as total FROM pos_penjualan $filter_penjualan) as total_penjualan")->result_array();
@@ -399,6 +411,12 @@ class Laporanpendapatan extends Base_Controller
 					$filter_penjualan = "WHERE penjualan_tanggal  = '$cDate'";
 					$filter_pembelian = "WHERE pembelian_tanggal  = '$cDate'";
 
+					if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+						$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+						$filter_pembelian .= $where;
+						$filter_penjualan .= $where;
+					}
+
 					$pendapatan = $this->db->query("SELECT (SELECT SUM(pembelian_bayar_grand_total) FROM pos_pembelian_barang $filter_pembelian) as total_pembelian,
 					(SELECT SUM(penjualan_total_grand) as total FROM pos_penjualan $filter_penjualan) as total_penjualan")->row_array();
 					// print_r('<pre>');print_r($cDate);print_r('</pre>');
@@ -453,6 +471,12 @@ class Laporanpendapatan extends Base_Controller
 			$filter_penjualan = "WHERE penjualan_tanggal = '$tanggal'";
 			$filter_pembelian = "WHERE pembelian_tanggal = '$tanggal'";
 			$dtCaption = 'Tanggal : ' . $data['tanggal'];
+
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+				$filter_pembelian .= $where;
+				$filter_penjualan .= $where;
+			}
 
 			$ops = $this->db->query("SELECT (SELECT SUM(pembelian_bayar_grand_total) FROM pos_pembelian_barang $filter_pembelian) as total_pembelian,
 			(SELECT SUM(penjualan_total_grand) as total FROM pos_penjualan $filter_penjualan) as total_penjualan")->result_array();

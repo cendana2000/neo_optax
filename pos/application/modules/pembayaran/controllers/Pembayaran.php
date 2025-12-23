@@ -59,12 +59,17 @@ class Pembayaran extends Base_Controller
 
 		if ($filter != '') {
 			// Query Baru
+			$where1 = '';
+			if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+				$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+			}
 			$data['aaData'] = $this->db->query("SELECT * FROM 
 				v_pos_pembelian_barang 
 			WHERE 
 				pembelian_supplier_id = '$filter' 
 				AND pembelian_bayar_opsi = 'K' 
 				AND pembelian_bayar_sisa > 0
+				$where1
 			")->result_array();
 			$data["iTotalRecords"] = count($data['aaData']);
 			$data["iTotalDisplayRecords"] = count($data['aaData']);
@@ -98,6 +103,7 @@ class Pembayaran extends Base_Controller
 				'sales_id' 			=> gen_uuid($this->pembayaran->get_table()),
 				'sales_supplier_id' => $data['pembayaran_supplier_id'],
 				'sales_nama' 		=> $data['pembayaran_sales'],
+				'wajibpajak_id'		=> $this->session->userdata('wajibpajak_id')
 			));
 		}
 		$operation = $this->pembayaran->insert(gen_uuid($this->pembayaran->get_table()), $data, function ($res) use ($data) {
@@ -646,9 +652,15 @@ class Pembayaran extends Base_Controller
 	public function print_nota($value = '')
 	{
 		$user = $this->session->userdata();
+		if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$data = $this->db->where('pembayaran_id', $value)
 			->get('v_pos_pembayaran')
 			->row_array();
+		if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$detail = $this->db->where('pembayaran_detail_parent', $value)
 			->get('v_pos_pembayaran_detail')
 			->result_array();
@@ -890,11 +902,17 @@ class Pembayaran extends Base_Controller
 	{
 		$data = varPost();
 		$user = $this->session->userdata();
+		if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$pembayaran = $this->db->where('pembayaran_id', $data['pembayaran_id'])
 			->get('v_pos_pembayaran')
 			->row_array();
 		// print_r($pembayaran);exit;
 		// print_r('<pre>');print_r($pembayaran);print_r('</pre>');exit;
+		if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$detail = $this->db->where('pembayaran_detail_parent', $data['pembayaran_id'])
 			->get('v_pos_pembayaran_detail')
 			->result_array();

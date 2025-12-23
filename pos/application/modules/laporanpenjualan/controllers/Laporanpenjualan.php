@@ -180,6 +180,9 @@ class Laporanpenjualan extends Base_Controller
 			<th class="t-center">Pajak</th>
 			<th class="t-center">Total</th>
 		</tr>';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$penjualan = $this->db->select('*')
 			->from('v_pos_penjualan')
 			->where('penjualan_total_bayar >= (penjualan_total_grand - coalesce (penjualan_total_retur, 0))', null)
@@ -746,6 +749,10 @@ class Laporanpenjualan extends Base_Controller
 		}
 
 		$cutPajak = $this->session->userdata('global_pajak') / 100;
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_penjualan.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$penjualan = $this->db->query('SELECT 
 				penjualan_tanggal, 
 				COUNT(case when(penjualan_metode != \'K\') then penjualan_total_bayar else null end) total_tunai, 
@@ -773,7 +780,7 @@ class Laporanpenjualan extends Base_Controller
 					GROUP BY penjualan_detail_tanggal
 				) as hpp 
 				on penjualan_detail_tanggal=penjualan_tanggal 
-			WHERE penjualan_status_aktif IS NULL 
+			WHERE penjualan_status_aktif IS NULL ' . $where . '
 			AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' 
 			GROUP BY penjualan_tanggal, hpp')->result_array();
 
@@ -859,7 +866,7 @@ class Laporanpenjualan extends Base_Controller
 					GROUP BY penjualan_detail_tanggal
 				) as hpp 
 				on penjualan_detail_tanggal=penjualan_tanggal 
-			WHERE penjualan_status_aktif IS NULL 
+			WHERE penjualan_status_aktif IS NULL  ' . $where . '
 			AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' 
 			GROUP BY penjualan_tanggal, hpp')->result_array();
 
@@ -1056,6 +1063,10 @@ class Laporanpenjualan extends Base_Controller
 		}
 
 		$cutPajak = $this->session->userdata('global_pajak') / 100;
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_penjualan.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$penjualan = $this->db->query('SELECT 
 				penjualan_tanggal, 
 				COUNT(case when(penjualan_metode != \'K\') then penjualan_total_bayar else null end) total_tunai, 
@@ -1083,7 +1094,7 @@ class Laporanpenjualan extends Base_Controller
 					GROUP BY penjualan_detail_tanggal
 				) as hpp 
 				on penjualan_detail_tanggal=penjualan_tanggal 
-			WHERE penjualan_status_aktif IS NULL 
+			WHERE penjualan_status_aktif IS NULL ' . $where . '
 			AND penjualan_total_bayar IS NOT NULL
 			AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' 
 			GROUP BY penjualan_tanggal, hpp')->result_array();
@@ -1151,7 +1162,7 @@ class Laporanpenjualan extends Base_Controller
 						GROUP BY penjualan_detail_tanggal
 					) as hpp 
 					on penjualan_detail_tanggal=penjualan_tanggal 
-				WHERE penjualan_status_aktif IS NULL 
+				WHERE penjualan_status_aktif IS NULL  $where
 				AND to_char(penjualan_tanggal, 'YYYY-MM') = '" . $data['bulan'] . "'
 				GROUP BY penjualan_tanggal, hpp
 			) x
@@ -1177,7 +1188,7 @@ class Laporanpenjualan extends Base_Controller
 					GROUP BY penjualan_detail_tanggal
 				) as hpp 
 				on penjualan_detail_tanggal=penjualan_tanggal 
-			WHERE penjualan_status_aktif IS NULL 
+			WHERE penjualan_status_aktif IS NULL  $where
 			AND penjualan_total_bayar IS NOT NULL
 			AND to_char(penjualan_tanggal, 'YYYY-MM') = '" . $data['bulan'] . "'
 			GROUP BY penjualan_tanggal, hpp"
@@ -1717,6 +1728,9 @@ class Laporanpenjualan extends Base_Controller
 			} else {
 				$color = "background-color:#c6ccc8";
 			}
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$detail =  $this->db->select('barang_kode, barang_nama, penjualan_detail_qty, penjualan_detail_satuan_kode, penjualan_detail_harga, penjualan_detail_qty, penjualan_detail_potongan,penjualan_detail_subtotal,penjualan_detail_hpp')
 				->from('v_pos_penjualan_detail')
 				->where('penjualan_detail_parent', $value['penjualan_id'])
@@ -1806,9 +1820,13 @@ class Laporanpenjualan extends Base_Controller
 				</tr>
 			</thead>
 		';
-		$penjualan = $this->db->query('select penjualan_tanggal, COUNT(IF(penjualan_total_bayar_tunai>0,penjualan_total_bayar_tunai, null)) total_tunai, sum(penjualan_total_bayar_tunai) tunai, sum(penjualan_total_potongan) potongan, sum(penjualan_total_kembalian) kembalian, COUNT(IF((penjualan_total_bayar_tunai<penjualan_total_grand),penjualan_total_bayar_tunai, null)) total_kredit, sum(penjualan_total_kredit) kredit, penjualan_user_nama, FROM v_pos_penjualan WHERE penjualan_tanggal= "' . $data['tanggal'] . '" GROUP BY penjualan_tanggal, penjualan_user_id')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = 'wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$penjualan = $this->db->query('select penjualan_tanggal, COUNT(IF(penjualan_total_bayar_tunai>0,penjualan_total_bayar_tunai, null)) total_tunai, sum(penjualan_total_bayar_tunai) tunai, sum(penjualan_total_potongan) potongan, sum(penjualan_total_kembalian) kembalian, COUNT(IF((penjualan_total_bayar_tunai<penjualan_total_grand),penjualan_total_bayar_tunai, null)) total_kredit, sum(penjualan_total_kredit) kredit, penjualan_user_nama, FROM v_pos_penjualan WHERE penjualan_tanggal= "' . $data['tanggal'] . '" ' . $where . ' GROUP BY penjualan_tanggal, penjualan_user_id')->result_array();
 
-		$retur = $this->db->query('select retur_penjualan_tanggal, sum(retur_penjualan_titipan_belanja_nilai) titipan_belanja, sum(retur_penjualan_tunai) tunai, sum(retur_penjualan_kredit) kredit FROM pos_retur_penjualan WHERE retur_penjualan_tanggal= "' . $data['tanggal'] . '" GROUP BY retur_penjualan_tanggal')->row_array();
+		$retur = $this->db->query('select retur_penjualan_tanggal, sum(retur_penjualan_titipan_belanja_nilai) titipan_belanja, sum(retur_penjualan_tunai) tunai, sum(retur_penjualan_kredit) kredit FROM pos_retur_penjualan WHERE retur_penjualan_tanggal= "' . $data['tanggal'] . '" ' . $where . ' GROUP BY retur_penjualan_tanggal')->row_array();
 		$no = 1;
 		// kredit
 		$total_kredit = $total_tunai = 0;
@@ -1915,6 +1933,9 @@ class Laporanpenjualan extends Base_Controller
 					$filter['penjualan_kode'] = $data['nota_awal'];
 				}
 			}
+		}
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter['wajibpajak_id'] = $wp_id;
 		}
 		$ops = $this->db->select('*')
 			->from('v_pos_penjualan')
@@ -2066,6 +2087,10 @@ class Laporanpenjualan extends Base_Controller
 			}
 		}
 		$cutPajak = $this->session->userdata('global_pajak') / 100;
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_penjualan.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$ops = $this->db->query(
 			'SELECT 
 					penjualan_tanggal, 
@@ -2094,7 +2119,7 @@ class Laporanpenjualan extends Base_Controller
 						GROUP BY penjualan_detail_tanggal
 					) as hpp 
 					on penjualan_detail_tanggal=penjualan_tanggal 
-				WHERE penjualan_status_aktif IS NULL 
+				WHERE penjualan_status_aktif IS NULL  ' . $where . '
 				AND to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' 
 				GROUP BY penjualan_tanggal, hpp'
 		)->result_array();

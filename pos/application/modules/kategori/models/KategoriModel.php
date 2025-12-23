@@ -35,7 +35,11 @@ class KategoriModel extends Base_Model
 		if (isset($_GET['id'])) {
 			$parent = $_GET['id'];
 		}
-		$query = $this->db->query("SELECT kategori_barang_id as id, kategori_barang_parent as parent, kategori_barang_kode as kode, kategori_barang_nama as nama, kategori_barang_tipe as tipe, CONCAT(kategori_barang_kode, ' - ', kategori_barang_nama) as text, kategori_barang_tipe as children, kategori_barang_key FROM ak_kategori_barang WHERE kategori_barang_parent = '" . $parent . "' AND kategori_barang_aktif = 1 ORDER BY kategori_barang_kode ASC;");
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id = ' . $this->db->escape($wp_id);
+		}
+		$query = $this->db->query("SELECT kategori_barang_id as id, kategori_barang_parent as parent, kategori_barang_kode as kode, kategori_barang_nama as nama, kategori_barang_tipe as tipe, CONCAT(kategori_barang_kode, ' - ', kategori_barang_nama) as text, kategori_barang_tipe as children, kategori_barang_key FROM ak_kategori_barang WHERE kategori_barang_parent = '" . $parent . "' AND kategori_barang_aktif = 1 $where ORDER BY kategori_barang_kode ASC;");
 		$result = $query->result_array();
 		foreach ($result as &$record) {
 			if ($record['children'] == 'parent') {
@@ -68,7 +72,11 @@ class KategoriModel extends Base_Model
 
 	public function get_kategori_barang_by_key($key, $company = null)
 	{
-		$data = $this->db->query('SELECT kategori_barang_id FROM ak_kategori_barang WHERE kategori_barang_parent = "' . $key . '" ORDER BY kategori_barang_kode DESC LIMIT 1')->result_array();
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id = ' . $this->db->escape($wp_id);
+		}
+		$data = $this->db->query('SELECT kategori_barang_id FROM ak_kategori_barang WHERE kategori_barang_parent = "' . $key . '" ' . $where . ' ORDER BY kategori_barang_kode DESC LIMIT 1')->result_array();
 		if ($data) {
 			return $data[0]['kategori_barang_id'];
 		} else {
@@ -78,7 +86,12 @@ class KategoriModel extends Base_Model
 
 	public function get_parent($id)
 	{
-		$query = $this->db->query("SELECT kategori_barang_nama, kategori_barang_parent FROM ak_kategori_barang WHERE kategori_barang_id = '" . $id . "';");
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id = ' . $this->db->escape($wp_id);
+		}
+
+		$query = $this->db->query("SELECT kategori_barang_nama, kategori_barang_parent FROM ak_kategori_barang WHERE kategori_barang_id = '" . $id . "' $where;");
 		$result = $query->result_array();
 		$data = $result[0];
 

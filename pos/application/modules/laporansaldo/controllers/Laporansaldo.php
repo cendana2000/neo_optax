@@ -36,7 +36,8 @@ class Laporansaldo extends Base_Controller
 			'filters_static' => array(
 				'kategori_barang_parent <> \'#\'' => null,
 				'kategori_barang_aktif' => '1',
-			), 'sort_static' => 'kategori_barang_kode asc'
+			),
+			'sort_static' => 'kategori_barang_kode asc'
 		));
 		$this->response($kategori);
 	}
@@ -356,19 +357,23 @@ class Laporansaldo extends Base_Controller
 			</tr>';
 		// $postingdetail = $this->Postingsaldodetail->read(['posting_detail_bulan' => $data['bulan']]);
 		$posting = $this->Postingsaldo->read(['posting_bulan' => $data['bulan']]);
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_kategori.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		if (isset($posting['posting_bulan'])) {
 			$kategori = $this->db->query('SELECT kategori_barang_kode, kategori_barang_nama, kategori_barang_parent, COUNT(posting_detail_kategori_id) AS item, SUM(posting_detail_akhir_stok) as stok, SUM(posting_detail_akhir_nilai) as nilai 
 				FROM pos_kategori 
 				LEFT JOIN pos_barang ON kategori_barang_id = case when(barang_kategori_parent != \'' . '#' . '\') then barang_kategori_parent else barang_kategori_barang end
 				LEFT JOIN pos_posting_saldo_detail ON barang_id=posting_detail_barang_id AND posting_detail_bulan= \'' . $data['bulan'] . '\'
-				WHERE kategori_barang_parent = \'' . '#' . '\'
+				WHERE kategori_barang_parent = \'' . '#' . '\' ' . $where . '
 				GROUP BY kategori_barang_kode, kategori_barang_nama, pos_kategori.kategori_barang_parent
 				ORDER BY kategori_barang_kode')->result_array();
 		} else {
 			$kategori = $this->db->query('SELECT kategori_barang_kode, kategori_barang_nama, kategori_barang_parent, COUNT(barang_kategori_barang) AS item, SUM(barang_stok) stok, SUM(barang_stok*barang_harga_pokok) as nilai 
 			FROM pos_kategori 
 				LEFT JOIN pos_barang ON kategori_barang_id = case when(barang_kategori_parent != \'' . '#' . '\') then barang_kategori_parent else barang_kategori_barang end
-				WHERE kategori_barang_parent = \'' . '#' . '\'
+				WHERE kategori_barang_parent = \'' . '#' . '\' ' . $where . '
 				GROUP BY kategori_barang_kode, kategori_barang_nama, pos_kategori.kategori_barang_parent
 				ORDER BY kategori_barang_kode')->result_array();
 		}
@@ -473,6 +478,10 @@ class Laporansaldo extends Base_Controller
 		<table cellspacing=0 style="width:100%;border:none" >
 		';
 
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		// print_r('<pre>');print_r($data['bulan']);print_r('</pre>');exit;
 		$penjualan = $this->db->query('SELECT 
 			penjualan_tanggal, 
@@ -483,7 +492,7 @@ class Laporansaldo extends Base_Controller
 			COUNT(case when((penjualan_total_bayar_tunai<penjualan_total_grand)) then penjualan_total_bayar_tunai else null end) total_kredit, 
 			sum(penjualan_total_kredit) kredit, penjualan_user_nama 
 		FROM v_pos_penjualan 
-		WHERE to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' 
+		WHERE to_char(penjualan_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\'  ' . $where . '
 		GROUP BY penjualan_tanggal, penjualan_user_nama')->row_array();
 		// echo $this->db->last_query();
 		// print_r($penjualan);exit;
@@ -519,7 +528,7 @@ class Laporansaldo extends Base_Controller
 			COUNT(case when(pembelian_bayar_opsi=\'K\') then  pembelian_bayar_grand_total else null end) total_kredit, 
 			sum(case when(pembelian_bayar_opsi=\'K\') then  pembelian_bayar_grand_total else null end) kredit 
 		FROM pos_pembelian_barang 
-		WHERE to_char(pembelian_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\'
+		WHERE to_char(pembelian_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' ' . $where . '
 		GROUP BY pembelian_tanggal')->result_array();
 		$nilai = $pembelian[0]['tunai'] + $pembelian[0]['kredit'];
 		$nota = $pembelian[0]['total_tunai'] + $pembelian[0]['total_kredit'];
@@ -550,7 +559,7 @@ class Laporansaldo extends Base_Controller
 			COUNT(retur_pembelian_total) total, 
 			sum(retur_pembelian_total) nilai 
 		FROM pos_retur_pembelian_barang 
-		WHERE to_char(retur_pembelian_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\'')->result_array();
+		WHERE to_char(retur_pembelian_tanggal, \'YYYY-MM\') = \'' . $data['bulan'] . '\' ' . $where . ' ')->result_array();
 		$html .= '<tr>
 			<td class="noborder">Retur Pembelian</td>
 			<td class="noborder">Rp.</td>
@@ -684,10 +693,14 @@ class Laporansaldo extends Base_Controller
 				<th class="t-center">SISA</th>
 				<th class="t-center">NILAI</th>
 			</tr>';
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_barang.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		$kategori = $this->db->query('SELECT kategori_barang_kode, kategori_barang_nama, kategori_barang_parent, COUNT(barang_id) AS item, SUM(barang_stok) as stok, SUM(penjualan_detail_subtotal) as nilai FROM pos_kategori 
 			LEFT JOIN pos_barang ON barang_kategori_barang = kategori_barang_id AND barang_is_konsinyasi = "1"
 			LEFT JOIN pos_penjualan_detail ON penjualan_detail_barang_id = barang_id AND DATE_FORMAT(penjualan_detail_tanggal, "%Y-%m") = "' . $data['bulan'] . '" 
-			WHERE kategori_barang_is_konsinyasi = "1"
+			WHERE kategori_barang_is_konsinyasi = "1" ' . $where . '
 			GROUP BY kategori_barang_kode, kategori_barang_nama
 			ORDER BY kategori_barang_kode')->result_array();
 		if (count($kategori) == 0) {
@@ -831,19 +844,23 @@ class Laporansaldo extends Base_Controller
 		$data = varPost();
 
 		$posting = $this->Postingsaldo->read(['posting_bulan' => $data['bulan']]);
+		$where = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where = ' AND pos_kategori.wajibpajak_id=' . $this->db->escape($wp_id);
+		}
 		if (isset($posting['posting_bulan'])) {
 			$kategori = $this->db->query('SELECT kategori_barang_kode, kategori_barang_nama, kategori_barang_parent, COUNT(posting_detail_kategori_id) AS item, SUM(posting_detail_akhir_stok) as stok, SUM(posting_detail_akhir_nilai) as nilai 
 				FROM pos_kategori 
 				LEFT JOIN pos_barang ON kategori_barang_id = case when(barang_kategori_parent != \'' . '#' . '\') then barang_kategori_parent else barang_kategori_barang end
 				LEFT JOIN pos_posting_saldo_detail ON barang_id=posting_detail_barang_id AND posting_detail_bulan= \'' . $data['bulan'] . '\'
-				WHERE kategori_barang_parent = \'' . '#' . '\'
+				WHERE kategori_barang_parent = \'' . '#' . '\' ' . $where . '
 				GROUP BY kategori_barang_kode, kategori_barang_nama, pos_kategori.kategori_barang_parent
 				ORDER BY kategori_barang_kode')->result_array();
 		} else {
 			$kategori = $this->db->query('SELECT kategori_barang_kode, kategori_barang_nama, kategori_barang_parent, COUNT(barang_kategori_barang) AS item, SUM(barang_stok) stok, SUM(barang_stok*barang_harga_pokok) as nilai 
 			FROM pos_kategori 
 				LEFT JOIN pos_barang ON kategori_barang_id = case when(barang_kategori_parent != \'' . '#' . '\') then barang_kategori_parent else barang_kategori_barang end
-				WHERE kategori_barang_parent = \'' . '#' . '\'
+				WHERE kategori_barang_parent = \'' . '#' . '\' ' . $where . '
 				GROUP BY kategori_barang_kode, kategori_barang_nama, pos_kategori.kategori_barang_parent
 				ORDER BY kategori_barang_kode')->result_array();
 		}
@@ -933,7 +950,7 @@ class Laporansaldo extends Base_Controller
 				$stok += intval($value['stok']);
 				$nilai += intval($value['nilai']);
 			}
-			$no = $no+1;
+			$no = $no + 1;
 			$sheet->setCellValue('A' . $no, 'TOTAL')->mergeCells('A' . $no . ':' . 'B' . $no);
 			$sheet->setCellValue('C' . $no, number_format($item));
 			$sheet->setCellValue('D' . $no, number_format($stok));

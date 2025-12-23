@@ -62,8 +62,6 @@ class RealisasiModel extends Base_Model
 		$data = $payload['data'];
 		$user = $payload['user'];
 
-		$this->db = $this->load->database(multidb_connect($user['session_db']), true);
-
 		// print_r($this->db->database);
 
 		$period = new DatePeriod(
@@ -83,9 +81,9 @@ class RealisasiModel extends Base_Model
 			$batch = [];
 
 			// Use PAJAK DB
-			$dataWp = $this->dbmp->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
+			$dataWp = $this->db->get_where('pajak_wajibpajak', array('wajibpajak_npwpd' => $npwpd))->row();
 
-			$existrealisasi = $this->dbmp->get_where('pajak_realisasi', array(
+			$existrealisasi = $this->db->get_where('pajak_realisasi', array(
 				'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
 				'realisasi_wajibpajak_npwpd' => $dataWp->wajibpajak_npwpd,
 				'realisasi_tanggal' => $periode,
@@ -97,10 +95,14 @@ class RealisasiModel extends Base_Model
 				// );
 				// $dataDetail = $this->penjualan->select(array('filters_static' => $where))['data'];
 
+				$where = '';
+				if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+					$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+				}
 				$dataDetail = $this->db->query("select * from v_pos_penjualan 
 				where penjualan_total_bayar >= (penjualan_total_grand - coalesce (penjualan_total_retur, 0)) 
 				and penjualan_status_aktif is null 
-				and penjualan_tanggal = '" . $periode . "' 
+				and penjualan_tanggal = '" . $periode . "' $where
 				order by penjualan_created asc")->result_array();
 
 				// $dataDetail = [];
@@ -133,12 +135,12 @@ class RealisasiModel extends Base_Model
 					foreach ($dataDetail as $key => $value) {
 						$this->db->update('pos_penjualan', array('penjualan_lock' => '1'), array('penjualan_id' => $value['penjualan_id']));
 					}
-					$this->dbmp->insert_batch('pajak_realisasi_detail', $batch);
+					$this->db->insert_batch('pajak_realisasi_detail', $batch);
 				}
 
 				// Insert data parent laporan realisasi
 				// Use PAJAK DB
-				$this->dbmp->insert('pajak_realisasi', [
+				$this->db->insert('pajak_realisasi', [
 					'realisasi_id' => $realisasi_id,
 					'realisasi_no' => date('ymd') . '-' . substr(uniqid('', true), strlen(uniqid('', true)) - 4, strlen(uniqid('', true))),
 					'realisasi_wajibpajak_id' => $dataWp->wajibpajak_id,
@@ -154,15 +156,15 @@ class RealisasiModel extends Base_Model
 
 				// print_r($this->dbmp->last_query());exit;
 
-				echo date('Y-m-d H:i:s') . ' # ' .$user['session_db']. ' # Lapor Baru # ' . $periode . "\n";
+				echo date('Y-m-d H:i:s') . ' # ' . $user['session_db'] . ' # Lapor Baru # ' . $periode . "\n";
 				array_push($save_success, $periode);
 			} else {
-				echo date('Y-m-d H:i:s') . ' # ' .$user['session_db']. ' # Terdapat Data Lama # ' .$periode. "\n";
+				echo date('Y-m-d H:i:s') . ' # ' . $user['session_db'] . ' # Terdapat Data Lama # ' . $periode . "\n";
 				array_push($already_exist, $periode);
 			}
 		}
-		echo date('Y-m-d H:i:s') . " # " .$user['session_db']. ' # Akhir Eksekusi Lapor Pajak # '.$periode."\n";
-		
+		echo date('Y-m-d H:i:s') . " # " . $user['session_db'] . ' # Akhir Eksekusi Lapor Pajak # ' . $periode . "\n";
+
 		// print_r($already_exist);
 		// print_r('OK');
 

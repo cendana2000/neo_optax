@@ -66,9 +66,13 @@ class Returpembelian extends Base_Controller
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 		$where = ($data['fdata']['pembelian_supplier_id']) ? 'AND pembelian_supplier_id = \'' . $data['fdata']['pembelian_supplier_id'] . '\'' : '';
 
-		$total = $this->db->query('SELECT count(pembelian_id) total FROM v_pos_pembelian_barang WHERE concat(pembelian_kode, pembelian_faktur, supplier_nama) like \'%' . $data['q'] . '%\' AND pembelian_bayar_sisa>0 ' . $where)->result_array();
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(pembelian_id) total FROM v_pos_pembelian_barang WHERE concat(pembelian_kode, pembelian_faktur, supplier_nama) like \'%' . $data['q'] . '%\' AND pembelian_bayar_sisa>0 ' . $where . ' ' . $where1)->result_array();
 
-		$return = $this->db->query('SELECT pembelian_id as id, concat(pembelian_kode, \' - (Rp. \', pembelian_bayar_sisa, \')\') as text, concat(pembelian_kode, \' (Rp. \', pembelian_bayar_sisa, \')\') as kode FROM v_pos_pembelian_barang WHERE concat(pembelian_kode, pembelian_faktur, supplier_nama ) like \'%' . $data['q'] . '%\' AND pembelian_bayar_sisa > 0 ' . $where . ' ORDER BY pembelian_kode ASC LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$return = $this->db->query('SELECT pembelian_id as id, concat(pembelian_kode, \' - (Rp. \', pembelian_bayar_sisa, \')\') as text, concat(pembelian_kode, \' (Rp. \', pembelian_bayar_sisa, \')\') as kode FROM v_pos_pembelian_barang WHERE concat(pembelian_kode, pembelian_faktur, supplier_nama ) like \'%' . $data['q'] . '%\' AND pembelian_bayar_sisa > 0 ' . $where . ' ' . $where1 . ' ORDER BY pembelian_kode ASC LIMIT ' . $data['page'] . $data['limit'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
 
@@ -97,9 +101,13 @@ class Returpembelian extends Base_Controller
 		$where = ($data['fdata']['barang_kategori_barang']) ? 'barang_kategori_barang = "' . $data['fdata']['barang_kategori_barang'] . '" AND' : '';
 		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ')->result_array();
+		$where1 = '';
+		if ($wp_id = $this->session->userdat('wajibpajak_id')) {
+			$where1 = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ' . $where1)->result_array();
 
-		$return = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama, barang_stok as saved FROM v_pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$return = $this->db->query('SELECT barang_id as id, barang_kode, barang_nama, barang_stok as saved FROM v_pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ' . $where1 . ' ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
 
 		$new_return = [];
 		foreach ($return as $key => $value) {

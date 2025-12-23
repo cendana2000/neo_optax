@@ -6,7 +6,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Barang extends Base_Controller
 {
-	protected $db;
 	public function __construct()
 	{
 		parent::__construct();
@@ -69,6 +68,10 @@ class Barang extends Base_Controller
 
 	public function get_child_categories($parent_id = '')
 	{
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+
 		$this->db->select('kategori_barang_id, kategori_barang_kode, kategori_barang_nama');
 		$this->db->from('pos_kategori');
 		$this->db->where('kategori_barang_parent', $parent_id);
@@ -78,28 +81,27 @@ class Barang extends Base_Controller
 
 	public function load_menu_mobile($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		$isMobile = false;
 		$jenisUsaha = '';
 
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$isMobile = true;
 
 			$kode_toko = explode('_', varPost('mobileDb'));
-			$toko = $this->dbmp->where([
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where('pemda_id', $pemda_id);
+			}
+			$toko = $this->db->where([
 				'toko_kode' => $kode_toko[1]
 			])->get('v_pajak_toko')->row_array();
 
-			$getJenis = $this->dbmp->get_where('pajak_jenis', [
+			$getJenis = $this->db->get_where('pajak_jenis', [
 				'jenis_nama' => $toko['jenis_nama']
 			])->row_array();
-			$getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+
+			$getJenisParent = $this->db->get_where('pajak_jenis', [
 				'jenis_id' => $getJenis['jenis_parent']
 			])->row_array();
 
@@ -157,6 +159,10 @@ class Barang extends Base_Controller
 			OR lower(barang_barcode_kode) LIKE lower('%" . $valSearch . "%')";
 		}
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id= " . $this->db->escape($wp_id);
+		}
+
 		// Limit produk from mobile
 		if ($limitProduk != NULL) {
 			$limit = "LIMIT 9 OFFSET $limitProduk";
@@ -196,29 +202,29 @@ class Barang extends Base_Controller
 
 	public function mobile_read($dbname = '')
 	{
-		if (!empty($dbname)) {
-			$this->db = $this->load->database(multidb_connect($dbname), true);
-		}
-
 		$isMobile = false;
 		$jenisUsaha = '';
 
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->userdata($user['session_db']);
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$isMobile = true;
 
 			$kode_toko = explode('_', varPost('mobileDb'));
-			$toko = $this->dbmp
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where('pemda_id', $pemda_id);
+			}
+			$toko = $this->db
 				->where('toko_kode', $kode_toko[1])
 				->get('v_pajak_toko')
 				->row_array();
-			$getJenis = $this->dbmp
+
+			$getJenis = $this->db
 				->where('jenis_nama', $toko['jenis_nama'])
 				->get('pajak_jenis')
 				->row_array();
-			$getJenisParent = $this->dbmp
+
+			$getJenisParent = $this->db
 				->where('jenis_id', $getJenis['jenis_parent'])
 				->get('pajak_jenis')
 				->row_array();
@@ -271,6 +277,10 @@ class Barang extends Base_Controller
 				OR lower(barang_kode) LIKE lower('%" . $valSearch . "%') 
 				OR lower(barang_barcode_kode) LIKE lower('%" . $valSearch . "%')
 			)";
+		}
+
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$filter .= " AND pos_barang.wajibpajak_id= " . $this->db->escape($wp_id);
 		}
 
 		// Limit produk from mobile
@@ -331,10 +341,20 @@ class Barang extends Base_Controller
 			if (isset($barcode['barang_kode'])) $data['q'] = $barcode['barang_kode'];
 		}
 		$where = ($data['fdata']['barang_supplier_id']) ? 'barang_supplier_id = "' . $data['fdata']['barang_supplier_id'] . '" AND ' : '';
-		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
-		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ')->result_array();
 
-		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, " - ", barang_nama) as text, barang_is_konsinyasi as saved FROM v_pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND pos_barang.wajibpajak_id ' . $this->db->escape($wp_id);
+		}
+
+		$data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
+		$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ' . $where1)->result_array();
+
+		$where1 = '';
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$where1 = ' AND v_pos_barang.wajibpajak_id ' . $this->db->escape($wp_id);
+		}
+		$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, " - ", barang_nama) as text, barang_is_konsinyasi as saved FROM v_pos_barang WHERE ' . $where . ' (barang_nama like "' . $data['q'] . '%" OR barang_kode like "' . $data['q'] . '%") ' . $where1 . ' ORDER BY barang_nama LIMIT ' . $data['page'] . $data['limit'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
 	}
 
@@ -428,6 +448,10 @@ class Barang extends Base_Controller
 		// barang nama set to uppercase
 		$data['barang_nama'] = strtoupper($data['barang_nama']);
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+
 		// Setup Rental Produk
 		$dc_jenis_barang = $this->db->get_where('pos_jenis', ['jenis_id' => $data['barang_jenis_barang']])->row_array();
 		if ($dc_jenis_barang['jenis_include_stok'] == 2) {
@@ -443,6 +467,9 @@ class Barang extends Base_Controller
 
 		$data['barang_harga_beli'] =  $data['barang_satuan_harga_beli'][1];
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$kategori = $this->db->get_where('pos_kategori', ['kategori_barang_id' => $data['barang_kategori_barang']])->row_array()['kategori_barang_kode'];
 
 		$detail = [];
@@ -533,6 +560,9 @@ class Barang extends Base_Controller
 
 		$customMenu = $data['data'];
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('EXISTS(SELECT 1 FROM pos_barang WHERE pos_barang.barang_id=pos_barang_custom_menu.barang_custom_menu_barang_id AND pos_barang.wajibpajak_id = ' . $this->db->escape($wp_id) . ')');
+		}
 		$this->db->delete('pos_barang_custom_menu', [
 			'barang_custom_menu_barang_id' => $data['barang_id'],
 		]);
@@ -564,6 +594,9 @@ class Barang extends Base_Controller
 
 		$data['barang_harga_beli'] =  $data['barang_satuan_harga_beli'][1];
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$kategori = $this->db->get_where('pos_kategori', ['kategori_barang_id' => $data['barang_kategori_barang']])->row_array()['kategori_barang_kode'];
 
 		$detail = [];
@@ -645,7 +678,6 @@ class Barang extends Base_Controller
 		$data = varPost();
 
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$data = varPost();
 			unset($data['mobileDb']);
 
@@ -663,6 +695,9 @@ class Barang extends Base_Controller
 
 			$data['barang_harga_beli'] =  $data['barang_satuan_harga_beli'][1];
 
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$kategori = $this->db->get_where('pos_kategori', ['kategori_barang_id' => $data['barang_kategori_barang']])->row_array()['kategori_barang_kode'];
 
 			$detail = [];
@@ -870,6 +905,10 @@ class Barang extends Base_Controller
 	public function list_satuan_harga($value = '')
 	{
 		$data = varPost();
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('pos_barang.wajibpajak_id', $wp_id);
+		}
+
 		$harga = $this->db->select('pos_barang_satuan.*, pos_barang.barang_harga_pokok')
 			->where(['barang_satuan_parent' => $data['barang_id']])
 			->join('pos_barang', 'barang_id = barang_satuan_parent', 'left')
@@ -982,9 +1021,13 @@ class Barang extends Base_Controller
 			];
 
 			// data
-			$dataJenis = $this->db->query("SELECT string_agg(DISTINCT jenis_nama ,',') AS result  FROM pos_jenis WHERE jenis_deleted_at IS NULL")->row_array()['result'];
-			$dataKategori = $this->db->query("SELECT string_agg(DISTINCT kategori_barang_nama ,',') AS result  FROM pos_kategori WHERE kategori_barang_aktif = '1'")->row_array()['result'];
-			$dataSatuan = $this->db->query("SELECT string_agg(DISTINCT satuan_kode ,',') AS result  FROM pos_satuan WHERE satuan_deleted_at IS NULL")->row_array()['result'];
+			$where = '';
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+			}
+			$dataJenis = $this->db->query("SELECT string_agg(DISTINCT jenis_nama ,',') AS result  FROM pos_jenis WHERE jenis_deleted_at IS NULL $where")->row_array()['result'];
+			$dataKategori = $this->db->query("SELECT string_agg(DISTINCT kategori_barang_nama ,',') AS result  FROM pos_kategori WHERE kategori_barang_aktif = '1' $where")->row_array()['result'];
+			$dataSatuan = $this->db->query("SELECT string_agg(DISTINCT satuan_kode ,',') AS result  FROM pos_satuan WHERE satuan_deleted_at IS NULL $where")->row_array()['result'];
 
 			$sheet->setCellValue('A5', 1);
 
@@ -1072,12 +1115,21 @@ class Barang extends Base_Controller
 
 
 			// Create Dictionary Jenis
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$dictJenis = $this->db->get_where('pos_jenis', ['jenis_deleted_at' => NULL])->result_array();
 
 			// Create Dictionary Kategori
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$dictKategori = $this->db->get_where('pos_kategori', ['kategori_barang_aktif' => '1'])->result_array();
 
 			// Create Dictionary Satuan
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$dictSatuan = $this->db->get_where('pos_satuan', ['satuan_deleted_at' => NULL])->result_array();
 
 
@@ -1106,6 +1158,7 @@ class Barang extends Base_Controller
 					'barang_yearly' => 1,
 					'barang_awal' => 1,
 					'barang_disc' => 1,
+					'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
 				];
 
 				$batchDetailSatuan[] = [
@@ -1170,9 +1223,11 @@ class Barang extends Base_Controller
 	public function getCurrentPrice()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
 			$user['session_db'] = varPost('mobileDb');
 			$this->session->set_userdata($user);
+			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
 			$this->response($this->db->get_where('pos_barang', ['barang_id' => varPost('barang_id')])->row_array());
 		}
 	}
