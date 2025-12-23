@@ -74,6 +74,35 @@
         })
     });
 
+    $("#email, #password").keyup(function(e) {
+        if (e.keyCode == 13) {
+            doLogin();
+        }
+    });
+
+    $('#wizard-pemerintah_daerah .user_email, #wizard-pemerintah_daerah .user_password')
+        .on('keyup', function(e) {
+            if (e.key === 'Enter') doLoginPemda('pemda');
+        });
+
+    $('#wizard-bank_jatim .user_email, #wizard-bank_jatim .user_password')
+        .on('keyup', function(e) {
+            if (e.key === 'Enter') doLoginPemda('bankjatim');
+        });
+
+    $('#wizard-kpk .user_email, #wizard-kpk .user_password')
+        .on('keyup', function(e) {
+            if (e.key === 'Enter') doLoginPemda('kpk');
+        });
+
+
+    // $("#user_email, #user_password").keyup(function(e) {
+    //     if (e.keyCode == 13) {
+    //         doLoginPemda();
+    //     }
+    // });
+
+
     passwordShow = () => {
         if ($('#user_password').attr('type') == 'Password') {
             $('#user_password').attr('type', 'text');
@@ -120,6 +149,16 @@
             $('#mb_wp').show('500').addClass('animated slideInRight');
         }
         if (id == 'pemerintah_daerah') {
+            $('#mb_download').show('300').addClass('animated slideInRight');
+            $('#mb_wp').hide('500').addClass('animated slideOutLeft');
+            $('#mb_bp').show('500').addClass('animated slideInRight');
+        }
+        if (id == 'bank_jatim') {
+            $('#mb_download').show('300').addClass('animated slideInRight');
+            $('#mb_wp').hide('500').addClass('animated slideOutLeft');
+            $('#mb_bp').show('500').addClass('animated slideInRight');
+        }
+        if (id == 'kpk') {
             $('#mb_download').show('300').addClass('animated slideInRight');
             $('#mb_wp').hide('500').addClass('animated slideOutLeft');
             $('#mb_bp').show('500').addClass('animated slideInRight');
@@ -193,18 +232,6 @@
         $('.login-signup-wp').hide(500);
     }
 
-    $("#email, #password").keyup(function(e) {
-        if (e.keyCode == 13) {
-            doLogin();
-        }
-    });
-
-    $("#user_email, #user_password").keyup(function(e) {
-        if (e.keyCode == 13) {
-            doLoginPemda();
-        }
-    });
-
     function doLogin() {
         HELPER.block()
         var email = $('#email').val();
@@ -234,34 +261,45 @@
         });
     }
 
-    function doLoginPemda() {
-        HELPER.block()
-        var email = $('#user_email').val();
-        var password = $('#user_password').val();
-        var token = $('#token2').val();
+    function doLoginPemda(role) {
+        HELPER.block();
+
+        var wizard =
+            role === 'pemda' ? '#wizard-pemerintah_daerah' :
+            role === 'bankjatim' ? '#wizard-bank_jatim' :
+            '#wizard-kpk';
+
+        var email = $(wizard + ' .user_email').val().trim();
+        var password = $(wizard + ' .user_password').val();
+
+        console.log('DEBUG LOGIN:', {
+            role,
+            email,
+            password
+        });
+
         $.ajax({
             type: "POST",
             url: BASE_URL + "login/doLoginPemda",
             data: {
                 email: email,
                 password: password,
-                token: token,
-                // recaptcha: grecaptcha.getResponse()
+                role: role
             },
             success: function(response) {
-                $('#password').val('')
                 if (response.success) {
                     window.location.reload();
                 } else {
-                    HELPER.unblock()
+                    HELPER.unblock();
                     HELPER.showMessage({
                         success: false,
                         message: response.message
-                    })
+                    });
                 }
             }
         });
     }
+
 
     function doSignup(e) {
         event.preventDefault();
