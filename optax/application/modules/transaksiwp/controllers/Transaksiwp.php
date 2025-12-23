@@ -33,6 +33,9 @@ class Transaksiwp extends Base_Controller
 		// $where['log_penjualan_code_store'] = $codestore;
 		$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
 		$where['penjualan_deleted_at IS NULL'] = null;
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where['EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_penjualan.wajibpajak_id AND pemda_id=' . $pemda_id . ')'] = null;
+		}
 		$opr = $this->select_dt(varPost(), 'transaksiwppos', 'table', false, $where, null, null);
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_penjualan.wajibpajak_id AND pemda_id=' . $pemda_id . ')', NULL, FALSE);

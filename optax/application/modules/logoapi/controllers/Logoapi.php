@@ -30,8 +30,14 @@ class Logoapi extends Base_Controller
 		// $where['realisasi_created_at >= \'' . $startdate . '\' AND realisasi_created_at <= \'' . $enddate . '\''] = null;
 		$where['realisasi_tanggal >= \'' . $startdate . '\' AND realisasi_tanggal <= \'' . $enddate . '\''] = null;
 
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where['pemda_id = ' . $this->db->escape($pemda_id)] = null;
+		}
 		$opr = $this->select_dt(varPost(), 'logoapi', 'table', false, $where);
 
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$get_total = $this->db
 			->select("sum(realisasi_total) as total_penjualan")
 			->where($where)
@@ -46,6 +52,9 @@ class Logoapi extends Base_Controller
 	function detailTransaksi()
 	{
 		$realisasi_id = varPost("realisasi_id");
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$operation = $this->db
 			->select("*")
 			->where('realisasi_id', $realisasi_id)
@@ -60,10 +69,17 @@ class Logoapi extends Base_Controller
 	{
 		$data = varPost();
 		$where = ' AND toko_status = \'2\' AND toko_is_oapi = \'ACTIVE\'';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where .= 'AND pajak_toko.pemda_id=' . $this->db->escape($pemda_id);
+		}
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
 		$total = $this->db->query('SELECT count(toko_id) total FROM pajak_toko 
 		WHERE concat(toko_kode, toko_nama) like \'%' . $data['q'] . '%\' ' . $where)->result_array();
 
+		$where = ' AND toko_status = \'2\' AND toko_is_oapi = \'ACTIVE\'';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where .= ' AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=v_pajak_toko.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ') ';
+		}
 		$return = $this->db->query('SELECT toko_kode as id, concat(toko_kode, \' - \', toko_nama) as text FROM pajak_toko 
 		WHERE concat(toko_kode, toko_nama) like \'%' . $data['q'] . '%\' ' . $where . ' LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
@@ -445,9 +461,9 @@ class Logoapi extends Base_Controller
 		}
 
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			if($where){
+			if ($where) {
 				$where .= ' AND ';
-			}else {
+			} else {
 				$where .= ' WHERE ';
 			}
 

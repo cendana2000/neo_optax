@@ -77,19 +77,23 @@ class TransaksiwpModel extends Base_Model
         $this->db->where('penjualan_id', $data['penjualan_id']);
         $this->db->where('penjualan_lock', null);
 
-        if ($pemda_id = $this->session->userdata('pemda_id')) {
-            $this->db->where('pemda_id', $pemda_id);
-        }
+        $data1   = $this->db->get()->result_array();
+
         $this->db->select('*');
         $this->db->from('pajak_wajibpajak');
         $this->db->join('pajak_toko', 'pajak_wajibpajak.wajibpajak_id = pajak_toko.toko_wajibpajak_id', 'left');
         $this->db->where('pajak_toko.toko_kode', str_replace("posprod_", "", $data['code_store']));
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pajak_wajibpajak.pemda_id', $pemda_id);
+        }
+
+        $data_wp = $this->db->get()->result_array();
 
         return [
             'success' => true,
             'message' => 'Berhasil menampilkan data',
-            'data'    => $this->db->get()->result_array(),
-            'data_wp' => $this->db->get()->result_array(),
+            'data'    => $data1,
+            'data_wp' => $data_wp,
             'sql'     => $this->db->last_query()
         ];
     }
