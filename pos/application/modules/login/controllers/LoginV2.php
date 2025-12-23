@@ -20,8 +20,8 @@ class LoginV2 extends BASE_Controller
 		$data = varPost();
 		$posAppType = ['PAJAK RESTORAN', 'PAJAK HOTEL', 'PAJAK HIBURAN'];
 
-		$posUser = $this->dbmp->get_where('pos_user', [
-			'pos_user_email' => strtolower($data['email'])
+		$posUser = $this->db->get_where('pos_user', [
+			'user_email' => strtolower($data['email'])
 		])->row_array();
 
 		if (empty($posUser)) {
@@ -31,7 +31,7 @@ class LoginV2 extends BASE_Controller
 			));
 		}
 
-		$toko = $this->dbmp->get_where('v_pajak_pos', ['toko_kode' => $posUser['pos_user_code_store']])->row_array();
+		$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $posUser['user_code_store']])->row_array();
 
 		if (empty($toko)) {
 			return $this->response(array(
@@ -40,15 +40,12 @@ class LoginV2 extends BASE_Controller
 			));
 		}
 
-		$getJenis = $this->dbmp->get_where('pajak_jenis', [
+		$getJenis = $this->db->get_where('pajak_jenis', [
 			'jenis_nama' => $toko['jenis_nama']
 		])->row_array();
-		$getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+		$getJenisParent = $this->db->get_where('pajak_jenis', [
 			'jenis_id' => $getJenis['jenis_parent']
 		])->row_array();
-
-		$sessionDb = $_ENV['PREFIX_DBPOS'] . $posUser['pos_user_code_store'];
-		$this->dbses = $this->load->database(multidb_connect($sessionDb), true);
 
 		if ($posUser['pos_user_jenis_parent_name'] == 'PAJAK PARKIR') {
 			if (!empty($posUser['pos_user_password_argon2id'])) {
@@ -58,16 +55,14 @@ class LoginV2 extends BASE_Controller
 
 				if (password_verify($data['password'], $sandi)) {
 					$this->updateWebLastActive($data['email']);
-					$userParkir = $this->dbses->get_where('pengguna', [
+					$userParkir = $this->db->get_where('pengguna', [
 						'email' => strtolower($data['email'])
 					])->row_array();
 					$userParkir['login_status'] = true;
 					$userParkir['jenis_wp'] = 'PARKIR';
-					$userParkir['session_db'] = $sessionDb;
 					$userParkir['global_pajak'] = $toko['jenis_tarif'];
 					$userParkir['toko_nama'] = $toko['toko_nama'];
 					$userParkir['toko_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
-					$userParkir['toko'] = $toko;
 					$userParkir['password_raw'] = $data['password'];
 					unset($userParkir['sandi']);
 					$this->session->set_userdata($userParkir);
@@ -81,43 +76,46 @@ class LoginV2 extends BASE_Controller
 			}
 		}
 
-		if (in_array($posUser['pos_user_jenis_parent_name'], $posAppType) && $this->password($data['password']) == $posUser['pos_user_password']) {
+		if (in_array($posUser['user_jenis_parent_name'], $posAppType) && $this->password($data['password']) == $posUser['user_password']) {
 			$this->updateWebLastActive($data['email']);
-			$user = $this->dbses->get_where('pos_user', [
-				'user_email' => $data['email']
-			])->row_array();
 
 			$this->logWebActivity(
-				$posUser['pos_user_id'],
-				$posUser['pos_user_code_store'],
-				$user['user_nama'] ?? $posUser['pos_user_name'],
-				$wajibpajakInfo['wajibpajak_nama'] ?? '',
-				$wajibpajakInfo['wajibpajak_npwpd'] ?? ''
+				$posUser['user_id'],
+				$posUser['user_code_store'],
+				$posUser['user_nama'],
+				$toko['toko_nama'] ?? '',
+				$toko['wajibpajak_npwpd'] ?? ''
 			);
 
-			$user['login_status'] = true;
-			$user['session_db'] = $_ENV['PREFIX_DBPOS'] . $toko['toko_kode'];
-			$user['global_pajak'] = $toko['jenis_tarif'];
-			$user['toko_nama'] = $toko['toko_nama'];
-			$user['toko_wajibpajak_npwpd'] = $toko['toko_wajibpajak_npwpd'];
-			$user['toko'] = $toko;
-			$user['toko_kode'] = $toko['toko_kode'];
-			$user['pos_user_name'] = $posUser['pos_user_name'];
 			if ($getJenisParent['jenis_nama'] == 'PAJAK RESTORAN') {
-				$user['jenis_wp'] = 'RESTO';
+				$posUser['jenis_wp'] = 'RESTO';
 			} elseif ($getJenisParent['jenis_nama'] == 'PAJAK HOTEL') {
-				$user['jenis_wp'] = 'HOTEL';
+				$posUser['jenis_wp'] = 'HOTEL';
 			} elseif ($getJenisParent['jenis_nama'] == 'PAJAK HIBURAN') {
-				$user['jenis_wp'] = 'HIBURAN';
+				$posUser['jenis_wp'] = 'HIBURAN';
 			} else {
-				$user['jenis_wp'] = 'DEFAULT';
+				$posUser['jenis_wp'] = 'DEFAULT';
 			}
-			$this->session->set_userdata($user);
+			// $this->session->set_userdata($posUser);
+			$this->session->set_userdata([
+				'is_login'      => true,
+				'user_id'       => $posUser['user_id'],
+				'user_email'    => $posUser['user_email'],
+				'user_nama'     => $posUser['user_nama'],
+				'role_parent'   => $posUser['user_jenis_parent_name'],
+				'jenis_wp'      => $posUser['jenis_wp'],
+				'toko_kode'     => $toko['toko_kode'],
+				'toko_nama'     => $toko['toko_nama'],
+				'npwpd'         => $toko['toko_wajibpajak_npwpd'],
+				'global_pajak'  => $toko['jenis_tarif'],
+				'wajibpajak_id' => $posUser['wajibpajak_id'],
+				'jenis_wp'		=> $posUser['jenis_wp']
+			]);
 			$operation = array(
 				'success' => true,
-				'data' => $user,
+				'data' => $posUser,
 			);
-			if ($user['hak_akses_is_super']) {
+			if ($posUser['hak_akses_is_super']) {
 				$operation['is_super'] = 1;
 			}
 			return $this->response($operation);
@@ -131,13 +129,13 @@ class LoginV2 extends BASE_Controller
 
 	public function updateWebLastActive($email)
 	{
-		$wajibpajak = $this->dbmp
+		$wajibpajak = $this->db
 			->where('wajibpajak_email', strtolower($email))
 			->get('pajak_wajibpajak')
 			->row_array();
 
 		if ($wajibpajak) {
-			$result = $this->dbmp
+			$result = $this->db
 				->where('wajibpajak_email', strtolower($email))
 				->update('pajak_wajibpajak', ['web_last_active' => date('Y-m-d H:i:s')]);
 		} else {
@@ -165,7 +163,7 @@ class LoginV2 extends BASE_Controller
 
 		$deviceId = 'web_' . md5($userId . session_id());
 
-		$record = $this->dbmp
+		$record = $this->db
 			->where('log_user_id', $userId)
 			->get('log_mobile')
 			->row();
@@ -188,7 +186,7 @@ class LoginV2 extends BASE_Controller
 				$currentHourValue = $record->{"log_jam_$hour"} ?? 0;
 				$updateData["log_jam_$hour"] = $currentHourValue + 1;
 			}
-			$this->dbmp
+			$this->db
 				->where('log_id', $record->log_id)
 				->update('log_mobile', $updateData);
 		} else {
@@ -211,7 +209,7 @@ class LoginV2 extends BASE_Controller
 					$data["log_jam_$i"] = 0;
 				}
 			}
-			$this->dbmp->insert('log_mobile', $data);
+			$this->db->insert('log_mobile', $data);
 		}
 	}
 }

@@ -17,12 +17,6 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
 
-    .card-premium .card-header {
-        background: #ffffff !important;
-        border-bottom: 1px solid #e3e6ef;
-        padding: 20px;
-    }
-
     /* ====== STATUS BOX ======= */
     .status-box {
         width: 200px;
@@ -98,13 +92,17 @@
         padding: 20px 20px;
         border-radius: 14px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-        overflow: hidden;
     }
 
     .summary-title {
         font-size: 18px;
         font-weight: 700;
         margin-bottom: 18px;
+        color: #3f4254 !important;
+    }
+
+    .summary-title i {
+        color: #009ef7 !important;
     }
 
     .summary-row {
@@ -124,9 +122,11 @@
         align-items: center;
         color: #fff;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
     }
 
     .summary-icon {
+        color: #fff !important;
         font-size: 19px;
         margin-right: 14px;
     }
@@ -136,10 +136,16 @@
         width: 100%;
     }
 
-    .label {
-        font-size: 12px;
+    .label-summary {
+        font-size: 15px;
         font-weight: 700;
         margin-bottom: -4px;
+    }
+
+    .summary-box .label-summary {
+        color: #fff !important;
+        margin-bottom: 2px;
+        line-height: 1.2;
     }
 
     .value {
@@ -271,21 +277,21 @@
                 <div class="summary-box box-green">
                     <i class="fa-solid fa-circle-check summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">ONLINE</div>
+                        <div class="label-summary">ONLINE</div>
                         <div class="value" id="sum-device-online">0</div>
                     </div>
                 </div>
                 <div class="summary-box box-yellow">
                     <i class="fa-solid fa-circle-exclamation summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">WARNING</div>
+                        <div class="label-summary">WARNING</div>
                         <div class="value" id="sum-device-warning">0</div>
                     </div>
                 </div>
                 <div class="summary-box box-red">
                     <i class="fa-solid fa-circle-xmark summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">OFFLINE</div>
+                        <div class="label-summary">OFFLINE</div>
                         <div class="value" id="sum-device-offline">0</div>
                     </div>
                 </div>
@@ -302,21 +308,21 @@
                 <div class="summary-box box-green">
                     <i class="fa-solid fa-circle-check summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">ACTIVE</div>
+                        <div class="label-summary">ACTIVE</div>
                         <div class="value" id="sum-data-active">0</div>
                     </div>
                 </div>
                 <div class="summary-box box-yellow">
                     <i class="fa-solid fa-circle-exclamation summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">INACTIVE</div>
+                        <div class="label-summary">INACTIVE</div>
                         <div class="value" id="sum-data-inactive">0</div>
                     </div>
                 </div>
                 <div class="summary-box box-red">
                     <i class="fa-solid fa-circle-xmark summary-icon"></i>
                     <div class="box-info">
-                        <div class="label">OFFLINE</div>
+                        <div class="label-summary">OFFLINE</div>
                         <div class="value" id="sum-data-offline">0</div>
                     </div>
                 </div>
@@ -375,24 +381,22 @@
     </div>
 
     <div class="card card-premium">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <h4 class="fw-bold mb-0">Daftar Status Device</h4>
-            </div>
-            <div class="dropdown">
+        <div class="card-header d-flex align-items-center">
+            <h4 class="fw-bold mb-0">Daftar Status Device</h4>
+            <div class="ml-auto dropdown">
                 <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-file-export me-1"></i> Export
+                    <i class="fas fa-file-export mr-1"></i> Export
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-right">
                     <li><a class="dropdown-item" href="javascript:getExcel()">Excel</a></li>
                     <li><a class="dropdown-item" href="javascript:getPdf()">PDF</a></li>
                 </ul>
             </div>
-            <div class="col-12">
-                <div class="mb-3 d-none"> <label for="select_toko" class="form-label fw-semibold text-dark">Pilih Toko</label> <select class="form-select" id="select_toko" name="code_store">
+            <div class="col-2" style="display: none;">
+                <div class="mb-3"> <label for="select_toko" class="form-label fw-semibold text-dark">Pilih Toko</label> <select class="form-select" id="select_toko" name="code_store">
                         <option value="">-- Pilih Toko --</option>
                     </select> </div>
-                <div class="mb-3 d-none">
+                <div class="mb-3">
                     <label class="form-label">Tanggal</label>
                     <input class="form-control" value="<?= date('Y-m-d') ?>" type="text" id="tanggal" name="tanggal" />
                 </div>
@@ -492,4 +496,4 @@
     }
 </style>
 
-<?php load_view('javascript') ?>
+<?php load_view('Javascript') ?>

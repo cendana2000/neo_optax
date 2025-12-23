@@ -102,7 +102,8 @@ class ManagementUser extends Base_Controller
     $this->response(array("menu" => $operation));
   }
 
-  public function get_menu_v2(){
+  public function get_menu_v2()
+  {
     $data = varPost();
     $role_id = $data['role_id'];
     // $role_id = '123';
@@ -120,21 +121,21 @@ class ManagementUser extends Base_Controller
     // exit();
     $menu_list = array();
     foreach ($menu['data'] as $key => $value) {
-        $parent = ($value['menu_parent'] == null) ? '#' : $value['menu_parent'];
-        $state = false;
-        // if ($init == 'tidak') {
-        $state = (is_null($value['menu_selected']) ? false : true);
-        // }
-        array_push($menu_list, array(
-            'id' => $value['menu_id'],
-            'parent' => $parent,
-            'text' => $value['menu_title'],
-            // 'icon' => $value['menu_icon'],
-            'state' => array(
-                "selected" => $state,
-                "opened" => false
-            )
-        ));
+      $parent = ($value['menu_parent'] == null) ? '#' : $value['menu_parent'];
+      $state = false;
+      // if ($init == 'tidak') {
+      $state = (is_null($value['menu_selected']) ? false : true);
+      // }
+      array_push($menu_list, array(
+        'id' => $value['menu_id'],
+        'parent' => $parent,
+        'text' => $value['menu_title'],
+        // 'icon' => $value['menu_icon'],
+        'state' => array(
+          "selected" => $state,
+          "opened" => false
+        )
+      ));
     }
     // print_r('<pre>');print_r($menu_list);print_r('</pre>');exit;
     $this->response(array('menu' => $menu_list));
@@ -219,7 +220,7 @@ class ManagementUser extends Base_Controller
     if (!empty($data['mobileDb'])) {
       $this->db = $this->load->database(multidb_connect($data['mobileDb']), true);
       $user = $this->db->get_where('pos_user', ['user_email' => $data['email']])->row_array();
-      $dataMenu = $this->db->get_where('v_sys_menu_role_mobile', ['user_id' => $user['user_id']])->result_array();
+      $dataMenu = $this->db->get_where('v_sys_menu_role_mobile', ['pos_suser_id' => $user['pos_suser_id']])->result_array();
 
       $this->response([
         'success' => true,

@@ -14,7 +14,7 @@ class Base_model extends CI_Model
 {
     private $model = null;
     public $dboapi;
-	public $dbmp;
+    public $dbmp;
     private $model_default = array(
         'table' => array(
             'name'      => null,
@@ -86,7 +86,7 @@ class Base_model extends CI_Model
     {
         parent::__construct();
         $this->dboapi = $this->load->database(multidb_connect('pos_oapi_dialoogi'), true);
-		$this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
+        $this->dbmp = $this->load->database(multidb_connect($_ENV['PAJAK_DBNAME']), true);
 
         $this->set_model($model_config);
         if (!empty($this->session->userdata('session_db'))) {

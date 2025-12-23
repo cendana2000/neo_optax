@@ -1,6 +1,7 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
 
-class RoleAccessModel extends Base_Model {
+class RoleAccessModel extends Base_Model
+{
 	public function __construct()
 	{
 		$model = array(
@@ -8,21 +9,21 @@ class RoleAccessModel extends Base_Model {
 				'name' => 'pos_menu_role',
 				'primary' => 'menu_role_id',
 				'fields' => array(
-					array('name'=>'menu_role_id', 'unique' => true),
-					array('name'=>'menu_role_menu'),
-					array('name'=>'menu_role_role_access'),
-					array('name'=>'menu_kode', 'view'=>true),
-					array('name'=>'menu_title', 'view'=>true),
-					array('name'=>'menu_order', 'view'=>true),
-					array('name'=>'menu_parent', 'view'=>true),
-					array('name'=>'menu_link', 'view'=>true),
-					array('name'=>'menu_isaktif', 'view'=>true),
-					array('name'=>'menu_level', 'view'=>true),
-					array('name'=>'menu_icon', 'view'=>true),
-					array('name'=>'menu_hassub', 'view'=>true),
-					array('name'=>'menu_main', 'view'=>true),
-					array('name'=>'menu_description', 'view'=>true),
-					array('name'=>'user_id', 'view'=>true),
+					array('name' => 'menu_role_id', 'unique' => true),
+					array('name' => 'menu_role_menu'),
+					array('name' => 'menu_role_role_access'),
+					array('name' => 'menu_kode', 'view' => true),
+					array('name' => 'menu_title', 'view' => true),
+					array('name' => 'menu_order', 'view' => true),
+					array('name' => 'menu_parent', 'view' => true),
+					array('name' => 'menu_link', 'view' => true),
+					array('name' => 'menu_isaktif', 'view' => true),
+					array('name' => 'menu_level', 'view' => true),
+					array('name' => 'menu_icon', 'view' => true),
+					array('name' => 'menu_hassub', 'view' => true),
+					array('name' => 'menu_main', 'view' => true),
+					array('name' => 'menu_description', 'view' => true),
+					array('name' => 'user_id', 'view' => true),
 				)
 			),
 			'view' => array(
@@ -48,6 +49,6 @@ class RoleAccessModel extends Base_Model {
 				)
 			)
 		);
-		parent::__construct($model);		
+		parent::__construct($model);
 	}
 }
