@@ -21,7 +21,7 @@
       read: BASE_URL+'survey/read',
 		}
 
-    $(".select2").select2();
+    // $(".select2").select2();
 
     var arrows;
     if (KTUtil.isRTL()) {
@@ -342,7 +342,7 @@
 
     $('#add_pertanyaan').data('rows', res.pertanyaan.length);
 
-    $('.select2').select2();
+    // $('.select2').select2();
   }
 
   function htmlJawabanGanda(row = 0, index = 0){
@@ -574,7 +574,7 @@
   function addPertanyaan(el){
     var countRow = $(el).data("rows");
     $("#place_pertanyaan").append(htmlPertanyaan(countRow));
-    $(".select2").select2();
+    // $(".select2").select2();
     // console.log(countRow);
     $(el).data("rows", countRow + 1);
     changePertanyaanNumber();
@@ -716,7 +716,7 @@
           $("#form-survey").trigger('reset');
           $("#place_pertanyaan").html(htmlPertanyaan(0));
           $("#add_pertanyaan").data("rows", 1);
-          $(".select2").select2();
+          // $(".select2").select2();
 
           HELPER.showMessage({
             success: true,

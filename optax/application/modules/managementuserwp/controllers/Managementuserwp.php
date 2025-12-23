@@ -73,10 +73,19 @@ class ManagementUserWp extends Base_Controller
     // ];
 
     if ($data['switch_semua_wp'] == 'true') {
-      $delwprole = $this->db->empty_table('pajak_menu_role_wp');
+      if ($pemda_id = $this->session->userdata('pemda_id')) {
+        $this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pajak_menu_role_wp.menu_role_wp_wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+      }
+
+      $delwprole = $this->db->delete('pajak_menu_role_wp');
       $listwp = $this->db->select('*')
-        ->where('wajibpajak_deleted_at is null AND wajibpajak_status = \'2\'')
-        ->get('pajak_wajibpajak')->result_array();
+        ->where('wajibpajak_deleted_at is null AND wajibpajak_status = \'2\'');
+
+      if ($pemda_id = $this->session->userdata('pemda_id')) {
+        $this->db->where('pemda_id', $pemda_id);
+      }
+
+      $listwp = $listwp->get('pajak_wajibpajak')->result_array();
       $datarole = [];
       foreach ($listwp as $klwp => $vlwp) {
         foreach ($data['roles'] as $kr => $vr) {
@@ -124,10 +133,15 @@ class ManagementUserWp extends Base_Controller
   public function select_wajibpajak($value = '')
   {
     $data = varPost();
-    $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
-    $total = $this->db->query('SELECT count(wajibpajak_id) total FROM pajak_wajibpajak WHERE wajibpajak_deleted_at IS NULL AND (wajibpajak_status = \'2\' OR wajibpajak_status = \'5\') AND LOWER(concat(wajibpajak_npwpd, wajibpajak_nama))::text like \'%' . strtolower($data['q']) . '%\'')->result_array();
+    $where = '';
+    if ($pemda_id = $this->session->userdata('pemda_id')) {
+      $where .= 'AND pajak_wajibpajak.pemda_id=' . $this->db->escape($pemda_id);
+    }
 
-    $return = $this->db->query('SELECT wajibpajak_id as id, concat(wajibpajak_npwpd, \' - \', wajibpajak_nama) as text, wajibpajak_npwpd FROM pajak_wajibpajak WHERE wajibpajak_deleted_at IS NULL AND (wajibpajak_status = \'2\' OR wajibpajak_status = \'5\') AND LOWER(concat(wajibpajak_npwpd, wajibpajak_nama))::text like \'%' . strtolower($data['q']) . '%\' LIMIT ' . $data['page'] . $data['limit'])->result_array();
+    $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
+    $total = $this->db->query('SELECT count(wajibpajak_id) total FROM pajak_wajibpajak WHERE wajibpajak_deleted_at IS NULL ' . $where . ' AND (wajibpajak_status = \'2\' OR wajibpajak_status = \'5\') AND LOWER(concat(wajibpajak_npwpd, wajibpajak_nama))::text like \'%' . strtolower($data['q']) . '%\'')->result_array();
+
+    $return = $this->db->query('SELECT wajibpajak_id as id, concat(wajibpajak_npwpd, \' - \', wajibpajak_nama) as text, wajibpajak_npwpd FROM pajak_wajibpajak WHERE wajibpajak_deleted_at IS NULL ' . $where . ' AND (wajibpajak_status = \'2\' OR wajibpajak_status = \'5\') AND LOWER(concat(wajibpajak_npwpd, wajibpajak_nama))::text like \'%' . strtolower($data['q']) . '%\' LIMIT ' . $data['page'] . $data['limit'])->result_array();
     $this->response(array('items' => $return, 'total_count' => $total[0]['total']));
   }
 }

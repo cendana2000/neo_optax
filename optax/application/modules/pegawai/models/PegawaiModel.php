@@ -29,6 +29,7 @@ class PegawaiModel extends Base_Model
 					array('name' => 'pegawai_upated_by'),
 					array('name' => 'pegawai_deleted_at'),
 					array('name' => 'pegawai_deleted_by'),
+					array('name' => 'pemda_id'),
 				)
 			),
 			'view' => array(

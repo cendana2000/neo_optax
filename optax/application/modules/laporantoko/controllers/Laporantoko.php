@@ -184,7 +184,13 @@ class Laporantoko extends Base_Controller
 				<th class="t-center">KODE USAHA</th>
 				<th class="t-center">TANGGAL PERMOHONAN</th>
 			</tr>';
-		$wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak ORDER BY jenis_nama")->result_array();
+		
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where .= 'WHERE pemda_id=' . $this->db->escape($pemda_id);
+		}
+
+		$wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak $where ORDER BY jenis_nama")->result_array();
 
 		$opr = $this->toko->select([
 			'filters_static' => [

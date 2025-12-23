@@ -1,4 +1,7 @@
 <?php
+
+use function Symfony\Component\Translation\t;
+
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Permohonantoko extends Base_Controller
@@ -84,7 +87,14 @@ class Permohonantoko extends Base_Controller
 	{
 		$data = varPost();
 
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$checkToko = $this->db->get_where('v_pajak_pos_v2', ['toko_id' => $data['toko_id']])->row_array();
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$dataWP = $this->db->get_where('pajak_wajibpajak', ['wajibpajak_id' => $checkToko['toko_wajibpajak_id']])->row_array();
 		$getJenis = $this->db->get_where('pajak_jenis', [
 			'jenis_kode' => $dataWP['wajibpajak_sektor_nama']
@@ -142,55 +152,58 @@ class Permohonantoko extends Base_Controller
 				$update_toko = $this->toko->update($data['toko_id'], $data);
 
 				if ($update_toko['success'] && $data['toko_status'] == '2') {
-					$dbname = $_ENV['PREFIX_DBPOS'] . $update_toko['record']['toko_kode'];
+					// $dbname = $_ENV['PREFIX_DBPOS'] . $update_toko['record']['toko_kode'];
 					// Terminate session db pos_reference
-					$this->db->query("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
-					WHERE pg_stat_activity.datname = '" . $dbReference . "' AND pid <> pg_backend_pid();");
+					// $this->db->query("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
+					// WHERE pg_stat_activity.datname = '" . $dbReference . "' AND pid <> pg_backend_pid();");
 
-					$checkDbExists = $this->db->query("SELECT 1 FROM pg_database WHERE datname = '$dbname'")->row_array();
-					if ($checkDbExists) {
-						return $this->response([
-							'success' => false,
-							'message' => 'Database POS sudah ada, silakan hapus dulu atau gunakan nama lain.',
-						]);
-					}
+					// $checkDbExists = $this->db->query("SELECT 1 FROM pg_database WHERE datname = '$dbname'")->row_array();
+					// if ($checkDbExists) {
+					// 	return $this->response([
+					// 		'success' => false,
+					// 		'message' => 'Database POS sudah ada, silakan hapus dulu atau gunakan nama lain.',
+					// 	]);
+					// }
 
 					// Create database from template pos_reference
-					$this->db->query("CREATE DATABASE $dbname TEMPLATE " . $dbReference . "");
-					sleep(2);
-					$this->db->query("ALTER DATABASE $dbname OWNER TO " . $_ENV['DB_USER'] . ";");
+					// $this->db->query("CREATE DATABASE $dbname TEMPLATE " . $dbReference . "");
+					// sleep(2);
+					// $this->db->query("ALTER DATABASE $dbname OWNER TO " . $_ENV['DB_USER'] . ";");
 
 					// ========================== DML ==============================
 
+					if ($pemda_id = $this->session->userdata('pemda_id')) {
+						$this->db->where('pemda_id', $pemda_id);
+					}
 					$account_wp = $this->db->get_where('pajak_wajibpajak', [
 						'wajibpajak_email' => strtolower($data['wajibpajak_email'])
 					])->row_array();
 
-					// // insert account
-					$config['hostname'] = $_ENV['DB_HOST'];
-					$config['port'] 	= $_ENV['DB_PORT'];
-					$config['username'] = $_ENV['DB_USER'];
-					$config['password'] = $_ENV['DB_PASS'];
-					$config['database'] = $dbname;
-					$config['dbdriver'] = 'postgre';
-					$config['dbprefix'] = '';
-					$config['pconnect'] = FALSE;
-					$config['db_debug'] = TRUE;
-					$config['cache_on'] = FALSE;
-					$config['cachedir'] = '';
-					$config['char_set'] = 'utf8';
-					$config['dbcollat'] = 'utf8_general_ci';
-					$this->dbsc = $this->load->database($config, true);
+					// // // insert account
+					// $config['hostname'] = $_ENV['DB_HOST'];
+					// $config['port'] 	= $_ENV['DB_PORT'];
+					// $config['username'] = $_ENV['DB_USER'];
+					// $config['password'] = $_ENV['DB_PASS'];
+					// $config['database'] = $dbname;
+					// $config['dbdriver'] = 'postgre';
+					// $config['dbprefix'] = '';
+					// $config['pconnect'] = FALSE;
+					// $config['db_debug'] = TRUE;
+					// $config['cache_on'] = FALSE;
+					// $config['cachedir'] = '';
+					// $config['char_set'] = 'utf8';
+					// $config['dbcollat'] = 'utf8_general_ci';
+					// $this->db = $this->load->database($config, true);
 
 					if ($isParkir) {
-						$this->dbsc->query("INSERT INTO pengguna (peran_pengguna_id,nama_pengguna,sandi,email,telepon,alamat,status,created_at,updated_at) VALUES ('bf178127-b351-493a-8600-d9ce1afd08c3', '{$account_wp['wajibpajak_nama_penanggungjawab']}', '{$account_wp['wajibpajak_password_argon2id']}', '{$account_wp['wajibpajak_email']}', '{$account_wp['wajibpajak_telp']}', '{$account_wp['wajibpajak_alamat']}', true, '" . date('Y-m-d H:i:s') . "', '" . date('Y-m-d H:i:s') . "')");
-						$this->dbsc->query("INSERT INTO toko (npwpd, pemilik, store_code) VALUES ('{$account_wp['wajibpajak_npwpd']}', '{$account_wp['wajibpajak_nama_penanggungjawab']}','{$update_toko['record']['toko_kode']}')");
-						$tokoparkir = $this->dbsc->get_where('toko', [
+						$this->db->query("INSERT INTO pengguna (peran_pengguna_id,nama_pengguna,sandi,email,telepon,alamat,status,created_at,updated_at) VALUES (uuidv7(), '{$account_wp['wajibpajak_nama_penanggungjawab']}', '{$account_wp['wajibpajak_password_argon2id']}', '{$account_wp['wajibpajak_email']}', '{$account_wp['wajibpajak_telp']}', '{$account_wp['wajibpajak_alamat']}', true, '" . date('Y-m-d H:i:s') . "', '" . date('Y-m-d H:i:s') . "')");
+						$this->db->query("INSERT INTO toko (npwpd, pemilik, store_code) VALUES ('{$account_wp['wajibpajak_npwpd']}', '{$account_wp['wajibpajak_nama_penanggungjawab']}','{$update_toko['record']['toko_kode']}')");
+						$tokoparkir = $this->db->get_where('toko', [
 							'npwpd' => $account_wp['wajibpajak_npwpd']
 						])->row_array();
-						$this->dbsc->query("INSERT INTO pengaturan_app_toko (public_toko_id, header_store_name, address_store) VALUES ('{$tokoparkir['id']}', '{$account_wp['wajibpajak_nama']}', '{$account_wp['wajibpajak_alamat']}')");
+						$this->db->query("INSERT INTO pengaturan_app_toko (public_toko_id, header_store_name, address_store) VALUES ('{$tokoparkir['id']}', '{$account_wp['wajibpajak_nama']}', '{$account_wp['wajibpajak_alamat']}')");
 					} else {
-						$this->dbsc->query("INSERT INTO pos_user (user_id, user_role_access_id, user_project_id, user_nama, user_alamat, user_telepon, user_email, user_password, user_status, user_foto, user_last_change_password, user_is_registered, user_token_registrasi, user_created_at, user_updated_at, user_deleted_at) VALUES('5f2c8335208a3d4f79ec05cc3a898880', '123', NULL, '" . $account_wp['wajibpajak_nama_penanggungjawab'] . "', '" . $account_wp['wajibpajak_alamat'] . "', '" . $account_wp['wajibpajak_telp'] . "', '" . $account_wp['wajibpajak_email'] . "', '" . $account_wp['wajibpajak_password'] . "', 1, '1d09cd5f9b1c8795a5443ab262334e06.png', NULL, 1, NULL, '" . date('Y-m-d H:i:s') . "', NULL, NULL);
+						$this->db->query("INSERT INTO pos_user (user_id, user_role_access_id, user_project_id, user_nama, user_alamat, user_telepon, user_email, user_password, user_status, user_foto, user_last_change_password, user_is_registered, user_token_registrasi, user_created_at, user_updated_at, user_deleted_at) VALUES(replace(uuidv7()::text, '-', ''), '123', NULL, '" . $account_wp['wajibpajak_nama_penanggungjawab'] . "', '" . $account_wp['wajibpajak_alamat'] . "', '" . $account_wp['wajibpajak_telp'] . "', '" . $account_wp['wajibpajak_email'] . "', '" . $account_wp['wajibpajak_password'] . "', 1, '1d09cd5f9b1c8795a5443ab262334e06.png', NULL, 1, NULL, '" . date('Y-m-d H:i:s') . "', NULL, NULL);
 						");
 					}
 
@@ -255,7 +268,14 @@ class Permohonantoko extends Base_Controller
 		// $data['wajibpajak_endpoint'] = 'asdasdsd';
 		// $data['wajibpajak_preset'] = '18d8cb3d82d9dae6b04fd7bf78bbd829';
 
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$dataWP = $this->db->get_where('pajak_wajibpajak', ['wajibpajak_id' => $data['wajibpajak_id']])->row_array();
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$checkToko = $this->db->get_where('v_pajak_pos_v2', ['toko_wajibpajak_id' => $data['wajibpajak_id']])->row_array();
 
 		if (count($checkToko) > 0) {

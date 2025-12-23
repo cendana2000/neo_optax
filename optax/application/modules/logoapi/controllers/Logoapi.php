@@ -73,10 +73,12 @@ class Logoapi extends Base_Controller
 	{
 		$data = varPost();
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
-
 			$where = ($data['fdata']['barang_kategori_barang']) ? 'AND barang_kategori_barang = \'' . $data['fdata']['barang_kategori_barang'] . '\'' : '';
 			$where .= ' AND barang_deleted_at is null';
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where .= ' AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_barang.wajibpajak_id AND pajak_wajibpajak.pemda_id=' . $this->db->escape($pemda_id) . ') ';
+			}
 			// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 			$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
 			$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE concat(barang_kode, barang_nama) like \'%' . $data['q'] . '%\' ' . $where)->result_array();
@@ -94,12 +96,16 @@ class Logoapi extends Base_Controller
 	public function go_tree($value = '')
 	{
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
+			$where	= '';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where = ' AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_kategori.wajibpajak_id AND pajak_wajibpajak.pemda_id=' . $this->db->escape($pemda_id) . ') ';
+			}
 			$kelompokbarang = $this->db->query('SELECT *
       FROM
         pos_kategori
       WHERE
         kategori_barang_aktif = \'1\'
+		' . $where . '
       ORDER BY
         kategori_barang_nama asc')->result_array();
 			$opr = $this->buildTree($kelompokbarang);
@@ -142,7 +148,6 @@ class Logoapi extends Base_Controller
 	{
 		$dataToko = $this->db->get_where('pajak_toko', ['toko_kode' => $value])->row_array();
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
 			$data = varPost();
 			$tanggal = date('d/m/Y');
 			$hal = 1;
@@ -267,6 +272,9 @@ class Logoapi extends Base_Controller
 			}
 			if ($data['barang_id']) $where[] = 'barang_id = \'' . $data['barang_id'] . '\'';
 			$where[] = 'barang_deleted_at is null';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where[] = 'pemda_id = ' . $this->db->escape($pemda_id);
+			}
 			$where = (count($where) > 0) ? 'where ' . implode(' AND ', $where) : '';
 			$stok = $this->db->query('SELECT barang_kode, barang_nama, kategori_barang_nama, barang_satuan_kode, 
                     barang_harga, barang_satuan_opt_kode, barang_harga_opt, barang_satuan_opt2_kode, barang_harga_opt2 FROM v_pos_barang  ' . $where . ' ORDER BY barang_nama asc')->result_array();
@@ -435,6 +443,17 @@ class Logoapi extends Base_Controller
 			}
 			$where = 'where barang_id in (\'' . implode('\', \'', $dt) . '\')';
 		}
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			if($where){
+				$where .= ' AND ';
+			}else {
+				$where .= ' WHERE ';
+			}
+
+			$where .= " EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=v_pos_barang.wajibpajak_id AND pemda_id=" . $this->db->escape($pemda_id) . ") ";
+		}
+
 		$barang = $this->db->query('
 			SELECT 
 				barang_id, 

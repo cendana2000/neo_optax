@@ -169,8 +169,13 @@ class Laporanwp extends Base_Controller
 				<th class="t-center">HP/TELP</th>
 				<th class="t-center">SEKTOR USAHA</th>
 			</tr>';
+
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where	= ' AND pemda_id='. $this->db->escape($pemda_id);
+		}
 		$wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak 
-		WHERE wajibpajak_status = '2'
+		WHERE wajibpajak_status = '2' $where
 		ORDER BY jenis_nama")->result_array();
 
 		foreach ($wajibpajak as $key => $value) {
@@ -203,6 +208,10 @@ class Laporanwp extends Base_Controller
 	public function get_laporan_single()
 	{
 		$data = varPost();
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 
 		$data_wp = $this->db->get_where('v_pajak_wajib_pajak', $data)->row_array();
 
@@ -446,8 +455,12 @@ class Laporanwp extends Base_Controller
 				],
 			];
 
+			$where = '';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where	= ' AND pemda_id='. $this->db->escape($pemda_id);
+			}
 			$ops = $wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak 
-			WHERE wajibpajak_status = '2'
+			WHERE wajibpajak_status = '2' $where
 			ORDER BY jenis_nama")->result_array();
 			$no = 2;
 			foreach ($ops as $key => $value) {

@@ -73,10 +73,12 @@ class TransaksiwpPosModel extends Base_Model
     //tambahan detailTransaksi
     function detailTransaksi($data)
     {
-        $this->dbpos = $this->load->database(multidb_connect($data['code_store']), true);
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
 
-        $this->dbpos->where('penjualan_id', $data['penjualan_id']);
-        $this->dbpos->where('penjualan_lock', null);
+        $this->db->where('penjualan_id', $data['penjualan_id']);
+        $this->db->where('penjualan_lock', null);
         return [
             'success' => true,
             'message' => 'Berhasil menampilkan data'

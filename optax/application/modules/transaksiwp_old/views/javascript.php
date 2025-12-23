@@ -16,7 +16,7 @@
 			ajax_toko: BASE_URL + 'transaksiwp/select_wp',
 			deleteTransaksi: BASE_URL + 'transaksiwp/deleteTransaksi',
 		}
-		$('.select2').select2();
+		// $('.select2').select2();
 		$(".daterange").daterangepicker({
 			startDate: moment().startOf('month'),
 			endDate: moment().endOf('month'),

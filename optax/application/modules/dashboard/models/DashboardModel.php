@@ -41,6 +41,11 @@ class DashboardModel extends Base_Model
 		if (!$year) $year = date('Y');
 		if (!$month) $month = date('m');
 
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
+		}
+
 		$sql = "WITH pos_latest as (				
 				select
 					lpw.*
@@ -154,6 +159,7 @@ class DashboardModel extends Base_Model
 					hasil.jumlah_pajak > 0
 					-- and pw2.wajibpajak_status = '2'
 					-- and hasil.npwpd <> '0437.63.102'
+					$where
 				order by
 					hasil.tanggal_transaksi desc
 				limit 10 offset 0;";
@@ -165,6 +171,11 @@ class DashboardModel extends Base_Model
 		if (!$year) $year = date('Y');
 		if (!$month) $month = date('m');
 
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
+		}
+
 		$sql = "WITH pos_latest as (				
 				select
 					lpw.*
@@ -278,6 +289,7 @@ class DashboardModel extends Base_Model
 					hasil.jumlah_pajak > 0
 					-- and pw2.wajibpajak_status = '2'
 					-- and hasil.npwpd <> '0437.63.102'
+					$where
 				order by
 					hasil.tanggal_transaksi desc
 				limit 50 offset 0;";

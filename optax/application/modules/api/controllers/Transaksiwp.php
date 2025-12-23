@@ -90,14 +90,13 @@ class Transaksiwp extends Base_Controller
       ], 400);
     }
 
-    $this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'].$codestore), true);
 		$where['penjualan_tanggal >= \''.$startdate.'\' AND penjualan_tanggal <= \''.$enddate.'\''] = null;
 
     $opr = [
       'success' => true,
-      'data' => $this->dbpos->get_where('pos_penjualan', $where)->result_array()
+      'data' => $this->db->get_where('pos_penjualan', $where)->result_array()
     ];
-		$get_total = $this->dbpos
+		$get_total = $this->db
 		->select("sum(penjualan_total_grand) as total_nominal_penjualan")
 		->where($where)
 		->get('pos_penjualan')

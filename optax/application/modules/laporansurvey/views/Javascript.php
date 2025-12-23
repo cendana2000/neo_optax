@@ -11,7 +11,7 @@
       'data_survey'
     ])
 
-    $(".select2").select2();
+    // $(".select2").select2();
 
     getAllSurvey();
 

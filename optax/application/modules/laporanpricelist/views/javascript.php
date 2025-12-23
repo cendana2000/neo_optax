@@ -14,7 +14,7 @@
 			get_parent: BASE_URL + 'laporanpricelist/go_tree',
 			ajax_toko: BASE_URL + 'laporanpricelist/select_wp',
 		}
-    $('.select2').select2();
+    // $('.select2').select2();
 
     HELPER.ajaxCombo({
 			el: '#select_toko',

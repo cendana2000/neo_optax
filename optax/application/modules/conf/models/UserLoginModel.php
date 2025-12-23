@@ -15,6 +15,7 @@ class UserLoginModel extends Base_Model
 					array('name' => 'user_login_datetime_login'),
 					array('name' => 'user_login_datetime_logout'),
 					array('name' => 'user_login_app'),
+					array('name' => 'pemda_id'),
 				)
 			)
 		);

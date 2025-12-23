@@ -23,10 +23,10 @@
 			// destroy: BASE_URL + 'permohonantoko/destroy',
 		}
 
-		$(".select2").select2({
-			placeholder: "Pilih Status",
-			allowClear: true
-		});
+		// $(".select2").select2({
+		// 	placeholder: "Pilih Status",
+		// 	allowClear: true
+		// });
 
 		loadTable();
 	});

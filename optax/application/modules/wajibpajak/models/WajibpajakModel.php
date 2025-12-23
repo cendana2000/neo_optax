@@ -58,6 +58,8 @@ class WajibpajakModel extends Base_Model
 						'wajibpajak_deleted_at',
 						'wajibpajak_sektor_id',
 						'wajibpajak_sektor_nama',
+						'pemda_id',
+						'pemda_nama'
 					]
 
 				)

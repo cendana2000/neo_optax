@@ -53,6 +53,10 @@ class Statusdevice extends Base_Controller
 
         $operation = $this->select_dt($data, 'statusdevice', 'datatable', true, $filterQuery);
 
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
+
         $allRows = $this->db
             ->get($this->statusdevice->get_tablename())
             ->result_array();
@@ -248,12 +252,15 @@ class Statusdevice extends Base_Controller
     {
         $data           = varPost();
         $where          = ' AND toko_status = \'2\'';
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $where     .= ' AND pemda_id=' . $this->db->escape($pemda_id);
+        }
         $data['page']   = isset($data['page']) ? (intval($data['page']) - 1) : '0';
         $total          = $this->db->query('SELECT count(toko_id) total FROM pajak_toko 
-		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower(varPost('q')) . '%\' ' . $where)->getResultArray();
+		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower(varPost('q')) . '%\' ' . $where)->resultArray();
 
         $return         = $this->db->query('SELECT toko_kode as id, concat(toko_kode, \' - \', toko_nama) as text FROM v_pajak_toko 
-		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower(varPost('q')) . '%\' ' . $where . ' LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->getResultArray();
+		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower(varPost('q')) . '%\' ' . $where . ' LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->resultArray();
         $this->response(array('items' => $return, 'total_count' => $total[0]['total']));
     }
 
@@ -369,7 +376,7 @@ class Statusdevice extends Base_Controller
 
         $dtCaption  = '';
 
-        $records    = $this->db->table($this->lastactivity->get_table_name())
+        $records    = $this->db->from($this->lastactivity->get_table_name())
             ->join('pajak_toko', 'pajak_toko.toko_kode = log_mobile.log_user_code_store', 'left')
             ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd', 'left');
 
@@ -382,7 +389,7 @@ class Statusdevice extends Base_Controller
         }
 
         $records    = $records->get()
-            ->getResult();
+            ->result();
 
         $html .= '<table style="width:100%;">
 			<tr>
@@ -525,7 +532,10 @@ class Statusdevice extends Base_Controller
                     ->setAutoSize(true);
             }
 
-            $records    = $this->db->table($this->lastactivity->get_table_name())
+            if ($pemda_id = $this->session->userdata('pemda_id')) {
+                $this->db->where('pajak_toko.pemda_id', $pemda_id);
+            }
+            $records    = $this->db->from($this->lastactivity->get_table_name())
                 ->join('pajak_toko', 'pajak_toko.toko_kode = log_mobile.log_user_code_store', 'left')
                 ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_npwpd = log_mobile.log_wajibpajak_npwpd', 'left');
 
@@ -538,7 +548,7 @@ class Statusdevice extends Base_Controller
             }
 
             $records    = $records->get()
-                ->getResult();
+                ->result();
 
             $styleArray = [
                 'font' => [

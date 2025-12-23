@@ -11,29 +11,26 @@ class OapiModel extends Base_Model
 
 	public function insertToPenjualan($data, $data_detail, $code_store = 'dialoogi')
 	{
-		$code_store = $_ENV['PREFIX_DBPOS']	. $code_store;
-		$dboapi = $this->load->database(multidb_connect($code_store), true);
-
-		$dboapi->trans_start();
+		$this->db->trans_start();
 		foreach ($data as $index => $value) {
-			$query_penjualan = $dboapi->query("SELECT * FROM pos_penjualan_pooling where penjualan_id = '" . $value['penjualan_id'] . "' OR penjualan_kode = '" . $value['penjualan_kode'] . "'");
+			$query_penjualan = $this->db->query("SELECT * FROM pos_penjualan_pooling where penjualan_id = '" . $value['penjualan_id'] . "' OR penjualan_kode = '" . $value['penjualan_kode'] . "'");
 			$result_cek 	= $query_penjualan->result_array();
 			if (empty($result_cek)) {
-				$insert = $dboapi->insert('pos_penjualan_pooling', $value);
+				$insert = $this->db->insert('pos_penjualan_pooling', $value);
 			}
 		}
 
 		foreach ($data_detail as $in => $val) {
 			if (!empty($val['penjualan_detail_id'])) {
-				$query_detail = $dboapi->query("SELECT * FROM pos_penjualan_detail_pooling where penjualan_detail_parent = '" . $val['penjualan_detail_parent'] . "' OR penjualan_detail_nama_barang ='" . $val['penjualan_detail_nama_barang'] . "'");
+				$query_detail = $this->db->query("SELECT * FROM pos_penjualan_detail_pooling where penjualan_detail_parent = '" . $val['penjualan_detail_parent'] . "' OR penjualan_detail_nama_barang ='" . $val['penjualan_detail_nama_barang'] . "'");
 				$result_detail 	= $query_detail->result_array();
 
 				if (empty($result_detail)) {
-					$detail = $dboapi->insert('pos_penjualan_detail_pooling', $val);
+					$detail = $this->db->insert('pos_penjualan_detail_pooling', $val);
 				}
 			}
 		}
-		$dboapi->trans_complete();
+		$this->db->trans_complete();
 	}
 
 	public function insertToRealisasi($data)

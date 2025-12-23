@@ -15,7 +15,7 @@ class Toko extends Base_Controller
 
   public function index()
   {
-    $where['toko_status = \'2\' or toko_status = \'4\''] = null;
+    $where['(toko_status = \'2\' or toko_status = \'4\')'] = null;
     $this->response(
       $this->select_dt(varPost(), 'tokolastactivity', 'table', true, $where)
     );

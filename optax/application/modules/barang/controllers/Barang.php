@@ -767,9 +767,6 @@ class Barang extends Base_Controller
 	public function getCurrentPrice()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$this->db = $this->load->database(multidb_connect(varPost('mobileDb')), true);
-			$user['session_db'] = varPost('mobileDb');
-			$this->session->set_userdata($user);
 			$this->response($this->db->get_where('pos_barang', ['barang_id' => varPost('barang_id')])->row_array());
 		}
 	}

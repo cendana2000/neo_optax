@@ -14,6 +14,31 @@
 
 		// detailProject()
 		loadUserActive();
+
+		HELPER.createCombo({
+			el: 'global_pemda_id',
+			url: BASE_URL + 'pemda/select',
+			valueField: 'pemda_id',
+			displayField: 'pemda_nama',
+			displayField2: 'pemda_nama',
+			withNull: true,
+			grouped: false,
+			select2: true,
+			allowClear: false,
+			placeholder: '-Semua Pemda-',
+			callback: function(){
+				$('#global_pemda_id').val('<?= $this->session->userdata('pemda_id') ?>').trigger('change')
+			}
+		})
+
+		$('#global_pemda_id').on('change', function(){
+			$.ajax({
+				url: BASE_URL + '/pemda/set_pemda/' + this.value,
+				success: function(){
+					$(".menu-item-active>a").click();
+				}
+			})
+		});
 	})
 
 	function loadUserActive() {
@@ -233,7 +258,6 @@
 			}
 		})
 	}
-
 </script>
 
 <!-- <script type="module">

@@ -207,6 +207,9 @@ License: You must have a valid license purchased only from themeforest(the above
 								<?php if (!check_superadmin()) : ?>
 									<span class="text-dark font-weight-bolder font-size-base d-none d-md-inline mt-7 mr-3 h5 project_header"></span>
 								<?php endif ?>
+								<?php if (in_array($this->session->userdata(), ['123', '617c6495a8575cfc82d01df16c57d620', '226486229bf5f35ec7c7ad5537f8857c'])): ?>
+									<select class="form-control" id="global_pemda_id"></select>
+								<?php endif ?>
 							</div>
 							<!--end::Header Menu-->
 						</div>

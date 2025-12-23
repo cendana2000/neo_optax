@@ -1280,6 +1280,20 @@ class Base_model extends CI_Model
             }
         }
 
+        if (!isset($config['without_global_scope'])) {
+            if ($this->db->field_exists('pemda_id', $sql_table)) {
+                $sql_where .= ' AND ' . $sql_table . '.pemda_id=' . $this->db->escape($this->session->userdata('pemda_id'));
+            }
+        }
+
+        if (array_key_exists('without_global_scope', $config)) {
+            if (!$config['without_global_scope']) {
+                if ($this->db->field_exists('pemda_id', $sql_table)) {
+                    $sql_where .= ' AND ' . $sql_table . '.pemda_id=' . $this->db->escape($this->session->userdata('pemda_id'));
+                }
+            }
+        }
+
         // custom filters
         if (array_key_exists('filters_query', $config) and is_array($config['filters_query']) and !empty($config['filters_query'])) {
             $config['filters_query'] = varApplyIf($config['filters_query'], array(

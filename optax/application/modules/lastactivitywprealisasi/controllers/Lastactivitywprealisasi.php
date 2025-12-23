@@ -38,10 +38,10 @@ class Lastactivitywprealisasi extends Base_Controller
 
     public function pdf($val = 'all')
     {
-        $ops = $this->db->query(
-            'SELECT * 
-			from v_realisasi_last_activity'
-        )->result_array();
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
+        $ops = $this->db->get('v_realisasi_last_activity')->result_array();
 
         $hal = 1;
         $html = '<style>
@@ -209,10 +209,10 @@ class Lastactivitywprealisasi extends Base_Controller
 
     public function spreadsheet()
     {
-        $ops = $this->db->query(
-            'SELECT * 
-			from v_realisasi_last_activity'
-        )->result_array();
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
+        $ops = $this->db->get('v_realisasi_last_activity')->result_array();
 
         try {
             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();

@@ -172,11 +172,16 @@ class Laporanrealisasi extends Base_Controller
 				<th class="t-center">Total</th>
 			</tr>';
 		$filter_jenis_pajak = ($data['jenis_pajak'] !== '') ? 'AND jenis_id = \'' . $data['jenis_pajak'] . '\'' : '';
+
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where	= ' AND pajak_wajibpajak.pemda_id='. $this->db->escape($pemda_id);
+		}
 		$realisasipajak = $this->db->query("SELECT pajak_realisasi.* 
 		FROM pajak_realisasi 
 		INNER JOIN pajak_wajibpajak ON pajak_realisasi.realisasi_wajibpajak_npwpd = pajak_wajibpajak.wajibpajak_npwpd 
 		INNER JOIN pajak_jenis ON pajak_wajibpajak.wajibpajak_sektor_nama = pajak_jenis.jenis_id 
-		$filter $filter_jenis_pajak")->result_array();
+		$filter $filter_jenis_pajak $where")->result_array();
 
 
 		$item = $tunai = $kredit = 0;
@@ -409,6 +414,12 @@ class Laporanrealisasi extends Base_Controller
 			'realisasi_pajak' => 0,
 			'realisasi_total' => 0
 		];
+
+		$where = '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where	= ' AND pw.pemda_id='. $this->db->escape($pemda_id);
+		}
+
 		foreach ($ops as $key => $val) {
 			$html .= '<tr>
 				<td>' . $no . '</td>
@@ -428,7 +439,7 @@ class Laporanrealisasi extends Base_Controller
 			left join pajak_wajibpajak pw on pj.jenis_id = pw.wajibpajak_sektor_nama 
 			left join pajak_realisasi pr on pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd ' . $filter . '
 			where jenis_parent = \'' . $val['jenis_id'] . '\'
-			' . $filterdetail . '
+			' . $filterdetail . ' '. $where .'
 			group by pj.jenis_id')->result_array();
 			foreach ($opschild as $ckey => $cval) {
 				$html .= '<tr>
@@ -496,6 +507,10 @@ class Laporanrealisasi extends Base_Controller
 		}
 
 		$filter_jenis_pajak = ($data['jenis_pajak'] !== '') ? 'AND jenis_id = \'' . $data['jenis_pajak'] . '\'' : '';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pajak_wajibpajak.pemda_id', $pemda_id);
+		}
+
 		$realisasipajak = $this->db->select('pajak_realisasi.*')
 			->from('pajak_realisasi')
 			->join('pajak_wajibpajak', 'pajak_realisasi.realisasi_wajibpajak_npwpd = pajak_wajibpajak.wajibpajak_npwpd')
@@ -769,6 +784,11 @@ class Laporanrealisasi extends Base_Controller
 				'realisasi_pajak' => 0,
 				'realisasi_total' => 0
 			];
+			$where = '';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where	= ' AND wp.pemda_id='. $this->db->escape($pemda_id);
+			}
+
 			foreach ($ops as $key => $val) {
 				// $html .= '<tr>
 				// 	<td>' . $no . '</td>
@@ -794,7 +814,7 @@ class Laporanrealisasi extends Base_Controller
 				left join pajak_wajibpajak pw on pj.jenis_id = pw.wajibpajak_sektor_nama 
 				left join pajak_realisasi pr on pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd ' . $filter . '
 				where jenis_parent = \'' . $val['jenis_id'] . '\'
-				' . $filterdetail . '
+				' . $filterdetail . ' '. $where .'
 				group by pj.jenis_id')->result_array();
 				foreach ($opschild as $ckey => $cval) {
 					// $html .= '<tr>

@@ -89,14 +89,17 @@ class Main extends Base_Controller
     public function getTokoUser()
     {
         $data = varPost();
-        $this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $data['toko_kode']), true);
-        $opuser = $this->dbpos->query('SELECT pu.user_id, pu.user_nama, pu.user_foto from pos_user pu')->result_array();
+        $opuser = $this->db->query('SELECT pu.user_id, pu.user_nama, pu.user_foto from pos_user pu')->result_array();
 
         // print_r('<pre>');print_r($opuser);print_r('</pre>');exit;
 
+        $where = '';
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $where = ' AND pt.pemda_id=' . $this->db->escape($pemda_id);
+        }
         $op = $this->db->query('SELECT NULLIF(hl.history_is_online, 0) as history_is_online, hl.history_wp_id, hl.history_nama_wp, hl.history_user_id from pajak_toko pt
         left join history_login hl on pt.toko_id = hl.history_wp_id
-        where pt.toko_kode = \'' . $data['toko_kode'] . '\' AND hl.history_is_online = \'1\'')->result_array();
+        where pt.toko_kode = \'' . $data['toko_kode'] . '\' ' . $where . ' AND hl.history_is_online = \'1\'')->result_array();
 
         foreach ($op as $key => $val) {
             $idx = array_search($val['history_user_id'], array_column($opuser, 'user_id'));

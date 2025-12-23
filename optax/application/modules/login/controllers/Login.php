@@ -181,12 +181,13 @@ class Login extends BASE_Controller
                         'user_login_datetime_login' => date('Y-m-d H:i:s'),
                         'user_login_datetime_logout' => null,
                         'user_login_app' => 'PEMDA',
+                        'pemda_id' => $pegawai['pemda_id']
                     ]);
                     $this->session->set_userdata('fcmtoken', $data['token']);
                 }
-                if ($user['hak_akses_is_super']) {
-                    $operation['is_super'] = 1;
-                }
+                // if ($user['hak_akses_is_super']) {
+                //     $operation['is_super'] = 1;
+                // }
                 $this->response($operation);
             } else {
                 $this->response([

@@ -12,7 +12,7 @@
     HELPER.api = {
       store: BASE_URL+'dbupdater/store',
     }
-    $(".select2").select2();
+    // $(".select2").select2();
   });
 
   function save(){

@@ -42,13 +42,15 @@ class TransaksiwpModel extends Base_Model
 
     public function deleteTransaksi($data)
     {
-        $this->dbpos = $this->load->database(multidb_connect($data['code_store']), true);
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
 
-        $this->dbpos->where('penjualan_id', $data['penjualan_id']);
-        $this->dbpos->where('penjualan_lock', null);
-        $this->dbpos->delete('pos_penjualan');
+        $this->db->where('penjualan_id', $data['penjualan_id']);
+        $this->db->where('penjualan_lock', null);
+        $this->db->delete('pos_penjualan');
 
-        if ($this->dbpos->affected_rows() > 0) {
+        if ($this->db->affected_rows() > 0) {
             $this->db->delete('log_penjualan_wp', array('log_penjualan_wp_penjualan_id' => $data['penjualan_id']));
             return [
                 'success' => true,

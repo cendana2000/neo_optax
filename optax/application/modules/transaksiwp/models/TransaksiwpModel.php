@@ -42,13 +42,15 @@ class TransaksiwpModel extends Base_Model
 
     public function deleteTransaksi($data)
     {
-        $this->dbpos = $this->load->database(multidb_connect($data['code_store']), true);
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+        }
 
-        $this->dbpos->where('penjualan_id', $data['penjualan_id']);
-        $this->dbpos->where('penjualan_lock', null);
-        $this->dbpos->delete('pos_penjualan');
+        $this->db->where('penjualan_id', $data['penjualan_id']);
+        $this->db->where('penjualan_lock', null);
+        $this->db->delete('pos_penjualan');
 
-        if ($this->dbpos->affected_rows() > 0) {
+        if ($this->db->affected_rows() > 0) {
             $this->db->delete('log_penjualan_wp', array('log_penjualan_wp_penjualan_id' => $data['penjualan_id']));
             return [
                 'success' => true,
@@ -65,14 +67,19 @@ class TransaksiwpModel extends Base_Model
     //tambahan detailTransaksi
     function detailTransaksi($data)
     {
-        $this->dbpos = $this->load->database(multidb_connect($data['code_store']), true);
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+        }
 
-        $this->dbpos->select('*');
-        $this->dbpos->from('pos_penjualan');
-        // $this->dbpos->join('pajak_toko', 'pos_penjualan.penjualan_id = pajak_toko.toko_id', 'left');
-        $this->dbpos->where('penjualan_id', $data['penjualan_id']);
-        $this->dbpos->where('penjualan_lock', null);
+        $this->db->select('*');
+        $this->db->from('pos_penjualan');
+        // $this->db->join('pajak_toko', 'pos_penjualan.penjualan_id = pajak_toko.toko_id', 'left');
+        $this->db->where('penjualan_id', $data['penjualan_id']);
+        $this->db->where('penjualan_lock', null);
 
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
         $this->db->select('*');
         $this->db->from('pajak_wajibpajak');
         $this->db->join('pajak_toko', 'pajak_wajibpajak.wajibpajak_id = pajak_toko.toko_wajibpajak_id', 'left');
@@ -81,7 +88,7 @@ class TransaksiwpModel extends Base_Model
         return [
             'success' => true,
             'message' => 'Berhasil menampilkan data',
-            'data'    => $this->dbpos->get()->result_array(),
+            'data'    => $this->db->get()->result_array(),
             'data_wp' => $this->db->get()->result_array(),
             'sql'     => $this->db->last_query()
         ];

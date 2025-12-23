@@ -30,17 +30,23 @@ class Transaksiwp extends Base_Controller
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
 
-		$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 		// $where['log_penjualan_code_store'] = $codestore;
 		$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
 		$where['penjualan_deleted_at IS NULL'] = null;
-		$opr = $this->select_dt(varPost(), 'transaksiwppos', 'table', false, $where, null, $_ENV['PREFIX_DBPOS'] . $codestore);
-		$get_total = $this->dbpos
+		$opr = $this->select_dt(varPost(), 'transaksiwppos', 'table', false, $where, null, null);
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_penjualan.wajibpajak_id AND pemda_id=' . $pemda_id . ')', NULL, FALSE);
+		}
+		$get_total = $this->db
 			->select("sum(penjualan_total_grand) as total_nominal_penjualan")
 			->where($where)
 			->get('pos_penjualan')
 			->row();
 		$opr['sumtotal'] = $get_total;
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$wp = $this->db
 			->select('wajibpajak_nama_penanggungjawab, 
 		wajibpajak_npwpd, 
@@ -104,10 +110,17 @@ class Transaksiwp extends Base_Controller
 	{
 		$data = varPost();
 		$where = ' AND toko_status = \'2\'';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where .= 'AND pajak_toko.pemda_id=' . $this->db->escape($pemda_id);
+		}
 		$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
 		$total = $this->db->query('SELECT count(toko_id) total FROM pajak_toko 
 		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower($data['q']) . '%\' ' . $where)->result_array();
 
+		$where = ' AND toko_status = \'2\'';
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where .= ' AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=v_pajak_toko.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ') ';
+		}
 		$return = $this->db->query('SELECT toko_kode as id, concat(toko_kode, \' - \', toko_nama) as text FROM v_pajak_toko 
 		WHERE LOWER(concat(toko_kode, toko_nama))::text like \'%' . strtolower($data['q']) . '%\' ' . $where . ' LIMIT ' . $data['limit'] . ' OFFSET ' . $data['page'])->result_array();
 		$this->response(array('items' => $return, 'total_count' => $total[0]['total']));
@@ -118,14 +131,21 @@ class Transaksiwp extends Base_Controller
 	{
 		$data = varPost();
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
 
 			$where = ($data['fdata']['barang_kategori_barang']) ? 'AND barang_kategori_barang = \'' . $data['fdata']['barang_kategori_barang'] . '\'' : '';
 			$where .= ' AND barang_deleted_at is null';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where .= " AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_barang.wajibpajak_id pemda_id=" . $this->db->escape($pemda_id) . ") ";
+			}
 			// $data['page'] = isset($data['page']) ? ((intval($data['page']) - 1) * intval($data['limit'])) . ',' : '';
 			$data['page'] = isset($data['page']) ? (intval($data['page']) - 1) : '0';
 			$total = $this->db->query('SELECT count(barang_id) total FROM pos_barang WHERE concat(barang_kode, barang_nama) like \'%' . $data['q'] . '%\' ' . $where)->result_array();
 
+			$where = ($data['fdata']['barang_kategori_barang']) ? 'AND barang_kategori_barang = \'' . $data['fdata']['barang_kategori_barang'] . '\'' : '';
+			$where .= ' AND barang_deleted_at is null';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where .= " AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=v_pos_barang.wajibpajak_id pemda_id=" . $this->db->escape($pemda_id) . ") ";
+			}
 			$return = $this->db->query('SELECT barang_id as id, concat(barang_kode, \' - \', barang_nama) as text 
       FROM v_pos_barang 
       WHERE concat(barang_kode, barang_nama) like \'%' . $data['q'] . '%\' ' . $where . ' 
@@ -139,12 +159,15 @@ class Transaksiwp extends Base_Controller
 	public function go_tree($value = '')
 	{
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
+			$where = '';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where = " AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_kategori.wajibpajak_id AND pemda_id=" . $this->db->escape($pemda_id) . ") ";
+			}
 			$kelompokbarang = $this->db->query('SELECT *
       FROM
         pos_kategori
       WHERE
-        kategori_barang_aktif = \'1\'
+        kategori_barang_aktif = \'1\' ' . $where . '
       ORDER BY
         kategori_barang_nama asc')->result_array();
 			$opr = $this->buildTree($kelompokbarang);
@@ -187,7 +210,6 @@ class Transaksiwp extends Base_Controller
 	{
 		$dataToko = $this->db->get_where('pajak_toko', ['toko_kode' => $value])->row_array();
 		if (!empty($value)) {
-			$this->db = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $value), true);
 			$data = varPost();
 			$tanggal = date('d/m/Y');
 			$hal = 1;
@@ -312,6 +334,9 @@ class Transaksiwp extends Base_Controller
 			}
 			if ($data['barang_id']) $where[] = 'barang_id = \'' . $data['barang_id'] . '\'';
 			$where[] = 'barang_deleted_at is null';
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where[] = 'pemda_id = ' . $this->db->escape($pemda_id);
+			}
 			$where = (count($where) > 0) ? 'where ' . implode(' AND ', $where) : '';
 			$stok = $this->db->query('SELECT barang_kode, barang_nama, kategori_barang_nama, barang_satuan_kode, 
                     barang_harga, barang_satuan_opt_kode, barang_harga_opt, barang_satuan_opt2_kode, barang_harga_opt2 FROM v_pos_barang  ' . $where . ' ORDER BY barang_nama asc')->result_array();
@@ -480,6 +505,17 @@ class Transaksiwp extends Base_Controller
 			}
 			$where = 'where barang_id in (\'' . implode('\', \'', $dt) . '\')';
 		}
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			if ($where) {
+				$where .= ' AND ';
+			} else {
+				$where .= ' WHERE ';
+			}
+
+			$where .= " EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=v_pos_barang.wajibpajak_id AND pemda_id=" . $this->db->escape($pemda_id) . ") ";
+		}
+
 		$barang = $this->db->query('
 			SELECT 
 				barang_id, 
@@ -687,15 +723,20 @@ class Transaksiwp extends Base_Controller
 					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
 				],
 			];
-			$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 			$where = [];
 			// $where['log_penjualan_code_store'] = $codestore;
 			$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
-			$ops = $this->dbpos->select("*")
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+			}
+			$ops = $this->db->select("*")
 				->where($where)
 				->order_by('penjualan_tanggal desc')
 				->get('pos_penjualan')
 				->result_array();
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where('pemda_id', $pemda_id);
+			}
 			$wp = $this->db
 				->select('wajibpajak_nama_penanggungjawab, 
 			wajibpajak_npwpd, 
@@ -760,7 +801,7 @@ class Transaksiwp extends Base_Controller
 					],
 				],
 			];
-			$get_total = $this->dbpos
+			$get_total = $this->db
 				->select("sum(penjualan_total_grand) as total_nominal_penjualan")
 				->where($where)
 				->get('pos_penjualan')
@@ -950,15 +991,20 @@ class Transaksiwp extends Base_Controller
 				<th class="t-center">Status</th>
 				<th class="t-center">Status Lapor Pajak</th>
 			</tr>';
-		$this->dbpos = $this->load->database(multidb_connect($_ENV['PREFIX_DBPOS'] . $codestore), true);
 		$where = [];
 		// $where['log_penjualan_code_store'] = $codestore;
 		$where['penjualan_tanggal >= \'' . $startdate . '\' AND penjualan_tanggal <= \'' . $enddate . '\''] = null;
-		$ops = $this->dbpos->select("*")
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+		}
+		$ops = $this->db->select("*")
 			->where($where)
 			->order_by('penjualan_tanggal desc')
 			->get('pos_penjualan')
 			->result_array();
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
 		$wp = $this->db
 			->select('wajibpajak_nama_penanggungjawab, 
 		wajibpajak_npwpd, 
@@ -999,7 +1045,7 @@ class Transaksiwp extends Base_Controller
 			$no++;
 		}
 
-		$get_total = $this->dbpos
+		$get_total = $this->db
 			->select("sum(penjualan_total_grand) as total_nominal_penjualan")
 			->where($where)
 			->get('pos_penjualan')

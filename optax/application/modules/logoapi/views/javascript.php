@@ -17,7 +17,7 @@
 			deleteTransaksi: BASE_URL + 'logoapi/deleteTransaksi',
 			detailTransaksi: BASE_URL + 'logoapi/detailTransaksi',
 		}
-		$('.select2').select2();
+		// $('.select2').select2();
 		$(".daterange").daterangepicker({
 			startDate: moment().startOf('month'),
 			endDate: moment().endOf('month'),
