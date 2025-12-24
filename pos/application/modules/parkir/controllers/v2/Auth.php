@@ -167,6 +167,7 @@ class Auth extends Base_Controller
             ];
 
             $this->config->load('jwt');
+            $config                         = $this->db->from('pajak_config')->where('conf_code', 'mobile_interval_ping')->get()->row();
             $key                            = $this->config->item('jwt_key');
             // $key                            = $this->load->config('jwt')->key;
             $token                          = JWT::encode($payload, $key, 'HS256');
@@ -175,6 +176,7 @@ class Auth extends Base_Controller
             $datarow['data']['store_code']  = $store_code;
             $datarow['data']['jenis_usaha'] = $jenis_usaha;
             $datarow['data']['session_db']  = null;
+            $datarow['data']['conf_interval_ping']  = $config->conf_value ?? 10;
         } catch (Throwable $th) {
             $datarow['message']     = $th->getMessage();
             $datarow['statusCode']  = $th->getCode() . $th->getLine();
