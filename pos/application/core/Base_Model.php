@@ -1037,6 +1037,12 @@ class Base_model extends CI_Model
                         }
                     }
                     if ($run_query === true) {
+                        if ($this->db->field_exists('wajibpajak_id', $this->get_table())) {
+                            if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+                                $data['wajibpajak_id'] = $wp_id;
+                            }
+                        }
+
                         // echo "in";
                         $query = $this->db->insert($this->get_table(), $data);
                         // echo $this->db->last_query();
