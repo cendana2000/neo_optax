@@ -176,7 +176,7 @@ class Auth extends Base_Controller
             $datarow['data']['store_code']  = $store_code;
             $datarow['data']['jenis_usaha'] = $jenis_usaha;
             $datarow['data']['session_db']  = null;
-            $datarow['data']['conf_interval_ping']  = (string) $config->conf_value ?? 10;
+            $datarow['data']['conf_interval_ping']  = (string) ($config->conf_value ?? 10);
         } catch (Throwable $th) {
             $datarow['message']     = $th->getMessage();
             $datarow['statusCode']  = $th->getCode() . $th->getLine();
