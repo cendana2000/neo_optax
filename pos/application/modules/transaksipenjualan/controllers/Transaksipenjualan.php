@@ -1122,14 +1122,13 @@ class Transaksipenjualan extends Base_Controller
 	{
 		$data = varPost();
 
-		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
-			$this->db->where('wajibpajak_id', $wp_id);
-		}
-
 		$user = $this->db->get_where('v_user', ['user_email' => $data['user_email']])->row_array();
 		$user['code_store'] = explode('_', $data['mobileDb'])[1];
 		$this->session->set_userdata($user);
 
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 
 		foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
 			$data['penjualan_detail_qty'][$key] = $data['penjualan_detail_qty_barang'][$key];
