@@ -44,13 +44,31 @@ class User extends Base_Controller
     }
     $data = $this->db->where(['user_id' => $user_id])->get('pos_user')->row_array();
 
-    if (!empty($data['pos_user_photo'])) {
-      $data['pos_user_photo'] = base_url() . "dokumen/user/" . $data['pos_user_photo'];
+    $result = array(
+      'pos_user_id'                   => $data['user_id'],
+      'pos_user_name'                 => $data['user_nama'],
+      'pos_user_email'                => $data['user_email'],
+      'pos_user_password'             => $data['user_password'],
+      'pos_user_password_argon2id'    => null,
+      'pos_user_code_store'           => $data['user_code_store'],
+      'pos_user_status'               => $data['user_status'],
+      'pos_user_photo'                => $data['user_foto'],
+      'pos_user_last_change_password' => $data['user_last_change_password'],
+      'pos_user_role_access_id'       => $data['user_role_access_id'],
+      'pos_user_jenis_parent_name'    => $data['user_jenis_parent_name'],
+      'pos_user_created_at'           => $data['user_created_at'],
+      'pos_user_updated_at'           => $data['user_updated_at'],
+      'pos_user_address'              => $data['user_alamat'],
+      'pos_user_phone'                => $data['user_telepon'],
+    );
+
+    if (!empty($data['user_foto'])) {
+      $result['pos_user_photo'] = base_url() . "dokumen/user/" . $data['user_foto'];
     }
 
     $operation = [
       'success' => true,
-      'data'    => $data,
+      'data'    => $result,
     ];
 
     $this->response($operation);
