@@ -1052,25 +1052,6 @@ class Transaksipenjualan extends Base_Controller
 		$operation = $this->transaksipenjualan->insert($id, $data, function ($res) use ($data) {
 			$user  = $this->session->userdata();
 
-			$query_log_penjualan = $this->db->query("SELECT * FROM log_penjualan_wp where log_penjualan_wp_penjualan_id = '" . $res['id'] . "'");
-			$result_cek = $query_log_penjualan->result_array();
-			if (count($result_cek) == 0) {
-				$dataSend = [
-					'log_penjualan_id' => md5(time()),
-					'log_penjualan_wp_penjualan_id' => $res['id'],
-					'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
-					'log_penjualan_wp_penjualan_time' => date('H:i:s'),
-					'log_penjualan_wp_total' => $data['penjualan_total_grand'],
-					'log_penjualan_code_store' => $user['toko']['toko_kode'],
-					'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
-				];
-
-				$this->db->insert(
-					'log_penjualan_wp',
-					$dataSend
-				);
-			}
-
 			$detail = [];
 			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
 				$dt = $res['record'];
@@ -1202,18 +1183,6 @@ class Transaksipenjualan extends Base_Controller
 		$operation = $this->transaksipenjualan->insert_mobile(varPost('mobileDb'), $id, $data, function ($res) use ($data) {
 
 			$user  = $this->session->userdata();
-			$dataSend = [
-				'log_penjualan_id' => md5(time()),
-				'log_penjualan_wp_penjualan_id' => $res['id'],
-				'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
-				'log_penjualan_wp_total' => $data['penjualan_total_grand'],
-				'log_penjualan_code_store' => $user['code_store']
-			];
-
-			$this->db->insert(
-				'log_penjualan_wp',
-				$dataSend
-			);
 
 			$detail = [];
 			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
@@ -1315,37 +1284,6 @@ class Transaksipenjualan extends Base_Controller
 		$lastDetailId = $this->db->query($query)->result();
 
 		$operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function ($res) use ($data) {
-			$user  = $this->session->userdata();
-
-			$query_log = 'SELECT * FROM log_penjualan_wp WHERE log_penjualan_wp_penjualan_id = \'' . $data['penjualan_id'] . '\'';
-			$getQueryLog =	$this->db->query($query_log)->result();
-
-			if (!empty($getQueryLog)) {
-				foreach ($getQueryLog as $row) {
-					// Memeriksa apakah ada baris dengan log_penjualan_wp_penjualan_id tertentu
-					if ($row->log_penjualan_wp_penjualan_id == $data['penjualan_id']) {
-						$this->db->set('log_penjualan_deleted_at', date('Y-m-d H:i:s'));
-						$this->db->where('log_penjualan_wp_penjualan_id', $data['penjualan_id']);
-						$this->db->update('log_penjualan_wp');
-						break; // Keluar dari loop setelah update dilakukan
-					}
-				}
-			}
-
-			$dataSend = [
-				'log_penjualan_id' => md5(time()),
-				'log_penjualan_wp_penjualan_id' => $res['id'],
-				'log_penjualan_wp_penjualan_tanggal' => $data['penjualan_tanggal'],
-				'log_penjualan_wp_total' => $data['penjualan_total_grand'],
-				'log_penjualan_code_store' => $user['toko']['toko_kode'],
-				'log_penjualan_wp_penjualan_kode' => $data['penjualan_kode'],
-			];
-
-			$this->db->insert(
-				'log_penjualan_wp',
-				$dataSend
-			);
-
 			$detail = [];
 			foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
 				$dt = $res['record'];
