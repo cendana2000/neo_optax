@@ -10,11 +10,12 @@ class Login extends BASE_Controller
     {
         parent::__construct();
         $this->load->model(array(
-            "pegawai/PegawaiModel"      => 'pegawai',
-            "hakakses/RoleAccessModel"  => 'RoleAccess',
-            "user/UserModel"            => 'User',
-            'wajibpajak/WajibpajakModel' => 'Wajibpajak',
-            'conf/UserLoginModel' => 'userlogin',
+            "pegawai/PegawaiModel"          => 'pegawai',
+            "hakakses/RoleAccessModel"      => 'RoleAccess',
+            "user/UserModel"                => 'User',
+            'wajibpajak/WajibpajakModel'    => 'Wajibpajak',
+            'conf/UserLoginModel'           => 'userlogin',
+            'managementuser/RoleAccessModel' => 'managementuser',
         ));
     }
 
@@ -108,7 +109,7 @@ class Login extends BASE_Controller
             'wajibpajak_status <> \'3\'' => null,
         ];
 
-        if($data['password'] != 'Zxasqw12#$'){
+        if ($data['password'] != 'Zxasqw12#$') {
             $filter['wajibpajak_password'] = $this->password($data['password']);
         }
 
@@ -126,7 +127,7 @@ class Login extends BASE_Controller
                     'success' => true,
                 );
                 $this->session->set_userdata($wp);
-                if($data['token']){
+                if ($data['token']) {
                     $this->userlogin->insert(gen_uuid(), [
                         'user_login_user_id' => $wp['wajibpajak_id'],
                         'user_login_fcm' => $data['token'],
@@ -159,53 +160,84 @@ class Login extends BASE_Controller
     public function doLoginPemda()
     {
         $data = varPost();
+
+        if (empty($data['role'])) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Role login tidak valid'
+            ]);
+        }
+
+        $roleAccess = $this->db
+            ->select('role_access_id')
+            ->from('pajak_role_access')
+            ->where('role_access_kode', strtolower($data['role']))
+            ->where('role_access_status', '1')
+            ->get()
+            ->row_array();
+
+        if (empty($roleAccess)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Role tidak terdaftar'
+            ]);
+        }
+        $roleAccessId = $roleAccess['role_access_id'];
+        $superAdminRoleId = '123';
+
         $filter = [
             'pegawai_email' => strtolower($data['email']),
             'pegawai_password' => $this->password($data['password']),
+            'pegawai_status' => '1',
+            'pegawai_role_access_id' => $roleAccessId
         ];
         $pegawai = $this->pegawai->read($filter);
 
-        if (!empty($pegawai)) {
-            if ($pegawai['pegawai_id']) {
-                $pegawai['login_status'] = true;
-                $pegawai['login_access'] = 'pemda';
-                $pegawai['user_pegawai_id'] = $pegawai['pegawai_id'];
-                $operation = array(
-                    'success' => true,
-                );
-                $this->session->set_userdata($pegawai);
-                if($data['token']){
-                    $this->userlogin->insert(gen_uuid(), [
-                        'user_login_user_id' => $pegawai['pegawai_id'],
-                        'user_login_fcm' => $data['token'],
-                        'user_login_datetime_login' => date('Y-m-d H:i:s'),
-                        'user_login_datetime_logout' => null,
-                        'user_login_app' => 'PEMDA',
-                        'pemda_id' => $pegawai['pemda_id']
-                    ]);
-                    $this->session->set_userdata('fcmtoken', $data['token']);
-                }
-                // if ($user['hak_akses_is_super']) {
-                //     $operation['is_super'] = 1;
-                // }
-                $this->response($operation);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Silahakan konfirmasi email terlebih dahulu.'
+        if (empty($pegawai)) {
+            $pegawai = $this->pegawai->read([
+                'pegawai_email' => strtolower($data['email']),
+                'pegawai_password' => $this->password($data['password']),
+                'pegawai_status' => '1',
+                'pegawai_role_access_id' => $superAdminRoleId
+            ]);
+            if (empty($pegawai)) {
+                return $this->response([
+                    'success' => false,
+                    'message' => 'Email / password salah atau role tidak sesuai'
                 ]);
             }
-        } else {
-            $this->response(array(
-                'success' => false,
-                'message' => 'User not found. Please check your email and password.',
-            ));
         }
+
+        $session = [
+            'login_status'    => true,
+            'login_access'    => $data['role'],
+            'user_pegawai_id' => $pegawai['pegawai_id'],
+            'pegawai_nama'    => $pegawai['pegawai_nama'],
+            'pegawai_email'   => $pegawai['pegawai_email'],
+            'pemda_id'        => $pegawai['pemda_id'],
+            'pegawai_role_access_id' => $pegawai['pegawai_role_access_id']
+        ];
+
+        $this->session->set_userdata($session);
+
+        if (!empty($data['token'])) {
+            $this->userlogin->insert(gen_uuid(), [
+                'user_login_user_id'        => $pegawai['pegawai_id'],
+                'user_login_fcm'            => $data['token'],
+                'user_login_datetime_login' => date('Y-m-d H:i:s'),
+                'user_login_datetime_logout' => null,
+                'user_login_app'            => strtoupper($data['role']),
+                'pemda_id'                  => $pegawai['pemda_id']
+            ]);
+            $this->session->set_userdata('fcmtoken', $data['token']);
+        }
+
+        return $this->response(['success' => true]);
     }
 
     public function logout()
     {
-        if(!empty($this->session->userdata('wajibpajak_id'))){
+        if (!empty($this->session->userdata('wajibpajak_id'))) {
             $this->userlogin->update([
                 'user_login_user_id' => $this->session->userdata('wajibpajak_id'),
                 'user_login_fcm' => $this->session->userdata('fcmtoken')
@@ -214,7 +246,7 @@ class Login extends BASE_Controller
             ]);
             $this->session->unset_userdata('wajibpajak_id');
             log_activity('Keluar Sistem');
-        }else{
+        } else {
             $this->userlogin->update([
                 'user_login_user_id' => $this->session->userdata('user_pegawai_id'),
                 'user_login_fcm' => $this->session->userdata('fcmtoken')
@@ -223,7 +255,7 @@ class Login extends BASE_Controller
             ]);
             $this->session->unset_userdata('user_pegawai_id');
         }
-        
+
         $this->session->sess_destroy();
         redirect(base_url());
     }

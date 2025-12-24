@@ -114,7 +114,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					</a>
 					<!--end::Logo-->
 					<!--begin::Toggle-->
-					<button style="" class="brand-toggle btn btn-sm px-0" id="kt_aside_toggle">
+					<button class="brand-toggle btn btn-sm px-0" id="kt_aside_toggle">
 						<span class="svg-icon svg-icon svg-icon-xl">
 							<!--begin::Svg Icon | path:assets/media/svg/icons/Navigation/Angle-double-left.svg-->
 							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
