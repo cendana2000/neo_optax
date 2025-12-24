@@ -207,7 +207,6 @@ class Barang extends Base_Controller
 
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
-			$this->session->userdata($user['session_db']);
 			$isMobile = true;
 
 			$kode_toko = explode('_', varPost('mobileDb'));
@@ -218,6 +217,14 @@ class Barang extends Base_Controller
 				->where('toko_kode', $kode_toko[1])
 				->get('v_pajak_toko')
 				->row_array();
+
+			if (!$toko) {
+				return $this->response(array(
+					'success' => true,
+					'data' => [],
+					'msg' => 'Data Barang Tidak Ditemukan'
+				));
+			}
 
 			$getJenis = $this->db
 				->where('jenis_nama', $toko['jenis_nama'])
@@ -230,6 +237,9 @@ class Barang extends Base_Controller
 				->row_array();
 
 			$jenisUsaha = $getJenisParent['jenis_nama'];
+
+			$user['wajibpajak_id'] = $toko['toko_wajibpajak_id'];
+			$this->session->set_userdata($user);
 		}
 
 		$valSearch = trim(varPost('valSearch'));
@@ -313,6 +323,7 @@ class Barang extends Base_Controller
 			$order
 		-- $limit
 		";
+
 
 		$return = $this->db->query($query)->result_array();
 		$total = count($return);

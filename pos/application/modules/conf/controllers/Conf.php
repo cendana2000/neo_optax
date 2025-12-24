@@ -3,8 +3,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Conf extends Base_Controller
 {
-	protected $db;
-
 	public function __construct()
 	{
 		parent::__construct();
@@ -95,7 +93,23 @@ class Conf extends Base_Controller
 		$isMobile = false;
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
-			$this->session->userdata($user);
+
+			$kode_toko = explode('_', varPost('mobileDb'));
+			$toko = $this->db
+				->where('toko_kode', $kode_toko[1])
+				->get('v_pajak_toko')
+				->row_array();
+
+			if (!$toko) {
+				return $this->response(array(
+					'success' => true,
+					'data' => [],
+					'msg' => 'Data Config Tidak Ditemukan'
+				));
+			}
+
+			$user['wajibpajak_id'] = $toko['toko_wajibpajak_id'];
+			$this->session->set_userdata($user);
 			$isMobile = true;
 		}
 

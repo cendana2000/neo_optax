@@ -4,7 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Dashboard extends Base_Controller
 {
 	protected $auth;
-	protected $db;
 	public function __construct()
 	{
 		parent::__construct();
@@ -20,9 +19,14 @@ class Dashboard extends Base_Controller
 		$startDate = "$year-01-01";
 		$endDate = "$year-12-31";
 
+		$where = '';
+		if ($wp_id = $this->auth->posUser->pos_user_wajibpajak_id) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		$query_today = $this->db->query("SELECT COALESCE(sum(penjualan_total_grand), 0) as penjualan_total_grand
 		FROM pos_penjualan 
-		WHERE penjualan_tanggal::date = '$dateToday'")->row_array();
+		WHERE penjualan_tanggal::date = '$dateToday' $where")->row_array();
 
 		$query_omzet = $this->db->query("WITH months AS (
 		SELECT generate_series(1, 12) AS month_number
@@ -54,7 +58,7 @@ class Dashboard extends Base_Controller
 			month_names mn
 		LEFT JOIN
 			pos_penjualan
-			ON EXTRACT(MONTH FROM pos_penjualan.penjualan_tanggal) = mn.month_number AND pos_penjualan.penjualan_tanggal >= '$startDate' AND pos_penjualan.penjualan_tanggal <= '$endDate'
+			ON EXTRACT(MONTH FROM pos_penjualan.penjualan_tanggal) = mn.month_number AND pos_penjualan.penjualan_tanggal >= '$startDate' AND pos_penjualan.penjualan_tanggal <= '$endDate' $where
 		GROUP BY
 			mn.month_number,
 			mn.month_name
@@ -92,7 +96,7 @@ class Dashboard extends Base_Controller
 			month_names mn
 		LEFT JOIN
 			pos_penjualan
-			ON EXTRACT(MONTH FROM pos_penjualan.penjualan_tanggal) = mn.month_number AND pos_penjualan.penjualan_tanggal >= '$startDate' AND pos_penjualan.penjualan_tanggal <= '$endDate'
+			ON EXTRACT(MONTH FROM pos_penjualan.penjualan_tanggal) = mn.month_number AND pos_penjualan.penjualan_tanggal >= '$startDate' AND pos_penjualan.penjualan_tanggal <= '$endDate' $where
 		GROUP BY
 			mn.month_number,
 			mn.month_name

@@ -44,9 +44,21 @@ class Customer extends Base_Controller
 			} else {
 				$filter = "";
 			}
-			if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$store_code = explode('_', varPost('mobileDb'))[1];
+			$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $store_code])->row_array();
+
+			if (!$toko) {
+				return $this->response(array(
+					'success' => true,
+					'data' => [],
+					'msg' => 'Data Customer Tidak Ditemukan'
+				));
+			}
+
+			if ($wp_id = $toko['toko_wajibpajak_id']) {
 				$this->db->where('wajibpajak_id', $wp_id);
 			}
+
 			$this->response($this->db->get_where("pos_customer", ['customer_deleted_at' => null])->result_array());
 		}
 	}

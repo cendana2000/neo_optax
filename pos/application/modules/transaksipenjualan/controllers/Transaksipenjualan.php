@@ -531,6 +531,9 @@ class Transaksipenjualan extends Base_Controller
 			])->row_array();
 
 			$jenisUsaha = $getJenisParent['jenis_nama'];
+
+			$user['wajibpajak_id'] = $toko['toko_wajibpajak_id'];
+			$this->session->set_userdata($user);
 		}
 
 

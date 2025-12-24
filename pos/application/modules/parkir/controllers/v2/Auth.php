@@ -54,36 +54,29 @@ class Auth extends Base_Controller
 
             $posAppType     = ['PAJAK RESTORAN', 'PAJAK HOTEL', 'PAJAK HIBURAN'];
 
-            $posUser = $this->dbmp->get_where('pos_user', [
-                'pos_user_email' => strtolower($i_email)
+            $posUser = $this->db->get_where('pos_user', [
+                'user_email' => strtolower($i_email)
             ])->row_array();
 
             if (empty($posUser)) {
                 throw new Exception('User not found. Please check your email or Password.', 201);
             }
 
-            $toko = $this->dbmp->get_where('v_pajak_pos', [
-                'toko_kode' => $posUser['pos_user_code_store']
+            $toko = $this->db->get_where('v_pajak_pos', [
+                'toko_kode' => $posUser['user_code_store']
             ])->row_array();
 
             if (empty($toko)) {
                 throw new Exception('User not found, code store not registered');
             }
 
-            $getJenis = $this->dbmp->get_where('pajak_jenis', [
+            $getJenis = $this->db->get_where('pajak_jenis', [
                 'jenis_nama' => $toko['jenis_nama']
             ])->row_array();
 
-            $getJenisParent = $this->dbmp->get_where('pajak_jenis', [
+            $getJenisParent = $this->db->get_where('pajak_jenis', [
                 'jenis_id' => $getJenis['jenis_parent']
             ])->row_array();
-
-
-            $sessionDb      = $_ENV['PREFIX_DBPOS'] . $posUser['pos_user_code_store'];
-            $this->dbses    = $this->load->database(multidb_connect($sessionDb), TRUE);
-            if (!$this->dbses) {
-                throw new Exception('Database session connection failed: ' . $sessionDb, 500);
-            }
 
             if ($posUser['pos_user_jenis_parent_name'] == 'PAJAK PARKIR') {
                 if (!empty($posUser['pos_user_password_argon2id'])) {
@@ -127,39 +120,23 @@ class Auth extends Base_Controller
             }
 
             if (!$store_code || !$jenis_usaha) {
-                if (!in_array($posUser['pos_user_jenis_parent_name'], $posAppType) || $this->password($i_password) != $posUser['pos_user_password']) {
+                if (!in_array($posUser['user_jenis_parent_name'], $posAppType) || $this->password($i_password) != $posUser['user_password']) {
                     throw new Exception('User not found. Please check your email or Password.', 201);
                 }
 
-                $store_code = $posUser['pos_user_code_store'];
-                $jenis_usaha = $posUser['pos_user_jenis_parent_name'];
-                $user['id'] = $posUser['pos_user_id'];
-                $user['name'] = $posUser['pos_user_name'];
-                $user['email'] = $posUser['pos_user_email'];
-                $user['code_store'] = $posUser['pos_user_code_store'];
-                $user['status'] = $posUser['pos_user_status'];
-                $user['photo'] = $posUser['pos_user_photo'];
-                $user['last_change_password'] = $posUser['pos_user_last_change_password'];
-                $user['role_access_id'] = $posUser['pos_user_role_access_id'];
+                $store_code = $posUser['user_code_store'];
+                $jenis_usaha = $posUser['user_jenis_parent_name'];
+                $user['id'] = $posUser['user_id'];
+                $user['name'] = $posUser['user_name'];
+                $user['email'] = $posUser['user_email'];
+                $user['code_store'] = $posUser['user_code_store'];
+                $user['status'] = $posUser['user_status'];
+                $user['photo'] = $posUser['user_photo'];
+                $user['last_change_password'] = $posUser['user_last_change_password'];
+                $user['role_access_id'] = $posUser['user_role_access_id'];
                 $user['jenis_parent_name'] = $getJenisParent['jenis_nama'];
-                $user['created_at'] = $posUser['pos_user_created_at'];
-
-                // $recUser = $this->dbses->get_where('pos_user', [
-                //     'user_email' => strtolower($i_email)
-                // ])->row_array();
-
-                // $store_code                     = $posUser['pos_user_code_store'];
-                // $jenis_usaha                    = $posUser['pos_user_jenis_parent_name'];
-                // $user['id']                     = $recUser['user_id'];
-                // $user['name']                   = $recUser['user_nama'];
-                // $user['email']                  = $recUser['user_email'];
-                // $user['code_store']             = $posUser['pos_user_code_store'];
-                // $user['status']                 = $recUser['user_status'];
-                // $user['photo']                  = $recUser['user_foto'];
-                // $user['last_change_password']   = $recUser['user_last_change_password'];
-                // $user['role_access_id']         = $recUser['user_role_access_id'];
-                // $user['jenis_parent_name']      = $getJenisParent['jenis_nama'];
-                // $user['created_at']             = $recUser['user_created_at'];
+                $user['created_at'] = $posUser['user_created_at'];
+                $user['wajibpajak_id'] = $posUser['wajibpajak_id'];
             }
 
             if (!$store_code || !$jenis_usaha) {
@@ -180,12 +157,13 @@ class Auth extends Base_Controller
                     'pos_user_role_access_id'           => $user['role_access_id'],
                     'pos_user_jenis_parent_name'        => $user['jenis_parent_name'],
                     'pos_user_created_at'               => $user['created_at'],
+                    'pos_user_wajibpajak_id'            => $user['wajibpajak_id']
                 ],
                 'store_code'                 => $store_code,
                 'jenis_usaha'                => $jenis_usaha,
                 'iat'                        => $iat,
                 'exp'                        => $exp,
-                'session_db'                 => $sessionDb
+                'session_db'                 => null
             ];
 
             $this->config->load('jwt');
@@ -196,7 +174,7 @@ class Auth extends Base_Controller
             $datarow['data']['jwtToken']    = $token;
             $datarow['data']['store_code']  = $store_code;
             $datarow['data']['jenis_usaha'] = $jenis_usaha;
-            $datarow['data']['session_db']  = $sessionDb;
+            $datarow['data']['session_db']  = null;
         } catch (Throwable $th) {
             $datarow['message']     = $th->getMessage();
             $datarow['statusCode']  = $th->getCode() . $th->getLine();

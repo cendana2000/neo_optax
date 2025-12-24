@@ -28,10 +28,21 @@ class Kategori extends Base_Controller
 	{
 		if (array_key_exists('mobileDb', varPost())) {
 			$user['session_db'] = varPost('mobileDb');
+			$store_code = explode('_', varPost('mobileDb'))[1];
+			$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $store_code])->row_array();
+
+			if (!$toko) {
+				return $this->response(array(
+					'success' => true,
+					'data' => [],
+					'msg' => 'Data Kategori Tidak Ditemukan'
+				));
+			}
+
+			$user['wajibpajak_id'] = $toko['toko_wajibpajak_id'];
 			$this->session->set_userdata($user);
 		}
 		$filter = trim(varPost('valSearch'));
-
 
 		if ($filter != NULL) {
 			$this->db->like('kategori_barang_nama', strtoupper($filter));

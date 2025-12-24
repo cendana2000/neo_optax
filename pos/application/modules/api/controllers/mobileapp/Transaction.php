@@ -53,17 +53,24 @@ class Transaction extends Base_Controller
 		$filterdate = (!empty($data['startDate']) && !empty($data['endDate'])) ? " AND penjualan_tanggal >= '$data[startDate]'
 		AND penjualan_tanggal <= '$data[endDate]'" : '';
 
+		$where = '';
+		if ($wp_id = $this->auth->posUser->pos_user_wajibpajak_id) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		$countpenjualan = $this->db->query("SELECT count(penjualan_id) FROM v_pos_penjualan 
 		WHERE penjualan_status_aktif IS NULL
 		AND penjualan_user_id = '$user[user_id]'
 		$search
 		$filterdate
+		$where
 		AND penjualan_platform = 'Mobile'")->row_array();
 		$listpenjualan = $this->db->query("SELECT $select FROM v_pos_penjualan 
 		WHERE penjualan_status_aktif IS NULL
 		AND penjualan_user_id = '$user[user_id]'
 		$search
 		$filterdate
+		$where
 		AND penjualan_platform = 'Mobile'
 		ORDER BY penjualan_created DESC
 		LIMIT $data[pageSize] OFFSET $offset ")->result_array();
@@ -85,7 +92,7 @@ class Transaction extends Base_Controller
 		$detailselect = implode(",", $detailcolumn);
 		$detailpenjualan = $this->db->query("SELECT $detailselect FROM pos_penjualan_detail
 		left join pos_barang on barang_id = penjualan_detail_barang_id
-		WHERE penjualan_detail_parent IN ($inParentId)")
+		WHERE penjualan_detail_parent IN ($inParentId) $where")
 			->result_array();
 
 		foreach ($listpenjualan as $key => $val) {
@@ -128,11 +135,16 @@ class Transaction extends Base_Controller
 			"customer_nama",
 			"meja_nama",
 		];
+		$where = '';
+		if ($wp_id = $this->auth->posUser->pos_user_wajibpajak_id) {
+			$where = ' AND wajibpajak_id=' . $this->db->escape($wp_id);
+		}
+
 		$select = implode(",", $column);
 		$listpenjualan = $this->db->query("SELECT $select FROM v_pos_penjualan
 		WHERE penjualan_status_aktif IS NULL
 		AND penjualan_platform = 'Mobile'
-		AND penjualan_id = '$id'
+		AND penjualan_id = '$id' $where
 		ORDER BY penjualan_created DESC")->row_array();
 
 		if (empty($listpenjualan)) {

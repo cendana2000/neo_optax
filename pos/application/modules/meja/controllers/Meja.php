@@ -37,13 +37,28 @@ class Meja extends Base_Controller
 	public function select_mobile()
 	{
 		if (array_key_exists('mobileDb', varPost())) {
-			$data = varPost();
 			$filter = trim(varPost('valSearch'));
 			if ($filter != NULL) {
 				$this->db->like('meja_nama', $filter);
 			} else {
 				$filter = "";
 			}
+
+			$store_code = explode('_', varPost('mobileDb'))[1];
+			$toko = $this->db->get_where('v_pajak_pos', ['toko_kode' => $store_code])->row_array();
+
+			if (!$toko) {
+				return $this->response(array(
+					'success' => true,
+					'data' => [],
+					'msg' => 'Data Meja Tidak Ditemukan'
+				));
+			}
+
+			if ($wp_id = $toko['toko_wajibpajak_id']) {
+				$this->db->where('wajibpajak_id', $wp_id);
+			}
+
 			$this->response($this->db->get_where("pos_meja", ['meja_deleted_at' => null])->result_array());
 		}
 	}

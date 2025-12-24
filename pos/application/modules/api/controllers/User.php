@@ -3,14 +3,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class User extends Base_Controller
 {
-  protected $db;
-  protected $dbmp;
-
   public function __construct()
   {
     parent::__construct();
     $this->load->model(array(
       'user/UserModel' => 'User',
+      'api/MobileLogModel' => 'Log'
     ));
   }
 
@@ -44,7 +42,7 @@ class User extends Base_Controller
     if ($wp_id = $this->session->userdata('wajibpajak_id')) {
       $this->db->where('wajibpajak_id', $wp_id);
     }
-    $data = $this->db->where(['pos_user_id' => $user_id])->get('pos_user')->row_array();
+    $data = $this->db->where(['user_id' => $user_id])->get('pos_user')->row_array();
 
     if (!empty($data['pos_user_photo'])) {
       $data['pos_user_photo'] = base_url() . "dokumen/user/" . $data['pos_user_photo'];
@@ -213,7 +211,7 @@ class User extends Base_Controller
       if ($wp_id = $this->session->userdata('wajibpajak_id')) {
         $this->db->where('wajibpajak_id', $wp_id);
       }
-      $user = $this->db->where('pos_user_id', $id)->get('pos_user')->row();
+      $user = $this->db->where('user_id', $id)->get('pos_user')->row();
 
       if (!$user) {
         throw new Exception('User Tidak Ditemukan');
@@ -244,8 +242,8 @@ class User extends Base_Controller
         $isNewDay = ($record->log_tanggal != $today);
         $updateData = [
           'log_tanggal'      => $today,
-          'log_device_id'    => $this->request->post('device_id'),
-          'log_device_model' => $this->request->post('model'),
+          'log_device_id'    => $this->input->post('device_id'),
+          'log_device_model' => $this->input->post('model'),
           'log_last_active'  => date('Y-m-d H:i:s'),
         ];
 
@@ -276,8 +274,8 @@ class User extends Base_Controller
         $data['log_user_id']          = $id;
         $data['log_user_code_store']  = $user->pos_user_code_store;
         $data['log_user_name']        = $user->pos_user_name;
-        $data['log_device_id']        = $this->request->post('device_id');
-        $data['log_device_model']     = $this->request->post('model');
+        $data['log_device_id']        = $this->input->post('device_id');
+        $data['log_device_model']     = $this->input->post('model');
         $data['log_last_active']      = date('Y-m-d H:i:s');
         $data['log_created_at']       = date('Y-m-d H:i:s');
         $data["log_jam_$hour"]        = 1;

@@ -79,16 +79,6 @@ class AUTHORIZATION
                     'message' => 'token invalid',
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
-            } else {
-                if (empty($decodedToken->session_db)) {
-                    header('Content-Type: application/json');
-                    http_response_code(400);
-                    echo json_encode([
-                        'success' => false,
-                        'message' => 'parameter session_db not found',
-                    ], JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
             }
         }
 
