@@ -558,7 +558,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		function reqPermission() {
 			FCM.reqPermission({
 				callback: function(response) {
-					if (response) {
+					if (response) {	
 						FCM.getToken({
 							callback: function(res) {
 								if (window.localStorage.getItem('fcm_token') != res.token) {

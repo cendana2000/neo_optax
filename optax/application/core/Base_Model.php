@@ -727,6 +727,11 @@ class Base_model extends CI_Model
                 $where['wajibpajak_id'] = $wp_id;
             }
         }
+        if ($this->db->field_exists('pemda_id', $this->get_view())) {
+            if ($wp_id = $this->session->userdata('pemda_id')) {
+                $where['pemda_id'] = $wp_id;
+            }
+        }
         if (!empty($id)) {
             if ($mapped) {
                 $this->db->select($this->alias_fields($this->get_fields_name(true)));
@@ -895,6 +900,11 @@ class Base_model extends CI_Model
                     }
                     if ($run_query === true) {
                         // echo "in";
+                        if ($this->db->field_exists('pemda_id', $this->get_table())) {
+                            if ($wp_id = $this->session->userdata('pemda_id')) {
+                                $data['pemda_id'] = $wp_id;
+                            }
+                        }
                         $query = $this->db->insert($this->get_table(), $data);
                         // echo $this->db->last_query();
                         $this->set_lastquery($this->db->last_query());
@@ -996,6 +1006,11 @@ class Base_model extends CI_Model
                     }
 
                     if ($run_query === true) {
+                        if ($this->db->field_exists('pemda_id', $this->get_table())) {
+                            if ($wp_id = $this->session->userdata('pemda_id')) {
+                                $data['pemda_id'] = $wp_id;
+                            }
+                        }
                         $query = $this->db->update($this->get_table(), $data, $sql_where);
                         $this->set_lastquery($this->db->last_query());
 

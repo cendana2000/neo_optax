@@ -12,9 +12,9 @@
 	})
 
   function showAllNotif() {
-		showCountNotif()
-		showNotifBelumDibaca()
-		showNotifDibaca()
+		// showCountNotif()
+		// showNotifBelumDibaca()
+		// showNotifDibaca()
 		// showNotifKonfirmasi()
 	}
 

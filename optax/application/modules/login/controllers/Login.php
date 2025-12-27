@@ -400,16 +400,16 @@ class Login extends BASE_Controller
     {
         $data = varPost();
 
-        if ($this->session->userdata('pegawai_id') && $data['token']) {
+        if ($this->session->userdata('user_pegawai_id') && $data['token']) {
             $userToken = $this->userlogin->insert_update(
                 [
-                    'user_login_user_id'    => $this->session->userdata('pegawai_id'),
+                    'user_login_user_id'    => $this->session->userdata('user_pegawai_id'),
                     'user_login_fcm'      => $data['token_old'],
                     'user_login_app'      => 'PEMDA',
                     'user_login_datetime_logout is null' => null
                 ],
                 [
-                    'user_login_user_id'    => $this->session->userdata('pegawai_id'),
+                    'user_login_user_id'    => $this->session->userdata('user_pegawai_id'),
                     'user_login_fcm'      => $data['token'],
                     'user_login_datetime_login'       => date('Y-m-d H:i:s'),
                     'user_login_app'      => 'PEMDA',

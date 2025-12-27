@@ -45,6 +45,8 @@
 		$('#user_active').html('');
 		$.get(BASE_URL + 'main/getTokoStatus', function(res) {
 			$('#user_active').html('');
+			if(!Array.isArray(res)) return;
+
 			res.map((item, index) => {
 				$('#user_active').append(`
 				<div>

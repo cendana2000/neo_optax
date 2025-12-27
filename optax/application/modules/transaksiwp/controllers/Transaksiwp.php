@@ -1000,7 +1000,7 @@ class Transaksiwp extends Base_Controller
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
 		}
-		$ops = $this->db->select("*")
+		$ops = $this->db
 			->where($where)
 			->order_by('penjualan_tanggal desc')
 			->get('pos_penjualan')
