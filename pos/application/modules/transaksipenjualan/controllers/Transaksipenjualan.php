@@ -1113,6 +1113,18 @@ class Transaksipenjualan extends Base_Controller
 		} else {
 			if (isset($data['cetak']) && $data['cetak']) $operation['print'] = $this->tprint($operation['id'], 'pdf', true);
 		}
+
+		$nomor      = $operation['record']['penjualan_kode'];
+		$waktu		= $operation['record']['penjualan_tanggal'];
+		$waktu		= date('H:i', strtotime($waktu));
+		$nama		= $this->session->userdata('toko_nama');
+
+		$title 		= 'Transaksi Baru';
+		$message 	= "Transaksi baru oleh {$nama} pada {$waktu} dengan nomor {$nomor}";
+
+		notify_to_pemda($title, $message);
+		notify_to_stakeholders($title, $message);
+
 		$this->output->set_content_type('application/json');
 		$this->response($operation);
 	}

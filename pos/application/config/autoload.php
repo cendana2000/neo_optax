@@ -89,7 +89,7 @@ $autoload['drivers'] = array();
 |
 |	$autoload['helper'] = array('url', 'file');
 */
-$autoload['helper'] = array('url', 'varhandler', 'system', 'template', 'pdf', 'queue', 'multidb', 'jwt', 'authorization', 'date');
+$autoload['helper'] = array('url', 'varhandler', 'system', 'template', 'pdf', 'queue', 'multidb', 'jwt', 'authorization', 'date', 'fcm_helper');
 
 /*
 | -------------------------------------------------------------------

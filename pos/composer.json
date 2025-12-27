@@ -21,7 +21,8 @@
 		"khill/php-duration": "~1.0",
 		"chillerlan/php-qrcode": "^3.4",
 		"php-amqplib/php-amqplib": ">=3.0",
-		"php-amqplib/rabbitmq-bundle": "^2.11" 
+		"php-amqplib/rabbitmq-bundle": "^2.11",
+		"google/apiclient": "^2.14" 
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
