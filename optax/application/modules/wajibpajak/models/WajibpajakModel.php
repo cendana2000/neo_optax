@@ -33,6 +33,7 @@ class WajibpajakModel extends Base_Model
 					array('name' => 'wajibpajak_deleted_at'),
 					array('name' => 'wajibpajak_deleted_by'),
 					array('name' => 'wajibpajak_foto'),
+					array('name' => 'wajibpajak_coord'),
 					array('name' => 'jenis_nama', 'view' => true),
 					array('name' => 'toko_kode', 'view' => true)
 				)
