@@ -28,7 +28,14 @@ class Journey extends Base_Controller
     public function read()
     {
         $data = varPost();
-        $this->response($this->Journey->read($data['id']));
+        $data = $this->db
+            ->from('journey_activity')
+            ->join('pajak_pegawai', 'pajak_pegawai.pegawai_id = journey_activity.journey_pegawai_id', 'left')
+            ->where('journey_id', $data['id'])
+            ->get()
+            ->row();
+
+        $this->response($data);
     }
 
     public function update()
@@ -71,7 +78,7 @@ class Journey extends Base_Controller
             $where1     = "NOT EXISTS (SELECT 1 FROM pajak_realisasi WHERE pajak_realisasi.realisasi_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pajak_realisasi.realisasi_tanggal='$tanggal')";
             $where2     = "NOT EXISTS (SELECT 1 FROM pos_penjualan WHERE pos_penjualan.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan.penjualan_tanggal='$tanggal')";
             $where3     = "NOT EXISTS (SELECT 1 FROM pos_penjualan_pooling WHERE pos_penjualan_pooling.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan_pooling.penjualan_tanggal='$tanggal')";
-            $where4     = "NOT EXISTS (SELECT 1 FROM journey_activity WHERE journey_activity.journey_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND journey_activity.journey_status='pending')";
+            $where4     = "NOT EXISTS (SELECT 1 FROM journey_activity WHERE journey_activity.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND journey_activity.journey_status='pending')";
 
             $wps        = $this->db
                 ->from('pajak_wajibpajak')
@@ -85,7 +92,7 @@ class Journey extends Base_Controller
                 ->get()
                 ->result();
 
-            $time       = date('Y-m-d H:i:S');
+            $time       = date('Y-m-d H:i:s');
 
             $records    = array();
             foreach ($wps as $wp) {
@@ -93,7 +100,7 @@ class Journey extends Base_Controller
                     'journey_trigger_action'            => 'sistem - WP Offline',
                     'journey_identifikasi_masalah'      => '',
                     'journey_catatan'                   => null,
-                    'journey_wajibpajak_id'             => $wp->wajibpajak_id,
+                    'wajibpajak_id'                     => $wp->wajibpajak_id,
                     'journey_penyelesaian'              => null,
                     'journey_tgl_survey'                => null,
                     'journey_attachment'                => null,

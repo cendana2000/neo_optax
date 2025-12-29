@@ -17,8 +17,8 @@
                         <div class="col-md-6">
 
                             <div class="form-group mb-3">
-                                <label class="col-form-label" for="tgl_survey">Tanggal Survey</label>
-                                <input type="text" id="tgl_survey" name="tgl_survey" class="form-control datepicker" required>
+                                <label class="col-form-label" for="journey_tgl_survey">Tanggal Survey</label>
+                                <input type="datetime-local" id="journey_tgl_survey" name="journey_tgl_survey" class="form-control datepicker" required>
                             </div>
 
                             <div class="form-group mb-3">
@@ -96,29 +96,39 @@
             </div>
 
             <div class="modal-body">
-                <div class="mb-3">
-                    <div class="fw-bold">Tanggal Survey</div>
-                    <div data-value="tgl_survey"></div>
-                </div>
-                <div class="mb-3">
-                    <div class="fw-bold">Identifikasi Masalah</div>
-                    <div data-value="journey_identifikasi_masalah"></div>
-                </div>
-                <div class="mb-3">
-                    <div class="fw-bold">Penyelesaian</div>
-                    <div data-value="journey_penyelesaian"></div>
-                </div>
-                <div class="mb-3">
-                    <div class="fw-bold">Hasil</div>
-                    <div data-value="journey_hasil"></div>
-                </div>
-                <div class="mb-3">
-                    <div class="fw-bold">Catatan</div>
-                    <div data-value="journey_catatan"></div>
-                </div>
-                <div class="mb-3">
-                    <div class="fw-bold">Foto Dokumentasi</div>
-                    <div data-value="journey_attachment"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="fw-bold">Tanggal Survey</div>
+                            <div data-value="journey_tgl_survey"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fw-bold">Pegawai</div>
+                            <div data-value="journey_pegawai"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fw-bold">Identifikasi Masalah</div>
+                            <div data-value="journey_identifikasi_masalah"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fw-bold">Penyelesaian</div>
+                            <div data-value="journey_penyelesaian"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fw-bold">Hasil</div>
+                            <div data-value="journey_hasil"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fw-bold">Catatan</div>
+                            <div data-value="journey_catatan"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="fw-bold">Foto Dokumentasi</div>
+                            <div data-value="journey_attachment"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

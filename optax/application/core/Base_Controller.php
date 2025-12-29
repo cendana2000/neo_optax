@@ -84,6 +84,12 @@ class BASE_Controller extends MX_Controller
             }
         }
 
+        if ($this->db->field_exists('wajibpajak_id', $table)) {
+            if ($pemda_id = $this->session->userdata('pemda_id')) {
+                $filterQuery["EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=$table.wajibpajak_id AND pajak_wajibpajak.pemda_id='$pemda_id')"] = null;
+            }
+        }
+
         $_filterQuery  = ($filterQuery !== null) ? $this->_where($filterQuery) : null;
         $_filterRecord = ($filterRecord !== null) ? $this->_where($filterRecord) : null;
 

@@ -14,9 +14,9 @@
             loadTable();
         });
 
-        $(".datepicker").datepicker({
-            format: "yyyy-mm-dd"
-        })
+        // $(".datepicker").datepicker({
+        //     format: "yyyy-mm-dd"
+        // })
 
         loadTable()
     })
@@ -28,17 +28,18 @@
                 id: id
             },
             complete: function(res) {
-                $('#modal-detail').find('[data-value="tgl_survey"]').text(res.tgl_survey)
-                $('#modal-detail').find('[data-value="journey_identifikasi_masalah"]').text(res.journey_identifikasi_masalah)
-                $('#modal-detail').find('[data-value="journey_penyelesaian"]').text(res.journey_penyelesaian)
-                $('#modal-detail').find('[data-value="journey_hasil"]').text(res.journey_hasil)
-                $('#modal-detail').find('[data-value="journey_catatan"]').text(res.journey_catatan)
+                $('#modal-detail').find('[data-value="journey_tgl_survey"]').text(res.journey_tgl_survey || '-')
+                $('#modal-detail').find('[data-value="journey_pegawai"]').text(res.pegawai_nama || '-')
+                $('#modal-detail').find('[data-value="journey_identifikasi_masalah"]').text(res.journey_identifikasi_masalah || '-')
+                $('#modal-detail').find('[data-value="journey_penyelesaian"]').text(res.journey_penyelesaian || '-')
+                $('#modal-detail').find('[data-value="journey_hasil"]').text(res.journey_hasil || '-')
+                $('#modal-detail').find('[data-value="journey_catatan"]').text(res.journey_catatan || '-')
 
                 var att = './assets/media/noimage.png';
                 if (res.journey_attachment) {
                     att = `${BASE_CONTENT}/journey/${res.journey_attachment}`;
                 }
-                $('#modal-detail').find('[data-value="journey_attachment"]').html(`<img width="256" src="${att}"/>`)
+                $('#modal-detail').find('[data-value="journey_attachment"]').html(`<img draggable="false" width="256" src="${att}"/>`)
 
                 $('#modal-detail').modal('show');
             }
@@ -97,15 +98,23 @@
                 },
                 {
                     targets: 6,
+                    orderable: false,
                     render: function(data, type, full, meta) {
+                        let button = '';
+
+                        if (full['journey_status'] == 'pending') {
+                            button += `<a class="dropdown-item" href="#" onclick="onSelesaikan('${full['journey_id']}')">Selesaikan</a>`;
+                        } else {
+                            button += `<a class="dropdown-item" href="#" onclick="onDetail('${full['journey_id']}')">Detail</a>`;
+                        }
+
                         let btn_aksi = `
                             <div class="dropdown dropdown-inline mr-4">
                                 <button type="button" class="btn btn-sm btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Opsi
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" onclick="onDetail('` + full['journey_id'] + `')">Detail</a>
-                                    <a class="dropdown-item" href="#" onclick="onSelesaikan('` + full['journey_id'] + `')">Selesaikan</a>
+                                    ${button}
                                 </div>
                             </div>
                         `;
