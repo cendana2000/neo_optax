@@ -97,6 +97,7 @@ class Journey extends Base_Controller
             $records    = array();
             foreach ($wps as $wp) {
                 $records[]  = array(
+                    'journey_id'                        => gen_uuid($this->Journey->get_table()),
                     'journey_trigger_action'            => 'sistem - WP Offline',
                     'journey_identifikasi_masalah'      => '',
                     'journey_catatan'                   => null,
