@@ -7,41 +7,38 @@ class RekappajakparentModel extends Base_Model
     {
         $model = array(
             'table' => array(
-                'name' => 'pajak_realisasi',
-                'primary' => 'realisasi_parent_npwpd',
+                'name' => 'v_rekap_pajak',
+                'primary' => 'npwpd',
                 'fields' => array(
-                    array('name' => 'realisasi_parent_npwpd', 'view' => true),
-                    array('name' => 'realisasi_parent_nama', 'view' => true),
-                    array('name' => 'realisasi_parent_jml_transaksi', 'view' => true),
-                    array('name' => 'realisasi_parent_transaksi_terakhir', 'view' => true),
-                    array('name' => 'realisasi_parent_total_pajak', 'view' => true),
-                    array('name' => 'realisasi_parent_omzet', 'view' => true),
-                    array('name' => 'realisasi_parent_tanggal_daftar', 'view' => true),
-                    array('name' => 'realisasi_parent_jenis_pajak', 'view' => true),
-                    array('name' => 'realisasi_parent_jenis_tarif', 'view' => true),
-                    array('name' => 'realisasi_parent_wajibpajak_status', 'view' => true),
+                    array('name' => 'npwpd', 'view' => true),
+                    array('name' => 'nama_wp', 'view' => true),
+                    array('name' => 'jenis_nama', 'view' => true),
+                    array('name' => 'sumber_data', 'view' => true),
+                    array('name' => 'pemda_id', 'view' => true),
+                    array('name' => 'tanggal_last_transaksi', 'view' => true),
+                    array('name' => 'kecamatan_id', 'view' => true),
+                    array('name' => 'kecamatan_nama', 'view' => true),
+                    array('name' => 'jenis_device', 'view' => true),
                 )
             ),
             'view' => array(
-                'name' => 'v_realisasi_parent_v4',
+                'name' => 'v_rekap_pajak',
                 'mode' => array(
                     'table' => array(
-                        'realisasi_parent_npwpd',
-                        'realisasi_parent_nama',
-                        'realisasi_parent_jml_transaksi',
-                        'realisasi_parent_transaksi_terakhir',
-                        'realisasi_parent_sub_total',
-                        'realisasi_parent_pajak',
-                        'realisasi_parent_total_pajak',
-                        'realisasi_parent_tanggal_daftar',
-                        'realisasi_parent_jenis_pajak',
-                        'realisasi_parent_jenis_tarif',
-                    )
+                        'npwpd',
+                        'nama_wp',
+                        'jenis_nama',
+                        'sumber_data',
+                        'pemda_id',
+                        'tanggal_last_transaksi',
+                        'kecamatan_id',
+                        'kecamatan_nama',
+                        'jenis_device',
+                    ),
                 )
             )
         );
         parent::__construct($model);
-        //Do your magic here
     }
 }
 

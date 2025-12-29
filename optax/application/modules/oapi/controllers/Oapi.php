@@ -163,22 +163,6 @@ class Oapi extends Base_Controller
 					$val = $dataval;
 					for ($i = 1; $i < count($exval); $i++) {
 						if (str_contains($exval[$i], '[')) {
-							// print_r('<pre>');print_r($val);print_r('</pre>');exit;
-							// print_r('<pre>');print_r($i);print_r('</pre>');
-							// print_r('<pre>');print_r(empty($val) ? 'true' : 'false');print_r('</pre>');
-							// print_r('<pre>');print_r($val);print_r('</pre>');exit;
-							// $pattern = '/\[(.*?)\]/'; // Match everything between square brackets
-							// preg_match($pattern, $exval[$i], $matches);
-							// if (isset($matches[1])) {
-							// 	$strval = $matches[1];
-							// 	$openBracketPos = strpos($exval[$i], "[");
-							// 	if ($openBracketPos !== false) {
-							// 		$name = substr($exval[$i], 0, $openBracketPos);
-							// 		// print_r('<pre>');print_r($name);print_r('</pre>');exit;
-							// 		// print_r('<pre>');print_r($strval);print_r('</pre>');exit;
-							// 		$val = $val[$name];
-							// 	}
-							// }
 						} elseif (str_contains($exval[$i], 'count(')) {
 							$countpattern = '/count\((.*?)\)/'; // Match everything between parentheses after "count"
 							preg_match($countpattern, $exval[$i], $matches);

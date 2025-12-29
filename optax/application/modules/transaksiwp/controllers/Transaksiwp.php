@@ -100,8 +100,6 @@ class Transaksiwp extends Base_Controller
 	// 	);
 	// }
 
-
-
 	public function readWp()
 	{
 		$data = varPost();
@@ -856,12 +854,6 @@ class Transaksiwp extends Base_Controller
 			$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
 			$enddate = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
 		}
-		// if (empty($data['filterBulan'])) {
-		// 	$masapajak = 'All';
-		// } else {
-		// 	$bulan = explode('-', $data['filterBulan']);
-		// 	$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		// }
 		$hal = 1;
 		$html = '<style>
 			*, table, p, li{
