@@ -11,7 +11,6 @@ class Dashboard extends Base_Controller
 		//Do your magic here
 		$this->load->model(array(
 			'dashboard/dashboardModel' 				=> 'dashboard',
-			'dashboard/LogPenjualanWpModel' 		=> 'logpenjualanwp',
 			'lastactivitywp/LastactivitywpModel' 	=> 'lastactivitywp',
 		));
 	}
@@ -176,7 +175,7 @@ class Dashboard extends Base_Controller
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
 		}
-		
+
 		$where2 = '';
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where2 = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
@@ -221,7 +220,7 @@ class Dashboard extends Base_Controller
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
 		}
-		
+
 		$where2 = '';
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where2 = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);

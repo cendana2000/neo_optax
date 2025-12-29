@@ -1,4 +1,36 @@
+<link rel="stylesheet" href="<?= base_url('assets/css/custom_statusdevice.css'); ?>">
 <div class="row form_data" style="display: none;">
+	<div class="filter-card card card-premium mb-5">
+		<div class="card-body">
+			<h3 class="fw-bold mb-3 text-center">
+				<i class="fa-solid fa-chart-column"></i>Transaksi Objek Pajak
+			</h3>
+			<div class="row g-2">
+				<!-- TANGGAL -->
+				<div class="col-md-6">
+					<label class="form-label fw-semibold text-dark">Periode</label>
+					<button type="button"
+						class="btn btn-light-primary w-100 text-start periode-btn"
+						data-toggle="modal"
+						data-target="#modalPeriode">
+						<i class="la la-calendar mr-2"></i>
+						<span id="label-periode">Pilih Periode</span>
+					</button>
+					<input type="hidden" id="periode" name="periode">
+				</div>
+				<div class="col-md-6">
+					<label class="form-label fw-semibold text-dark">Jenis Pajak</label>
+					<select class="form-select" id="filter_jenis_pajak">
+						<option value="">-- Semua --</option>
+						<option value="Hotel">Hotel</option>
+						<option value="Restoran">Restoran</option>
+						<option value="Hiburan">Hiburan</option>
+						<option value="Parkir">Parkir</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="col">
 		<div class="card card-custom">
 			<div class="card-header">
@@ -6,19 +38,19 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label"> DATA RINCIAN REKAP PAJAK</h3>
 				</div>
 				<div class="card-toolbar">
-					<div class="mr-3">
-						<div class="input-group input-group-sm">
-							<input type="text" class="form-control monthpicker" name="sub_bulan" id="sub_bulan" onchange="filterSubBulan()" value="" placeholder="Pilih Bulan" />
-							<div class="input-group-append"><span class="input-group-text"><i class="la la-calendar-check-o "></i></span></div>
-						</div>
-					</div>
 					<div class="btn-group">
-						<button class="btn btn-success btn-sm" onclick="getSpreadsheetSubRealisasi()"><i class="far fa-file-excel"></i> Excel</button>
-						<button class="btn btn-danger btn-sm" onclick="getPdfSubRealisasi()"><i class="far fa-file-pdf"></i> PDF</button>
-						<!-- <button class="btn btn-warning btn-sm" onclick="onRefresh(2)"><i class="flaticon-refresh"></i> Muat Ulang</button> -->
+						<div class="ml-auto dropdown">
+							<button class="btn btn-sm btn-light dropdown-toggle" type="button" id="exportDropdown"
+								data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="fas fa-file-export me-1"></i> Export
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a class="dropdown-item" href="javascript:getExcel()"><i class="far fa-file-excel text-success me-2"></i> Excel</a></li>
+								<li><a class="dropdown-item" href="javascript:getPdf()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
+							</ul>
+						</div>
 						<button type="reset" class="btn btn-sm btn-secondary" onclick="onBackCard(2)"><i class="fa fa-arrow-left"></i> Kembali</button>
 					</div>
 				</div>

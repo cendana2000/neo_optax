@@ -46,123 +46,103 @@ class DashboardModel extends Base_Model
 			$where = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
 		}
 
-		$sql = "WITH pos_latest as (				
-				select
-					lpw.*
-				from
-					log_penjualan_wp lpw
-				join (
-					select
-						log_penjualan_code_store,
-						max(log_penjualan_wp_penjualan_tanggal) as max_tgl
-					from
-						log_penjualan_wp
-					group by
-						log_penjualan_code_store
-				) m on
-					m.log_penjualan_code_store = lpw.log_penjualan_code_store
-					and m.max_tgl = lpw.log_penjualan_wp_penjualan_tanggal
-				where
-					lpw.log_penjualan_deleted_at is null
-				),
-				pos_agg as (
-				select
-					pt.toko_wajibpajak_npwpd as npwpd,
-					pt.toko_nama as nama_wp,
-					lpw.log_penjualan_wp_penjualan_kode as no_transaksi,
+		$sql = "WITH pos_agg AS (
+				SELECT
+					pt.toko_wajibpajak_npwpd AS npwpd,
+					pt.toko_nama AS nama_wp,
+					pp.penjualan_kode AS no_transaksi,
+					pp.penjualan_total_harga::float AS sub_total,
 					(
-					lpw.log_penjualan_wp_total
-					- (lpw.log_penjualan_wp_total /
-						(case
-						when pj.jenis_tarif = 5 then 21
-						when pj.jenis_tarif = 10 then 11
-					end)
-					)
-					)::float as sub_total,
-					(
-					lpw.log_penjualan_wp_total /
-					(case
-						when pj.jenis_tarif = 5 then 21
-						when pj.jenis_tarif = 10 then 11
-					end)
-					)::float as jumlah_pajak,
-					'POS'::text as sumber_data,
-					(
-						lpw.log_penjualan_wp_penjualan_tanggal::timestamp
-						+ COALESCE(lpw.log_penjualan_wp_penjualan_time, '00:00:00'::time)
-					) AS tanggal_transaksi
-				from
-					pos_latest lpw
-				join pajak_toko pt on
-					pt.toko_kode = lpw.log_penjualan_code_store
-				left join pajak_wajibpajak pw3 on
-					pw3.wajibpajak_npwpd = pt.toko_wajibpajak_npwpd
-				left join pajak_jenis pj on
-					pj.jenis_kode = pw3.wajibpajak_sektor_nama
-				),
-				persada_latest as (				
-				select
-					pr.*
-				from
-					pajak_realisasi pr
-				join (
-					select
-						realisasi_wajibpajak_npwpd,
-						max(realisasi_tanggal) as max_tgl
-					from
-						pajak_realisasi
-					where
-						realisasi_deleted_at is null																		
-					group by
-						realisasi_wajibpajak_npwpd
-				) m on
-					m.realisasi_wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					and m.max_tgl = pr.realisasi_tanggal
-				where
-					pr.realisasi_deleted_at is null
-				),
-				persada_agg as (
-				select
-					pr.realisasi_wajibpajak_npwpd as npwpd,
-					pw.wajibpajak_nama as nama_wp,
-					pr.realisasi_no as no_transaksi,
-					pr.realisasi_sub_total::float as sub_total,
-					(pr.realisasi_sub_total * pj.jenis_tarif / 100)::float as jumlah_pajak,
-					'PERSADA'::text as sumber_data,
-					pr.realisasi_tanggal as tanggal_transaksi
-				from
-					persada_latest pr
-				join pajak_wajibpajak pw on
-					pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-				left join pajak_jenis pj on
+							pp.penjualan_total_grand /
+							COALESCE(
+								CASE
+									WHEN pj.jenis_tarif = 5 THEN 21
+									WHEN pj.jenis_tarif = 10 THEN 11
+								END,
+								1
+							)
+						)::float AS jumlah_pajak,
+					'POS'::text AS sumber_data,
+					to_char(pp.penjualan_tanggal, 'YYYY-MM-DD HH24:MI:SS') AS tanggal_transaksi
+				FROM
+					pos_penjualan pp
+				LEFT JOIN pajak_toko pt
+						ON
+					pp.wajibpajak_id = pt.toko_wajibpajak_id
+				LEFT JOIN pajak_wajibpajak pw
+						ON
+					pw.wajibpajak_npwpd = pt.toko_wajibpajak_npwpd
+				LEFT JOIN pajak_jenis pj
+						ON
 					pj.jenis_kode = pw.wajibpajak_sektor_nama
-				where
+				WHERE
+					pp.penjualan_deleted_at IS NULL
+				),
+				persada_latest AS (
+				SELECT
+					pr.*
+				FROM
+					pajak_realisasi pr
+				JOIN (
+					SELECT
+						realisasi_wajibpajak_npwpd,
+						MAX(realisasi_tanggal) AS max_tgl
+					FROM
+						pajak_realisasi
+					WHERE
+						realisasi_deleted_at IS NULL
+					GROUP BY
+						realisasi_wajibpajak_npwpd
+					) m 
+						ON
+					m.realisasi_wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+					AND m.max_tgl = pr.realisasi_tanggal
+				WHERE
+					pr.realisasi_deleted_at IS NULL
+				),
+				persada_agg AS (
+				SELECT
+					pr.realisasi_wajibpajak_npwpd AS npwpd,
+					pw.wajibpajak_nama AS nama_wp,
+					pr.realisasi_no AS no_transaksi,
+					pr.realisasi_sub_total::float AS sub_total,
+					(pr.realisasi_sub_total * pj.jenis_tarif / 100)::float AS jumlah_pajak,
+					'PERSADA'::text AS sumber_data,
+					to_char(pr.realisasi_tanggal, 'YYYY-MM-DD HH24:MI:SS') AS tanggal_transaksi
+				FROM
+					persada_latest pr
+				JOIN pajak_wajibpajak pw 
+						ON
+					pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+				LEFT JOIN pajak_jenis pj 
+						ON
+					pj.jenis_kode = pw.wajibpajak_sektor_id
+				WHERE
 					pw.wajibpajak_status = '2'
 				)
-				select
+				SELECT
 					hasil.*
-				from
+				FROM
 					(
-					select
+					SELECT
 						*
-					from
+					FROM
 						pos_agg
-				union all
-					select
+				UNION ALL
+					SELECT
 						*
-					from
+					FROM
 						persada_agg
 				) hasil
-				left join pajak_wajibpajak pw2 on
+				LEFT JOIN pajak_wajibpajak pw2 
+					ON
 					pw2.wajibpajak_npwpd = hasil.npwpd
-				where
-					hasil.jumlah_pajak > 0
-					-- and pw2.wajibpajak_status = '2'
-					-- and hasil.npwpd <> '0437.63.102'
-					$where
-				order by
-					hasil.tanggal_transaksi desc
-				limit 10 offset 0;";
+				WHERE
+					pw2.wajibpajak_status = '2'
+				ORDER BY
+					hasil.tanggal_transaksi DESC
+				LIMIT 10 OFFSET 0;
+				";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -176,123 +156,102 @@ class DashboardModel extends Base_Model
 			$where = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
 		}
 
-		$sql = "WITH pos_latest as (				
-				select
-					lpw.*
-				from
-					log_penjualan_wp lpw
-				join (
-					select
-						log_penjualan_code_store,
-						max(log_penjualan_wp_penjualan_tanggal) as max_tgl
-					from
-						log_penjualan_wp
-					group by
-						log_penjualan_code_store
-				) m on
-					m.log_penjualan_code_store = lpw.log_penjualan_code_store
-					and m.max_tgl = lpw.log_penjualan_wp_penjualan_tanggal
-				where
-					lpw.log_penjualan_deleted_at is null
-				),
-				pos_agg as (
-				select
-					pt.toko_wajibpajak_npwpd as npwpd,
-					pt.toko_nama as nama_wp,
-					lpw.log_penjualan_wp_penjualan_kode as no_transaksi,
+		$sql = "WITH pos_agg AS (
+				SELECT
+					pt.toko_wajibpajak_npwpd AS npwpd,
+					pt.toko_nama AS nama_wp,
+					pp.penjualan_kode AS no_transaksi,
+					pp.penjualan_total_harga::float AS sub_total,
 					(
-					lpw.log_penjualan_wp_total
-					- (lpw.log_penjualan_wp_total /
-						(case
-						when pj.jenis_tarif = 5 then 21
-						when pj.jenis_tarif = 10 then 11
-					end)
-					)
-					)::float as sub_total,
-					(
-					lpw.log_penjualan_wp_total /
-					(case
-						when pj.jenis_tarif = 5 then 21
-						when pj.jenis_tarif = 10 then 11
-					end)
-					)::float as jumlah_pajak,
-					'POS'::text as sumber_data,
-					(
-						lpw.log_penjualan_wp_penjualan_tanggal::timestamp
-						+ COALESCE(lpw.log_penjualan_wp_penjualan_time, '00:00:00'::time)
-					) AS tanggal_transaksi
-				from
-					pos_latest lpw
-				join pajak_toko pt on
-					pt.toko_kode = lpw.log_penjualan_code_store
-				left join pajak_wajibpajak pw3 on
-					pw3.wajibpajak_npwpd = pt.toko_wajibpajak_npwpd
-				left join pajak_jenis pj on
-					pj.jenis_kode = pw3.wajibpajak_sektor_nama
-				),
-				persada_latest as (				
-				select
-					pr.*
-				from
-					pajak_realisasi pr
-				join (
-					select
-						realisasi_wajibpajak_npwpd,
-						max(realisasi_tanggal) as max_tgl
-					from
-						pajak_realisasi
-					where
-						realisasi_deleted_at is null																		
-					group by
-						realisasi_wajibpajak_npwpd
-				) m on
-					m.realisasi_wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					and m.max_tgl = pr.realisasi_tanggal
-				where
-					pr.realisasi_deleted_at is null
-				),
-				persada_agg as (
-				select
-					pr.realisasi_wajibpajak_npwpd as npwpd,
-					pw.wajibpajak_nama as nama_wp,
-					pr.realisasi_no as no_transaksi,
-					pr.realisasi_sub_total::float as sub_total,
-					(pr.realisasi_sub_total * pj.jenis_tarif / 100)::float as jumlah_pajak,
-					'PERSADA'::text as sumber_data,
-					pr.realisasi_tanggal as tanggal_transaksi
-				from
-					persada_latest pr
-				join pajak_wajibpajak pw on
-					pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-				left join pajak_jenis pj on
+							pp.penjualan_total_grand /
+							COALESCE(
+								CASE
+									WHEN pj.jenis_tarif = 5 THEN 21
+									WHEN pj.jenis_tarif = 10 THEN 11
+								END,
+								1
+							)
+						)::float AS jumlah_pajak,
+					'POS'::text AS sumber_data,
+					to_char(pp.penjualan_tanggal, 'YYYY-MM-DD HH24:MI:SS') AS tanggal_transaksi
+				FROM
+					pos_penjualan pp
+				LEFT JOIN pajak_toko pt
+						ON
+					pp.wajibpajak_id = pt.toko_wajibpajak_id
+				LEFT JOIN pajak_wajibpajak pw
+						ON
+					pw.wajibpajak_npwpd = pt.toko_wajibpajak_npwpd
+				LEFT JOIN pajak_jenis pj
+						ON
 					pj.jenis_kode = pw.wajibpajak_sektor_nama
-				where
+				WHERE
+					pp.penjualan_deleted_at IS NULL
+				),
+				persada_latest AS (
+				SELECT
+					pr.*
+				FROM
+					pajak_realisasi pr
+				JOIN (
+					SELECT
+						realisasi_wajibpajak_npwpd,
+						MAX(realisasi_tanggal) AS max_tgl
+					FROM
+						pajak_realisasi
+					WHERE
+						realisasi_deleted_at IS NULL
+					GROUP BY
+						realisasi_wajibpajak_npwpd
+					) m 
+						ON
+					m.realisasi_wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+					AND m.max_tgl = pr.realisasi_tanggal
+				WHERE
+					pr.realisasi_deleted_at IS NULL
+				),
+				persada_agg AS (
+				SELECT
+					pr.realisasi_wajibpajak_npwpd AS npwpd,
+					pw.wajibpajak_nama AS nama_wp,
+					pr.realisasi_no AS no_transaksi,
+					pr.realisasi_sub_total::float AS sub_total,
+					(pr.realisasi_sub_total * pj.jenis_tarif / 100)::float AS jumlah_pajak,
+					'PERSADA'::text AS sumber_data,
+					to_char(pr.realisasi_tanggal, 'YYYY-MM-DD HH24:MI:SS') AS tanggal_transaksi
+				FROM
+					persada_latest pr
+				JOIN pajak_wajibpajak pw 
+						ON
+					pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
+				LEFT JOIN pajak_jenis pj 
+						ON
+					pj.jenis_kode = pw.wajibpajak_sektor_id
+				WHERE
 					pw.wajibpajak_status = '2'
 				)
-				select
+				SELECT
 					hasil.*
-				from
+				FROM
 					(
-					select
+					SELECT
 						*
-					from
+					FROM
 						pos_agg
-				union all
-					select
+				UNION ALL
+					SELECT
 						*
-					from
+					FROM
 						persada_agg
 				) hasil
-				left join pajak_wajibpajak pw2 on
+				LEFT JOIN pajak_wajibpajak pw2 
+					ON
 					pw2.wajibpajak_npwpd = hasil.npwpd
-				where
-					hasil.jumlah_pajak > 0
-					-- and pw2.wajibpajak_status = '2'
-					-- and hasil.npwpd <> '0437.63.102'
-					$where
-				order by
-					hasil.tanggal_transaksi desc
-				limit 50 offset 0;";
+				WHERE
+					pw2.wajibpajak_status = '2'
+				ORDER BY
+					hasil.tanggal_transaksi DESC
+				LIMIT 50 OFFSET 0;";
 		return $this->db->query($sql)->result_array();
 	}
 }

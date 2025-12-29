@@ -2,21 +2,30 @@
 	var gNPWPD = '';
 
 	$(function() {
+		HELPER.fields = [
+			'satuan_id',
+			'satuan_kode',
+			'satuan_nama',
+		];
+		HELPER.setRequired([
+			'satuan_kode',
+			'satuan_nama',
+		]);
+		HELPER.api = {
+			table: BASE_URL + 'rekappajak/',
+			subTable: BASE_URL + 'rekappajak/sub_table',
+			read: BASE_URL + 'rekappajak/read',
+			detail: BASE_URL + 'rekappajak/realisasi_detail',
+			update: BASE_URL + 'rekappajak/update',
+			destroy: BASE_URL + 'rekappajak/destroy',
+			wp_header: BASE_URL + 'rekappajak/wp_header',
+			readWp: BASE_URL + 'rekappajak/readWp',
+			kecamatan: BASE_URL + 'rekappajak/get_kecamatan',
+		}
+
 		var selectedStart = null;
 		var selectedEnd = null;
 
-		function setPeriode(start, end) {
-			selectedStart = start.clone();
-			selectedEnd = end.clone();
-
-			var label = start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
-
-			$('#periode').val(label);
-			$('#label-periode').text(label);
-			$('#customRange').val(label);
-		}
-
-		/* QUICK RANGE */
 		$(document).on('click', '.list-range', function() {
 			var type = $(this).data('range');
 			var start, end;
@@ -36,7 +45,6 @@
 			$('#modalPeriode').modal('hide');
 		});
 
-		/* INIT CUSTOM RANGE */
 		$('#customRange').daterangepicker({
 			autoUpdateInput: false,
 			parentEl: '#modalPeriode',
@@ -50,12 +58,10 @@
 			}
 		});
 
-		/* APPLY CUSTOM RANGE */
 		$('#customRange').on('apply.daterangepicker', function(ev, picker) {
 			setPeriode(picker.startDate, picker.endDate);
 		});
 
-		/* APPLY BUTTON */
 		$('#btnApplyPeriode').on('click', function() {
 			if (!selectedStart || !selectedEnd) {
 				alert('Silakan pilih periode terlebih dahulu');
@@ -77,39 +83,24 @@
 			format: "yyyy-mm-dd"
 		})
 
-		$('#select_kecamatan').on('change', function() {
-			$('#btnFilterRekap').click();
+		$('#btnFilterRekap').on('click', function() {
+			filterRekap();
 		});
 
-		HELPER.fields = [
-			'satuan_id',
-			'satuan_kode',
-			'satuan_nama',
-		];
-		HELPER.setRequired([
-			'satuan_kode',
-			'satuan_nama',
-		]);
-		HELPER.api = {
-			table: BASE_URL + 'rekappajak/',
-			subTable: BASE_URL + 'rekappajak/sub_table',
-			read: BASE_URL + 'rekappajak/read',
-			detail: BASE_URL + 'rekappajak/realisasi_detail',
-			update: BASE_URL + 'rekappajak/update',
-			destroy: BASE_URL + 'rekappajak/destroy',
-			wp_header: BASE_URL + 'rekappajak/wp_header',
-			readWp: BASE_URL + 'rekappajak/readWp',
-			kecamatan: BASE_URL + 'rekappajak/get_kecamatan',
-		}
-		/*HELPER.initTable({
-			el : 'table-satuan',
-			url: HELPER.api.table,
-		})*/
-		calcForm();
-		wp_header();
-		loadTable("<?= date("Y-m") ?>");
+		loadTable();
 		loadKecamatan();
 	});
+
+	function setPeriode(start, end) {
+		selectedStart = start.clone();
+		selectedEnd = end.clone();
+
+		var label = start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
+
+		$('#periode').val(label);
+		$('#label-periode').text(label);
+		$('#customRange').val(label);
+	}
 
 	function wp_header() {
 		$.get(HELPER.api.wp_header, function(res) {
@@ -118,25 +109,36 @@
 		});
 	}
 
-	function filterBulan() {
-		let filterBulan = $('#bulan').val();
-		loadTable(filterBulan);
-	}
-
 	function filterSubBulan() {
 		let filterBulan = $('#sub_bulan').val();
 		loadSubTable(gNPWPD, filterBulan);
 	}
 
-	function loadTable(filterBulan = null) {
+	function filterRekap() {
+		let kecamatan = $('#select_kecamatan').val();
+		let jenisPajak = $('#filter_jenis_pajak').val();
+		let jenisDevice = $('#filter_jenis_device').val();
+
+		loadTable(kecamatan, jenisPajak, jenisDevice);
+	}
+
+	function loadTable(kecamatan = null, jenisPajak = null, jenisDevice = null) {
 		let data = {};
 
-		if (filterBulan != null) {
-			data.filterBulan = filterBulan
+		if (jenisDevice) {
+			data.jenis_device = jenisDevice;
+		}
+
+		if (kecamatan) {
+			data.kecamatan = kecamatan;
+		}
+
+		if (jenisPajak) {
+			data.jenis_pajak = jenisPajak;
 		}
 
 		HELPER.initTable({
-			el: "table-realisasi",
+			el: "table-rekappajak",
 			url: HELPER.api.table,
 			data: data,
 			searchAble: false,
@@ -154,7 +156,7 @@
 				}, {
 					targets: 1,
 					render: function(data, type, full, meta) {
-						return full['realisasi_parent_npwpd'];
+						return full['npwpd'];
 					},
 					name: "npwpd",
 					searchable: true,
@@ -162,39 +164,31 @@
 				{
 					targets: 2,
 					render: function(data, type, full, meta) {
-						return full['realisasi_parent_nama'];
+						return full['nama_wp'];
 					},
 				},
 				{
 					targets: 3,
 					render: function(data, type, full, meta) {
-						return full['realisasi_parent_transaksi_terakhir'] ? moment(full['realisasi_parent_transaksi_terakhir']).format('DD-MM-YYYY') : '-';
+						return full['jenis_nama'];
 					},
 				},
 				{
 					targets: 4,
 					render: function(data, type, full, meta) {
-						console.log(full['realisasi_parent_sub_total'], $.number(parseInt(full['realisasi_parent_sub_total'])));
-						return 'Rp.' + $.number(parseInt(full['realisasi_parent_sub_total']));
+						return full['kecamatan_nama'];
 					},
 				},
 				{
 					targets: 5,
 					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(parseInt(full['realisasi_parent_pajak']));
+						return full['tanggal_last_transaksi'];
 					},
 				},
 				{
 					targets: 6,
 					render: function(data, type, full, meta) {
-						// return 'Rp.' + $.number(full['realisasi_parent_omzet'] * (full['realisasi_parent_jenis_tarif'] / 100));
-						return 'Rp.' + $.number(parseInt(full['realisasi_parent_total_pajak']));
-					},
-				},
-				{
-					targets: 7,
-					render: function(data, type, full, meta) {
-						return full['realisasi_parent_jenis_pajak'];
+						return full['jenis_device'];
 					},
 				},
 				{
@@ -202,7 +196,7 @@
 					orderable: false,
 					visible: true,
 					render: function(data, type, full, meta) {
-						return `<button onclick="onDetail('${full['realisasi_parent_npwpd']}')" class="btn btn-primary btn-sm">Detail</button>`;
+						return `<button onclick="onDetail('${full['npwpd']}')" class="btn btn-sm btn-success btn-icon"><i class="fa fa-info-circle"></i></button>`;
 					},
 				},
 			],
@@ -301,19 +295,11 @@
 				{
 					targets: -1,
 					render: function(data, type, full, meta) {
-						let html = `<button onclick="subRinci('${full['realisasi_id']}')" class="btn btn-primary btn-sm">Detail</button>`;
-						let dropdown = `<div class="ml-3 dropdown dropdown-inline">
-							<a href="javascript:;" class="btn btn-sm btn-success btn-icon" data-toggle="dropdown">
-								<i class="fa fa-cog"></i>
-							</a>
-							<div class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-							<ul class="nav nav-hoverable flex-column">
-								<li class="nav-item"><a class="nav-link text-hover-primary" href="javascript:;" onclick="onEditSub('` + full['realisasi_id'] + `')"><i class="nav-icon fa fa-pen"></i><span>Edit</span></a></li>
-								<li class="nav-item"><a class="nav-link text-hover-danger" href="javascript:;" onclick="onDeleteSub('` + full['realisasi_id'] + `')"><i class="nav-icon fa fa-trash"></i><span>Hapus</span></a></li>
-							</ul>
-							</div>
-						</div>`;
-						return html + dropdown;
+						return `<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['realisasi_id']}')">
+									<span>
+										<i class="fas fa-file-invoice"></i>										
+									</span>
+								</button>`;
 					},
 				},
 
@@ -790,207 +776,6 @@
 		});
 	}
 
-	function addRow() {
-		var countRow = $('#table-rekap-form tbody > tr').length;
-		$('#table-rekap-form tbody').append(`<tr class="d-flex d-md-table-row">
-			<td class="col-1 col-md-auto">1</td>
-			<td class="col-4 col-md-auto"><input type="time" class="form-control" name="time[]" required/></td>
-			<td class="col-3 col-md-auto"><input type="text" class="form-control" name="receiptno[]" required/></td>
-			<td class="col-3 col-md-auto"><input type="text" class="form-control" name="subtotal[]" required/></td>
-			<td class="col-3 col-md-auto"><input type="text" class="form-control" name="service[]" required/></td>
-			<td class="col-3 col-md-auto"><input type="text" class="form-control" name="tax[]" required/></td>
-			<td class="col-3 col-md-auto"><input type="text" class="form-control" name="total[]" style="background-color: #eaeaea;" readonly/></td>
-			<td class="col-2 col-md-auto">
-				<button type="button" onclick="deleteRow(this)" class="btn btn-danger btn-icon mr-2"><i class="fa fa-trash"></i></button>
-			</td>
-		</tr>`);
-		for (let i = 0; countRow + 1 >= i; i++) {
-			let elem = $('#table-rekap-form tbody').children().eq(i);
-			elem.children().first().text(i + 1);
-		}
-		calcForm();
-	}
-
-	function deleteRow(elem) {
-		var countRow = $('#table-rekap-form tbody > tr').length;
-		if (countRow < 2) {
-			HELPER.showMessage({
-				success: 'warning',
-				title: 'Peringatan',
-				message: 'Baris pertama tidak dapat dihapus!'
-			})
-		} else {
-			var rowIndex = $(elem).parent().parent().index();
-			HELPER.confirm({
-				title: 'Pemberitahuan',
-				message: `Apakah anda yakin akan menghapus baris ke ${rowIndex + 1}?`,
-				callback: function(res) {
-					if (res == true) {
-						$(elem).parent().parent().remove()
-						for (let i = 0; countRow + 1 >= i; i++) {
-							let elem = $('#table-rekap-form tbody').children().eq(i);
-							elem.children().first().text(i + 1);
-						}
-					}
-				}
-			});
-		}
-	}
-
-	function calcForm() {
-		$('input[name="subtotal[]"]').on('input', function() {
-			if ($(this).val() == '') {
-				$(this).val(0);
-				return;
-			};
-			var val = $(this).val().replace(/\D/gi, '');
-			if (val) {
-				val = parseInt(val, 10);
-			}
-			$(this).val($.number(val));
-		})
-
-		$('input[name="service[]"]').on('input', function() {
-			if ($(this).val() == '') {
-				$(this).val(0);
-				return;
-			};
-			var val = $(this).val().replace(/\D/gi, '');
-			if (val) {
-				val = parseInt(val, 10);
-			}
-			$(this).val($.number(val));
-		})
-
-		$('input[name="tax[]"]').on('input', function() {
-			if ($(this).val() == '') {
-				$(this).val(0);
-				return;
-			};
-			var val = $(this).val().replace(/\D/gi, '');
-			if (val) {
-				val = parseInt(val, 10);
-			}
-			$(this).val($.number(val));
-		})
-
-		calcTotal();
-	}
-
-	function calcTotal() {
-		$('input[name="subtotal[]"]').on('input', function() {
-			// Sum Total Row
-			var valrow_subtotal = $(this).val();
-			var valrow_tax = $(this).parent().parent().find('input[name="tax[]"').val();
-			var valrow_service = $(this).parent().parent().find('input[name="service[]"').val();
-			var row_total = $(this).parent().parent().find('input[name="total[]"');
-
-			valrow_subtotal = valrow_subtotal.replace(/\D/gi, '');
-			valrow_tax = valrow_tax.replace(/\D/gi, '');
-			valrow_service = valrow_service.replace(/\D/gi, '');
-			if (valrow_subtotal && valrow_tax && valrow_service) {
-				var sum_total = parseInt(valrow_subtotal, 10) + parseInt(valrow_tax, 10) + parseInt(valrow_service, 10);
-				row_total.val($.number(sum_total));
-			}
-
-			// Sum TAX Column
-			var valsum_subtotal = $('input[name^="subtotal[]"]').map((idx, elem) => {
-				if ($(elem).val() != '') {
-					return $(elem).val().replace(/\D/gi, '');
-				}
-			}).get();
-			valsum = valsum_subtotal.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10), 0);
-			if (valsum_subtotal) {
-				$('input[name=sum_subtotal]').val($.number(valsum));
-			} else {
-				$('input[name=sum_subtotal]').val(0);
-			}
-
-			// Sum Total
-			var valsum_tax = $('input[name=sum_tax]').val();
-			var valsum_service = $('input[name=sum_service]').val();
-			valsum_tax = valsum_tax.replace(/\D/gi, '');
-			valsum_service = valsum_service.replace(/\D/gi, '');
-			var valsum_total = parseInt(valsum_tax, 10) + parseInt(valsum_service, 10) + valsum;
-			$('input[name=sum_total]').val($.number(valsum_total));
-		});
-
-		$('input[name="service[]"]').on('input', function() {
-			// SUM Total Row
-			var valrow_service = $(this).val();
-			var valrow_tax = $(this).parent().parent().find('input[name="tax[]"').val();
-			var valrow_subtotal = $(this).parent().parent().find('input[name="subtotal[]"').val();
-			var row_total = $(this).parent().parent().find('input[name="total[]"');
-
-			valrow_subtotal = valrow_subtotal.replace(/\D/gi, '');
-			valrow_service = valrow_service.replace(/\D/gi, '');
-			valrow_tax = valrow_tax.replace(/\D/gi, '');
-			if (valrow_subtotal && valrow_service && valrow_tax) {
-				var sum_total = parseInt(valrow_subtotal, 10) + parseInt(valrow_service, 10) + parseInt(valrow_tax, 10);
-				row_total.val($.number(sum_total));
-			}
-
-			// Sum Service Column
-			var valsum_service = $('input[name^="service[]"]').map((idx, elem) => {
-				if ($(elem).val() != '') {
-					return $(elem).val().replace(/\D/gi, '');
-				}
-			}).get();
-			valsum = valsum_service.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10), 0);
-			if (valsum_service) {
-				$('input[name=sum_service]').val($.number(valsum));
-			} else {
-				$('input[name=sum_service]').val(0);
-			}
-
-			// Sum Total
-			var valsum_tax = $('input[name=sum_tax]').val();
-			var valsum_subtotal = $('input[name=sum_subtotal]').val();
-			valsum_subtotal = valsum_subtotal.replace(/\D/gi, '');
-			valsum_tax = valsum_tax.replace(/\D/gi, '');
-			var valsum_total = parseInt(valsum_subtotal, 10) + parseInt(valsum_tax, 10) + valsum;
-			$('input[name=sum_total]').val($.number(valsum_total));
-		});
-
-		$('input[name="tax[]"]').on('input', function() {
-			// SUM Total Row
-			var valrow_tax = $(this).val();
-			var valrow_subtotal = $(this).parent().parent().find('input[name="subtotal[]"').val();
-			var valrow_service = $(this).parent().parent().find('input[name="service[]"').val();
-			var row_total = $(this).parent().parent().find('input[name="total[]"');
-
-			valrow_subtotal = valrow_subtotal.replace(/\D/gi, '');
-			valrow_tax = valrow_tax.replace(/\D/gi, '');
-			valrow_service = valrow_service.replace(/\D/gi, '');
-			if (valrow_subtotal && valrow_tax && valrow_service) {
-				var sum_total = parseInt(valrow_subtotal, 10) + parseInt(valrow_tax, 10) + parseInt(valrow_service, 10);
-				console.log(valrow_subtotal, valrow_tax, sum_total)
-				row_total.val($.number(sum_total));
-			}
-
-			// Sum TAX Column
-			var valsum_tax = $('input[name^="tax[]"]').map((idx, elem) => {
-				if ($(elem).val() != '') {
-					return $(elem).val().replace(/\D/gi, '');
-				}
-			}).get();
-			valsum = valsum_tax.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10), 0);
-			if (valsum_tax) {
-				$('input[name=sum_tax]').val($.number(valsum));
-			} else {
-				$('input[name=sum_tax]').val(0);
-			}
-
-			// Sum Total
-			var valsum_subtotal = $('input[name=sum_subtotal]').val();
-			var valsum_service = $('input[name=sum_service]').val();
-			valsum_subtotal = valsum_subtotal.replace(/\D/gi, '');
-			valsum_service = valsum_service.replace(/\D/gi, '');
-			var valsum_total = parseInt(valsum_subtotal, 10) + parseInt(valsum_service, 10) + valsum;
-			$('input[name=sum_total]').val($.number(valsum_total));
-		})
-	}
-
 	function loadKecamatan() {
 		$.ajax({
 			url: HELPER.api.kecamatan,
@@ -1005,7 +790,7 @@
 				if (res.length > 0) {
 					$.each(res, function(i, item) {
 						$select.append(
-							'<option value="' + item.kecamatan_kode + '">' +
+							'<option value="' + item.kecamatan_id + '">' +
 							item.kecamatan_nama +
 							'</option>'
 						);

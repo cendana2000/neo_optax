@@ -22,13 +22,14 @@ class Login extends BASE_Controller
     public function index()
     {
         // echo $google_client->createAuthUrl();exit;
+        $id = "";
         if ($id == "") {
             $this->load->view('login/login');
         } else {
             $this->main($id);
         }
     }
-    public function doauth(Type $var = null)
+    public function doauth()
     {
         include_once APPPATH . "../vendor/autoload.php";
         $id = $this->session->userdata('user_id');
@@ -152,7 +153,7 @@ class Login extends BASE_Controller
             $this->response(array(
                 'success' => false,
                 'message' => 'User not found. Please check your email and password.',
-                'data' => $user
+                'data' => $data
             ));
         }
     }
