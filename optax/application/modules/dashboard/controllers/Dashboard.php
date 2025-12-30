@@ -44,11 +44,11 @@ class Dashboard extends Base_Controller
 		$interval = DateInterval::createFromDateString('1 Day');
 		$period = new DatePeriod($begin, $interval, $end);
 
-		$data['chart_nominal_pajak'] = array();
+		// $data['chart_nominal_pajak'] = array();
 		$data['chart_upload_pajak'] = array();
 		$categories = array();
 		foreach ($period as $dt) {
-			array_push($data['chart_nominal_pajak'], (object) array('total_pajak_masuk' => 0, 'realisasi_tanggal' => $dt->format("d M Y")));
+			// array_push($data['chart_nominal_pajak'], (object) array('total_pajak_masuk' => 0, 'realisasi_tanggal' => $dt->format("d M Y")));
 			array_push($data['chart_upload_pajak'], (object) array('total_upload' => 0, 'realisasi_tanggal' => $dt->format("d M Y")));
 			array_push($categories, $dt->format("d M Y"));
 		}
@@ -99,7 +99,7 @@ class Dashboard extends Base_Controller
 
 		foreach ($categories as $i => $cat) {
 			if (isset($mergeMap[$cat])) {
-				$data['chart_nominal_pajak'][$i]->total_pajak_masuk = $mergeMap[$cat];
+				// $data['chart_nominal_pajak'][$i]->total_pajak_masuk = $mergeMap[$cat];
 			}
 		}
 
@@ -394,57 +394,312 @@ class Dashboard extends Base_Controller
 		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir();
 		$data['transaksi_terakhir_all'] = $this->dashboard->getTransaksiTerakhirAll();
 
+		$tahun 			= (int) date('Y');
+		$awal_tahun 	= "$tahun-01-01";
+		$akhir_tahun 	= ($tahun + 1) . "-01-01";
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')');
+		}
+
+		$this->db->select("
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-01-01'
+				AND penjualan_tanggal <  DATE '$tahun-02-01'
+			)) AS januari,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-02-01'
+				AND penjualan_tanggal <  DATE '$tahun-03-01'
+			)) AS februari,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-03-01'
+				AND penjualan_tanggal <  DATE '$tahun-04-01'
+			)) AS maret,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-04-01'
+				AND penjualan_tanggal <  DATE '$tahun-05-01'
+			)) AS april,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-05-01'
+				AND penjualan_tanggal <  DATE '$tahun-06-01'
+			)) AS mei,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-06-01'
+				AND penjualan_tanggal <  DATE '$tahun-07-01'
+			)) AS juni,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-07-01'
+				AND penjualan_tanggal <  DATE '$tahun-08-01'
+			)) AS juli,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-08-01'
+				AND penjualan_tanggal <  DATE '$tahun-09-01'
+			)) AS agustus,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-09-01'
+				AND penjualan_tanggal <  DATE '$tahun-10-01'
+			)) AS september,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-10-01'
+				AND penjualan_tanggal <  DATE '$tahun-11-01'
+			)) AS oktober,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-11-01'
+				AND penjualan_tanggal <  DATE '$tahun-12-01'
+			)) AS november,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-12-01'
+				AND penjualan_tanggal <  DATE '" . ($tahun + 1) . "-01-01'
+			)) AS desember
+		", false);
+
+		$result							= $this->db->from('pos_penjualan')
+			->where('penjualan_tanggal >=', $awal_tahun)
+			->where('penjualan_tanggal <', $akhir_tahun)
+			->get()
+			->row();
+
+		$data['chart_nominal_pajak']	= [
+			[
+				'bulan'	=> 'Januari',
+				'total'	=> $result->januari ?? 0
+			],
+			[
+				'bulan'	=> 'Februari',
+				'total'	=> $result->februari ?? 0
+			],
+			[
+				'bulan'	=> 'Maret',
+				'total'	=> $result->maret ?? 0
+			],
+			[
+				'bulan'	=> 'April',
+				'total'	=> $result->april ?? 0
+			],
+			[
+				'bulan'	=> 'Mei',
+				'total'	=> $result->mei ?? 0
+			],
+			[
+				'bulan'	=> 'Juni',
+				'total'	=> $result->juni ?? 0
+			],
+			[
+				'bulan'	=> 'Juli',
+				'total'	=> $result->juli ?? 0
+			],
+			[
+				'bulan'	=> 'Agustus',
+				'total'	=> $result->agustus ?? 0
+			],
+			[
+				'bulan'	=> 'September',
+				'total'	=> $result->september ?? 0
+			],
+			[
+				'bulan'	=> 'Oktober',
+				'total'	=> $result->oktober ?? 0
+			],
+			[
+				'bulan'	=> 'November',
+				'total'	=> $result->november ?? 0
+			],
+			[
+				'bulan'	=> 'Desember',
+				'total'	=> $result->desember ?? 0
+			],
+		];
+
 		$this->response($data);
 	}
 
 	function stats_nominal_jenis_usaha()
 	{
-		$var = varPost();
-		$id = $var['id'];
+		// $var = varPost();
+		// $id = $var['id'];
 
-		// print_r('<pre>');print_r($var);print_r('</pre>');exit;
+		// // print_r('<pre>');print_r($var);print_r('</pre>');exit;
 
-		if ($var['type'] == "tanggal") {
-			$begin = new DateTime($var['awal_tanggal']);
-			$end = (new DateTime($var['akhir_tanggal']))->modify('+1 day');
-			$rawbegin = $var['awal_tanggal'];
-			$rawend = $var['akhir_tanggal'];
-		} else if ($var['type'] == "bulan") {
-			$bulan = $var['bulan'] . '-01';
-			$begin = new DateTime($bulan);
-			$end = (new DateTime($bulan))->modify('+1 month');
-			$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
-			$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
-		}
+		// if ($var['type'] == "tanggal") {
+		// 	$begin = new DateTime($var['awal_tanggal']);
+		// 	$end = (new DateTime($var['akhir_tanggal']))->modify('+1 day');
+		// 	$rawbegin = $var['awal_tanggal'];
+		// 	$rawend = $var['akhir_tanggal'];
+		// } else if ($var['type'] == "bulan") {
+		// 	$bulan = $var['bulan'] . '-01';
+		// 	$begin = new DateTime($bulan);
+		// 	$end = (new DateTime($bulan))->modify('+1 month');
+		// 	$rawbegin = date_format(new DateTime($bulan), 'Y-m-d');
+		// 	$rawend = date_format((new DateTime($bulan))->modify('+1 month')->modify('-1 day'), 'Y-m-d');
+		// }
 
-		$interval = DateInterval::createFromDateString('1 Day');
-		$period = new DatePeriod($begin, $interval, $end);
+		// $interval = DateInterval::createFromDateString('1 Day');
+		// $period = new DatePeriod($begin, $interval, $end);
 
-		$data['chart_nominal_pajak'] = array();
-		$categories = array();
-		foreach ($period as $dt) {
-			array_push($data['chart_nominal_pajak'], (object) array('total_pajak_masuk' => 0, 'realisasi_tanggal' => $dt->format("d M Y")));
-			array_push($categories, $dt->format("d M Y"));
-		}
+		// $data['chart_nominal_pajak'] = array();
+		// $categories = array();
+		// foreach ($period as $dt) {
+		// 	array_push($data['chart_nominal_pajak'], (object) array('total_pajak_masuk' => 0, 'realisasi_tanggal' => $dt->format("d M Y")));
+		// 	array_push($categories, $dt->format("d M Y"));
+		// }
 
-		$where = '';
+		// $where = '';
+		// if ($pemda_id = $this->session->userdata('pemda_id')) {
+		// 	$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
+		// }
+
+		// $opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
+		// FROM pajak_realisasi pr
+		// LEFT JOIN pajak_wajibpajak pw ON pr.realisasi_wajibpajak_npwpd = pw.wajibpajak_npwpd
+		// LEFT JOIN pajak_jenis pj ON pw.wajibpajak_sektor_nama = pj.jenis_id 
+		// WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' and '$rawend'
+		// AND pr.realisasi_deleted_at IS NULL
+		// AND pj.jenis_parent = '$id' 
+		// $where
+		// GROUP BY pr.realisasi_tanggal")->result_array();
+		// foreach ($opchartnominal as $key => $val) {
+		// 	$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
+		// 	$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
+		// }
+
+		$tahun 			= (int) date('Y');
+		$awal_tahun 	= "$tahun-01-01";
+		$akhir_tahun 	= ($tahun + 1) . "-01-01";
+
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
+			$this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')');
 		}
 
-		$opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
-		FROM pajak_realisasi pr
-		LEFT JOIN pajak_wajibpajak pw ON pr.realisasi_wajibpajak_npwpd = pw.wajibpajak_npwpd
-		LEFT JOIN pajak_jenis pj ON pw.wajibpajak_sektor_nama = pj.jenis_id 
-		WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' and '$rawend'
-		AND pr.realisasi_deleted_at IS NULL
-		AND pj.jenis_parent = '$id' 
-		$where
-		GROUP BY pr.realisasi_tanggal")->result_array();
-		foreach ($opchartnominal as $key => $val) {
-			$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
-			$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
-		}
+		$this->db->select("
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-01-01'
+				AND penjualan_tanggal <  DATE '$tahun-02-01'
+			)) AS januari,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-02-01'
+				AND penjualan_tanggal <  DATE '$tahun-03-01'
+			)) AS februari,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-03-01'
+				AND penjualan_tanggal <  DATE '$tahun-04-01'
+			)) AS maret,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-04-01'
+				AND penjualan_tanggal <  DATE '$tahun-05-01'
+			)) AS april,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-05-01'
+				AND penjualan_tanggal <  DATE '$tahun-06-01'
+			)) AS mei,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-06-01'
+				AND penjualan_tanggal <  DATE '$tahun-07-01'
+			)) AS juni,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-07-01'
+				AND penjualan_tanggal <  DATE '$tahun-08-01'
+			)) AS juli,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-08-01'
+				AND penjualan_tanggal <  DATE '$tahun-09-01'
+			)) AS agustus,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-09-01'
+				AND penjualan_tanggal <  DATE '$tahun-10-01'
+			)) AS september,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-10-01'
+				AND penjualan_tanggal <  DATE '$tahun-11-01'
+			)) AS oktober,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-11-01'
+				AND penjualan_tanggal <  DATE '$tahun-12-01'
+			)) AS november,
+
+			round(avg(penjualan_total_grand) FILTER (
+				WHERE penjualan_tanggal >= DATE '$tahun-12-01'
+				AND penjualan_tanggal <  DATE '" . ($tahun + 1) . "-01-01'
+			)) AS desember
+		", false);
+
+		$result							= $this->db->from('pos_penjualan')
+			->where('penjualan_tanggal >=', $awal_tahun)
+			->where('penjualan_tanggal <', $akhir_tahun)
+			->get()
+			->row();
+
+		$data							= array();
+		$data['chart_nominal_pajak']	= [
+			[
+				'bulan'	=> 'Januari',
+				'total'	=> $result->januari ?? 0
+			],
+			[
+				'bulan'	=> 'Februari',
+				'total'	=> $result->februari ?? 0
+			],
+			[
+				'bulan'	=> 'Maret',
+				'total'	=> $result->maret ?? 0
+			],
+			[
+				'bulan'	=> 'April',
+				'total'	=> $result->april ?? 0
+			],
+			[
+				'bulan'	=> 'Mei',
+				'total'	=> $result->mei ?? 0
+			],
+			[
+				'bulan'	=> 'Juni',
+				'total'	=> $result->juni ?? 0
+			],
+			[
+				'bulan'	=> 'Juli',
+				'total'	=> $result->juli ?? 0
+			],
+			[
+				'bulan'	=> 'Agustus',
+				'total'	=> $result->agustus ?? 0
+			],
+			[
+				'bulan'	=> 'September',
+				'total'	=> $result->september ?? 0
+			],
+			[
+				'bulan'	=> 'Oktober',
+				'total'	=> $result->oktober ?? 0
+			],
+			[
+				'bulan'	=> 'November',
+				'total'	=> $result->november ?? 0
+			],
+			[
+				'bulan'	=> 'Desember',
+				'total'	=> $result->desember ?? 0
+			],
+		];
 
 		$this->response($data);
 	}

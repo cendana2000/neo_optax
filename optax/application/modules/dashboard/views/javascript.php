@@ -66,12 +66,22 @@
 
 		filterByPeriod($('#weekly-filter')[0]);
 
-		statistikNominal = chart("chartrealisasipajak");
+		statistikNominal = chart("chartrealisasipajak", [], [], {
+			chart: {
+				type: 'bar'
+			},
+			fill: {
+				type: 'solid'
+			},
+			colors: [
+				'#3699ff'
+			]
+		});
 		statistikTotal = chart("chartrealisasipajakupload");
 		chartNominal = chart("charttotalpajak");
 		pos_statistikpenjualan = barChart([])
 
-		loadTable();
+		// loadTable();
 		loadTanggal();
 		switchDashboard();
 		// loadUserActiveDashboard();
@@ -226,13 +236,20 @@
 		let y = [];
 
 		$.each(data, function(i, v) {
-			x.push(v.realisasi_tanggal);
-			y.push(v.total_pajak_masuk);
+			x.push(v.bulan);
+			y.push(v.total);
 		});
 		if (statistikNominal) {
 			statistikNominal.updateOptions({
 				xaxis: {
 					categories: x || [],
+				},
+				yaxis: {
+					labels: {
+						formatter: function(val) {
+							return $.number(val);
+						}
+					}
 				},
 				chart: {
 					height: 465,
@@ -240,7 +257,7 @@
 			})
 
 			statistikNominal.updateSeries([{
-				name: 'Pajak Masuk',
+				name: 'Rerata Transaksi',
 				data: y || []
 			}]);
 		}

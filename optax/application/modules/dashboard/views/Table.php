@@ -241,12 +241,13 @@
 							</div>
 						</div>
 						<div class="col-lg-12 col-xl-12 col-xxl-6 mb-5 mb-xl-0">
-							<div class="card card-custom card-stretch gutter-b card_chart">
+							<div class="card card-custom card-stretch gutter-b card_chart mt-3">
 								<div class="card-header border-0">
 									<div class="card-title py-5" id="filter-by">
-										<button class="btn-filter-by-period btn" data-filter="daily" id="daily-filter" onclick="filterByPeriod(this)">Daily</button>
+										Rerata Transaksi <?= date('Y') ?>
+										<!-- <button class="btn-filter-by-period btn" data-filter="daily" id="daily-filter" onclick="filterByPeriod(this)">Daily</button>
 										<button class="btn-filter-by-period btn active" data-filter="weekly" id="weekly-filter" onclick="filterByPeriod(this)">Weekly</button>
-										<button class="btn-filter-by-period btn" data-filter="monthly" id="monthly-filter" onclick="filterByPeriod(this)">Monthly</button>
+										<button class="btn-filter-by-period btn" data-filter="monthly" id="monthly-filter" onclick="filterByPeriod(this)">Monthly</button> -->
 									</div>
 									<div class="card-toolbar">
 										<!-- <div>
