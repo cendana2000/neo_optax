@@ -75,6 +75,7 @@ class Journey extends Base_Controller
         try {
             $tanggal    = date('Y-m-d');
 
+            // masukkan ke journey activity
             $where1     = "NOT EXISTS (SELECT 1 FROM pajak_realisasi WHERE pajak_realisasi.realisasi_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pajak_realisasi.realisasi_tanggal='$tanggal')";
             $where2     = "NOT EXISTS (SELECT 1 FROM pos_penjualan WHERE pos_penjualan.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan.penjualan_tanggal='$tanggal')";
             $where3     = "NOT EXISTS (SELECT 1 FROM pos_penjualan_pooling WHERE pos_penjualan_pooling.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan_pooling.penjualan_tanggal='$tanggal')";
@@ -114,6 +115,35 @@ class Journey extends Base_Controller
 
             if (!empty($records)) {
                 $this->db->insert_batch('journey_activity', $records);
+            }
+
+            // masukkan log
+            $where1     = "NOT EXISTS (SELECT 1 FROM pajak_realisasi WHERE pajak_realisasi.realisasi_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pajak_realisasi.realisasi_tanggal='$tanggal')";
+            $where2     = "NOT EXISTS (SELECT 1 FROM pos_penjualan WHERE pos_penjualan.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan.penjualan_tanggal='$tanggal')";
+            $where3     = "NOT EXISTS (SELECT 1 FROM pos_penjualan_pooling WHERE pos_penjualan_pooling.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pos_penjualan_pooling.penjualan_tanggal='$tanggal')";
+
+            $wps = $this->db
+                ->from('pajak_wajibpajak')
+                ->where('wajibpajak_status', '2')
+                ->where($where1, NULL, FALSE)
+                ->where($where2, NULL, FALSE)
+                ->where($where3, NULL, FALSE)
+                ->get()
+                ->result();
+
+            $records = array();
+            foreach ($wps as $wp) {
+                $records[] = array(
+                    'pos_no_trx_id'             => gen_uuid($this->Journey->get_table()),
+                    'wajibpajak_id'             => $wp->wajibpajak_id,
+                    'pos_no_trx_tanggal'        => $tanggal,
+                    'pos_no_trx_created_at'     => $time,
+                    'pos_no_trx_updated_at'     => null
+                );
+            }
+
+            if (!empty($records)) {
+                $this->db->insert_batch('pos_no_trx', $records);
             }
 
             $datarow['success'] = true;
