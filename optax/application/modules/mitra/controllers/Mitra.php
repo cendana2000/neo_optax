@@ -46,7 +46,8 @@ class Mitra extends Base_Controller
             if ($id == "") {
                 $data = [
                     'gurl' => $google_client->createAuthUrl(),
-                    'jenis_pajak' => $jenis_pajak
+                    'jenis_pajak' => $jenis_pajak,
+                    'pemdas' => $this->db->get('conf_pemda')->result()
                 ];
                 $this->session->set_userdata(['gurl' => $data['gurl']]);
                 $this->load->view('mitra/login', $data);

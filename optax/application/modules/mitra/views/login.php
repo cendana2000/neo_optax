@@ -230,10 +230,29 @@ License: You must have a valid license purchased only from themeforest(the above
 										<p class="text-muted font-weight-bold font-size-h4">Lengkapi form berikut sebagai pengajuan pendaftaran akun</p>
 									</div>
 									<div class="row">
+										<div class="col-xl-12">
+											<div class="form-group">
+												<label class="font-size-h6 font-weight-bolder text-dark">Pemda</label>
+												<select class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" name="pemda_id">
+													<option value="">-- Pilih Pemerintah Daerah --</option>
+													<?php foreach ($pemdas as $row): ?>
+														<option value="<?= $row->pemda_id; ?>"><?= $row->pemda_nama; ?></option>
+													<?php endforeach; ?>
+												</select>
+											</div>
+										</div>
+										<div class="col-xl-12">
+											<div class="form-group">
+												<label class="font-size-h6 font-weight-bolder text-dark">NIK</label>
+												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nik" id="wajibpajak_nik" autocomplete="off" required/>
+											</div>
+										</div>
+									</div>
+									<div class="row">
 										<div class="col-xl-6">
 											<div class="form-group">
 												<label class="font-size-h6 font-weight-bolder text-dark">NPWPD</label>
-												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" />
+												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" required/>
 											</div>
 										</div>
 										<div class="col-xl-6">

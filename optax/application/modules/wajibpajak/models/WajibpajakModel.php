@@ -10,6 +10,7 @@ class WajibpajakModel extends Base_Model
 				'name' => 'pajak_wajibpajak',
 				'primary' => 'wajibpajak_id',
 				'fields' => array(
+					array('name' => 'pemda_id'),
 					array('name' => 'wajibpajak_id'),
 					array('name' => 'wajibpajak_npwpd'),
 					array('name' => 'wajibpajak_nama_penanggungjawab'),
@@ -34,6 +35,10 @@ class WajibpajakModel extends Base_Model
 					array('name' => 'wajibpajak_deleted_by'),
 					array('name' => 'wajibpajak_foto'),
 					array('name' => 'wajibpajak_coord'),
+					array('name' => 'kabkota_id'),
+					array('name' => 'kecamatan_id'),
+					array('name' => 'kelurahan_id'),
+					array('name' => 'wajibpajak_nik'),
 					array('name' => 'jenis_nama', 'view' => true),
 					array('name' => 'toko_kode', 'view' => true)
 				)
@@ -44,6 +49,7 @@ class WajibpajakModel extends Base_Model
 					'table' => [
 						'wajibpajak_id',
 						'wajibpajak_npwpd',
+						'wajibpajak_nik',
 						'toko_kode',
 						'wajibpajak_nama',
 						'jenis_nama',

@@ -135,6 +135,7 @@ class Login extends BASE_Controller
                         'user_login_datetime_login' => date('Y-m-d H:i:s'),
                         'user_login_datetime_logout' => null,
                         'user_login_app' => 'WP',
+                        'pemda_id' => $data['pemda_id']
                     ]);
                     $this->session->set_userdata('fcmtoken', $data['token']);
                 }

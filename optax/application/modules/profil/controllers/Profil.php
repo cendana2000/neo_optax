@@ -7,7 +7,9 @@ class Profil extends Base_Controller
   {
     parent::__construct();
     $this->load->model(array(
-      'wajibpajak/WajibpajakModel' => 'wajibpajak'
+      'wajibpajak/WajibpajakModel' => 'wajibpajak',
+      'kecamatan/KecamatanModel' => 'kecamatan',
+      'kelurahan/KelurahanModel' => 'kelurahan',
     ));
   }
 
@@ -55,20 +57,58 @@ class Profil extends Base_Controller
       }
     } else {
       $data = varPost();
+      $data['wajibpajak_coord'] = "({$data['wajibpajak_coord']})";
       $operation = $this->wajibpajak->update($data['wajibpajak_id'], $data);
     }
     log_activity('Ubah profil wajibpajak');
     $this->response($operation);
   }
 
-  public function removeImage(){
+  public function removeImage()
+  {
     $data = varPost();
-    
+
     $wp = $this->wajibpajak->read($data['id']);
     unlink(FCPATH . $wp['wajibpajak_berkas']);
     $wpupdate = $this->wajibpajak->update($data['id'], [
       'wajibpajak_berkas' => null
     ]);
     return $this->response($wpupdate);
+  }
+
+  public function kecamatan()
+  {
+    $filters = [
+      'filters_static'    => array()
+    ];
+
+    if ($pemda_id = $this->session->userdata('pemda_id')) {
+      $pemda = $this->db->get_where('conf_pemda', ['pemda_id' => $pemda_id])->row();
+      if ($pemda) {
+        $filters['filters_static']['provinsi_id']   = $pemda->provinsi_id;
+        $filters['filters_static']['kabkota_id']    = $pemda->kabkota_id;
+      }
+    }
+
+    $this->response($this->kecamatan->select($filters));
+  }
+
+  public function kelurahan()
+  {
+    $filters = [
+      'filters_static'    => array(
+        'kecamatan_id'  => varPost('kecamatan_id', null)
+      )
+    ];
+
+    if ($pemda_id = $this->session->userdata('pemda_id')) {
+      $pemda = $this->db->get_where('conf_pemda', ['pemda_id' => $pemda_id])->row();
+      if ($pemda) {
+        $filters['filters_static']['provinsi_id']   = $pemda->provinsi_id;
+        $filters['filters_static']['kabkota_id']    = $pemda->kabkota_id;
+      }
+    }
+
+    $this->response($this->kelurahan->select($filters));
   }
 }

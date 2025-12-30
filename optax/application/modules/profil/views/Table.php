@@ -84,16 +84,45 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-xl-3 col-lg-3 col-form-label">Kode Usaha</label>
+                        <div class="col-lg-9">
+                            <input id="toko_kode" name="toko_kode" type="text" class="is_edit form-control form-control-lg form-control-solid" readonly="true">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-xl-3"></label>
+                        <div class="col-lg-9">
+                            <h5 class="font-weight-bold mt-10 mb-6">Lokasi Wajib Pajak</h5>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-xl-3 col-lg-3 col-form-label">Kecamatan</label>
+                        <div class="col-lg-9">
+                            <select disabled class="form-control" name="kecamatan_id" id="kecamatan_id"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-xl-3 col-lg-3 col-form-label">Kelurahan</label>
+                        <div class="col-lg-9">
+                            <select disabled class="form-control" name="kelurahan_id" id="kelurahan_id">
+                                <option value="">-Pilih-</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-xl-3 col-lg-3 col-form-label">Alamat Wajib Pajak</label>
                         <div class="col-lg-9">
                             <input id="wajibpajak_alamat" name="wajibpajak_alamat" type="text" class="is_edit form-control form-control-lg form-control-solid" readonly="true">
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-xl-3 col-lg-3 col-form-label">Kode Usaha</label>
+                    <div class="form-group row mb-3">
+                        <label class="col-xl-3 col-lg-3 col-form-label">Posisi</label>
                         <div class="col-lg-9">
-                            <input id="toko_kode" name="toko_kode" type="text" class="is_edit form-control form-control-lg form-control-solid" readonly="true">
+                            <input id="wajibpajak_coord" name="wajibpajak_coord" type="text" class="is_edit form-control form-control-lg form-control-solid" readonly="true">
                         </div>
+                    </div>
+                    <div class="form-group row">
+                        <div id="map"></div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-12 order-lg-2 order-1">
@@ -120,5 +149,13 @@
     </form>
     <!--end::Form-->
 </div>
+
+<style>
+    #map {
+        height: 512px;
+        width: 100%;
+        border-radius: 8px;
+    }
+</style>
 
 <?php load_view('Javascript') ?>

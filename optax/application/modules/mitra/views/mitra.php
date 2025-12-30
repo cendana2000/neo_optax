@@ -38,6 +38,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<link href="assets/css/themes/layout/brand/dark.css?v=1.0.15" rel="stylesheet" type="text/css" />
 	<link href="assets/css/themes/layout/aside/dark.css?v=1.0.15" rel="stylesheet" type="text/css" />
 	<link href="assets/plugins/custom/jstree/jstree.bundle.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@2.0.0-alpha.1/dist/leaflet.css" crossorigin="" />
 	<!--end::Layout Themes-->
 	<link href="assets/css/custom_wp.css?v=1.1" rel="stylesheet" type="text/css" />
 	<style>
@@ -626,6 +627,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script type="text/javascript" src="assets/plugins/custom/inputmask/jquery.inputmask.min.js"></script>
 	<script type="text/javascript" src="assets/plugins/custom/datatables/datatables.bundle.js"></script>
 	<script type="text/javascript" src="assets/plugins/custom/clock/jquery-clock-timepicker.min.js"></script>
+	<script src="https://unpkg.com/leaflet@2.0.0-alpha.1/dist/leaflet-global.js"></script>
 	<script type="text/javascript" src="assets/helper/fnReloadAjax.js"></script>
 	<!-- <script src="<?php echo $this->config->item('base_theme') ?>plugins/jquery.number.min.js" type="text/javascript"></script> -->
 	<script type="text/javascript" src="assets/plugins/custom/jqueryNumber/jquery.number.min.js"></script>

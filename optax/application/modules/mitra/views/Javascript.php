@@ -22,6 +22,8 @@
         // }
 
         HELPER.fields = [
+            'pemda_id',
+            'wajibpajak_nik',
             'wajibpajak_npwpd',
             'wajibpajak_sektor_nama',
             'jenis_kode',
@@ -32,7 +34,11 @@
             'wajibpajak_email',
             'wajibpajak_password',
         ];
+
         HELPER.setRequired([
+            'pemda_id',
+            'wajibpajak_nik',
+            'wajibpajak_pemda_id',
             'wajibpajak_npwpd',
             'wajibpajak_sektor_nama',
             'wajibpajak_nama',

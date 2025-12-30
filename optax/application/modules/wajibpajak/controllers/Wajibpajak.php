@@ -43,7 +43,13 @@ class Wajibpajak extends Base_Controller
         $jenis_kode = $data['wajibpajak_sektor_nama'];
         $wp_sektor_nama = $data['wajibpajak_sektor_nama'];
         // print_r('<pre>');print_r($data);print_r('</pre>');exit;
-        if (empty($data['wajibpajak_npwpd'])) {
+        if (empty($data['pemda_id'])) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Pemda harus diisi',
+            ]);
+            return;
+        } else if (empty($data['wajibpajak_npwpd'])) {
             echo json_encode([
                 'success' => false,
                 'message' => 'NPWPD harus diisi',
@@ -130,6 +136,7 @@ class Wajibpajak extends Base_Controller
                     $data['wajibpajak_password_argon2id'] = genPasswordArgon2id($password);
                     $data['wajibpajak_created_at'] = date("Y-m-d H:i:s");
                     $data['wajibpajak_updated_at'] = date("Y-m-d H:i:s");
+                    $data['kabkota_id']            = $this->db->get_where('conf_pemda', ['pemda_id' => $data['pemda_id']])->row()->kabkota_id ?? null;
                     $operation = $this->WajibpajakNoView->insert(gen_uuid($this->Wajibpajak->get_table()), $data);
                     if ($operation['success']) {
                         $dataSendEmail = [

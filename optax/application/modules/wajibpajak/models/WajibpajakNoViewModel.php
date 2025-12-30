@@ -34,6 +34,9 @@ class WajibpajakNoViewModel extends Base_Model
 					array('name' => 'wajibpajak_deleted_by'),
 					array('name' => 'wajibpajak_foto'),
 					array('name' => 'wajibpajak_password_argon2id'),
+					array('name' => 'pemda_id'),
+					array('name' => 'kabkota_id'),
+					array('name' => 'wajibpajak_nik'),
 				)
 			)
 		);
