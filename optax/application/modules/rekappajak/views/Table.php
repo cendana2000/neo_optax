@@ -94,58 +94,7 @@
         </div>
     </div>
 </div>
-<!-- Modal Filter Tanggal -->
-<div class="modal fade" id="modalPeriode" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="la la-calendar mr-2 text-primary"></i> Periode
-                </h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <!-- LEFT : QUICK RANGE -->
-                    <div class="col-md-4 border-right">
-                        <h6 class="mb-3 font-weight-bold">Range</h6>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item list-range" data-range="today">Today</li>
-                            <li class="list-group-item list-range" data-range="yesterday">Yesterday</li>
-                            <li class="list-group-item list-range" data-range="7">Last 7 days</li>
-                            <li class="list-group-item list-range" data-range="30">Last 30 days</li>
-                            <li class="list-group-item list-range" data-range="90">Last 90 days</li>
-                            <li class="list-group-item list-range" data-range="365">Last 365 days</li>
-                        </ul>
-                    </div>
-                    <!-- RIGHT -->
-                    <div class="col-md-8">
-                        <h6 class="mb-3 font-weight-bold">Custom Range</h6>
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" id="customRange"
-                                placeholder="Pilih range tanggal">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <i class="la la-calendar"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <small class="text-muted d-block mt-2">
-                            Gunakan custom range untuk memilih tanggal tertentu
-                        </small>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-light btn-sm" data-dismiss="modal">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <!-- Modal PDF -->
 <div class="row mt-3 report_data_pdf" style="display: none;">
     <div class="col-12">

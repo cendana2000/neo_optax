@@ -10,6 +10,7 @@ class RekappajakparentModel extends Base_Model
                 'name' => 'v_rekap_pajak',
                 'primary' => 'npwpd',
                 'fields' => array(
+                    array('name' => 'id_wp', 'view' => true),
                     array('name' => 'npwpd', 'view' => true),
                     array('name' => 'nama_wp', 'view' => true),
                     array('name' => 'jenis_nama', 'view' => true),
@@ -25,6 +26,7 @@ class RekappajakparentModel extends Base_Model
                 'name' => 'v_rekap_pajak',
                 'mode' => array(
                     'table' => array(
+                        'id_wp',
                         'npwpd',
                         'nama_wp',
                         'jenis_nama',

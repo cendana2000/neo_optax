@@ -67,7 +67,7 @@
 					<thead>
 						<tr>
 							<th style="width:5%;">No.</th>
-							<th>Nama WP</th>
+							<th>Objek Pajak</th>
 							<th>Tanggal Penjualan</th>
 							<th>Waktu</th>
 							<th>Nominal Penjualan</th>

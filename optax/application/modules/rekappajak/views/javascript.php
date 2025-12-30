@@ -1,5 +1,7 @@
 <script type="text/javascript">
 	var gNPWPD = '';
+	var selectedStart = null;
+	var selectedEnd = null;
 
 	$(function() {
 		HELPER.fields = [
@@ -21,10 +23,9 @@
 			wp_header: BASE_URL + 'rekappajak/wp_header',
 			readWp: BASE_URL + 'rekappajak/readWp',
 			kecamatan: BASE_URL + 'rekappajak/get_kecamatan',
+			loadDataPos: BASE_URL + 'rekappajak/loadDataPos',
+			detailTransaksi: BASE_URL + 'rekappajak/detailTransaksi',
 		}
-
-		var selectedStart = null;
-		var selectedEnd = null;
 
 		$(document).on('click', '.list-range', function() {
 			var type = $(this).data('range');
@@ -40,14 +41,11 @@
 				start = moment().subtract(type - 1, 'days');
 				end = moment();
 			}
-
 			setPeriode(start, end);
-			$('#modalPeriode').modal('hide');
 		});
 
 		$('#customRange').daterangepicker({
 			autoUpdateInput: false,
-			parentEl: '#modalPeriode',
 			opens: 'right',
 			showDropdowns: true,
 			linkedCalendars: false,
@@ -67,12 +65,23 @@
 				alert('Silakan pilih periode terlebih dahulu');
 				return;
 			}
-
-			$('#customRange').blur();
-			setTimeout(function() {
-				$('#modalPeriode').modal('hide');
-			}, 100);
+			const $btn = $(this);
+			$btn.prop('disabled', true);
+			$btn.html('<span class="spinner-border spinner-border-sm mr-1"></span> Memproses...');
+			const modalEl = document.getElementById('modalPeriode');
+			const modal = bootstrap.Modal.getInstance(modalEl);
+			if (modal) modal.hide();
+			loadRinciRekap(
+				window.current_wp_id,
+				window.current_sumber_data,
+				$('#periode').val()
+			);
+			setTimeout(() => {
+				$btn.prop('disabled', false);
+				$btn.html('<i class="la la-check mr-1"></i> Apply');
+			}, 600);
 		});
+
 
 		$(".monthpicker").datepicker({
 			format: "yyyy-mm",
@@ -96,22 +105,11 @@
 		selectedEnd = end.clone();
 
 		var label = start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
+		var value = start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD');
 
-		$('#periode').val(label);
+		$('#periode').val(value);
 		$('#label-periode').text(label);
 		$('#customRange').val(label);
-	}
-
-	function wp_header() {
-		$.get(HELPER.api.wp_header, function(res) {
-			$('#wp_terdaftar').text(res.wp_terdaftar);
-			$('#wp_terkoneksi').text(res.wp_terkoneksi);
-		});
-	}
-
-	function filterSubBulan() {
-		let filterBulan = $('#sub_bulan').val();
-		loadSubTable(gNPWPD, filterBulan);
 	}
 
 	function filterRekap() {
@@ -196,217 +194,163 @@
 					orderable: false,
 					visible: true,
 					render: function(data, type, full, meta) {
-						return `<button onclick="onDetail('${full['npwpd']}')" class="btn btn-sm btn-success btn-icon"><i class="fa fa-info-circle"></i></button>`;
+						return `<button onclick="onDetail('${full['id_wp']}', '${full['sumber_data']}')" class="btn btn-sm btn-success btn-icon"><i class="fa fa-info-circle"></i></button>`;
 					},
 				},
 			],
 		});
 	}
 
-	$('.dataTables_filter input').on('keydown', function(e) {
-		if (e.keyCode === 13) { // 13 is the key code for "Enter"
-			e.preventDefault(); // Prevent the default behavior (auto search)
-			dataTable.search($(this).val()).draw(); // Manually trigger search
+	function onDetail(id_wp, sumber_data) {
+		HELPER.block();
+		var filterBulan = $('#periode').val();
+		if (!filterBulan) {
+			const today = moment();
+			setPeriode(today, today);
+			filterBulan = $('#periode').val();
 		}
-	});
-
-	function onDetail(realisasi_npwpd) {
-		let realisasiBulan = $('#bulan').val();
-		$('#sub_bulan').val(realisasiBulan);
-
-		gNPWPD = realisasi_npwpd;
 		$.post(HELPER.api.readWp, {
-			wp_npwpd: realisasi_npwpd
+			wajibpajak_id: id_wp
 		}, function(res) {
-			$('#sub_wajibpajak_npwpd').val(res.wajibpajak_npwpd);
-			$('#sub_wajibpajak_nama').val(res.wajibpajak_nama);
-			$('#sub_wajibpajak_alamat').val(res.wajibpajak_alamat);
-			$('#sub_wajibpajak_nama_penanggungjawab').val(res.wajibpajak_nama_penanggungjawab);
+			$('#sub_wajibpajak_npwpd').text(res.wajibpajak_npwpd);
+			$('#sub_wajibpajak_nama').text(res.wajibpajak_nama);
+			$('#sub_wajibpajak_alamat').text(res.wajibpajak_alamat);
+			$('#sub_wajibpajak_nama_penanggungjawab').text(res.wajibpajak_nama_penanggungjawab);
 
-			loadSubTable(realisasi_npwpd, realisasiBulan);
+			loadRinciRekap(id_wp, sumber_data, filterBulan);
 			onAdd();
 		});
 	}
 
+	function loadRinciRekap(id_wp, sumber_data, filterBulan) {
+		HELPER.unblock();
 
-	function loadSubTable(realisasi_npwpd, filterBulan = null) {
+		window.current_wp_id = id_wp;
+		window.current_sumber_data = sumber_data;
 		let data = {
-			'realisasi_npwpd': realisasi_npwpd,
-			'filterBulan': null
+			'wajibpajak_id': id_wp,
+			'sumber_data': sumber_data,
+			'periode': filterBulan
 		};
-		if (filterBulan != null) {
-			data.filterBulan = filterBulan;
-		}
-
 		HELPER.initTable({
-			el: "table-sub-realisasi",
-			url: HELPER.api.subTable,
+			el: "table-rincirekappajak",
+			url: HELPER.api.loadDataPos,
 			data: data,
 			searchAble: true,
 			destroyAble: true,
 			responsive: false,
-			// sorting: 'desc',
 			order: [
-				[1, 'desc']
+				[2, 'desc']
 			],
 			columnDefs: [{
 					targets: 1,
 					render: function(data, type, full, meta) {
-						return full['realisasi_tanggal'];
+						var {
+							wajibpajak
+						} = meta.settings.json;
+						return wajibpajak.toko_nama;
 					},
 				},
 				{
 					targets: 2,
 					render: function(data, type, full, meta) {
-						return full['realisasi_wajibpajak_npwpd'];
+						return moment(full['trx_tgl']).format('DD-MM-YYYY');
 					},
-					searchable: true,
 				},
 				{
 					targets: 3,
 					render: function(data, type, full, meta) {
-						return full['wajibpajak_nama'];
+						var timestamp = full['trx_time'].substring(20, 11);
+						return timestamp;
 					},
 				},
 				{
 					targets: 4,
 					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_sub_total']);
+						return 'Rp. ' + $.number(full['trx_total']);
 					},
 				},
 				{
 					targets: 5,
 					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_jasa']);
+						return full['trx_kode'];
 					},
 				},
 				{
 					targets: 6,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_pajak']);
-					},
-				},
-				{
-					targets: 7,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_total_pajak']);
-					},
+					render: function(data, type, full) {
+						const map = {
+							aktif: '<span class="label label-inline label-success mr-2">Aktif</span>',
+							batal: '<span class="label label-inline label-warning mr-2">Batal</span>',
+							posting: '<span class="label label-inline label-info mr-2">Sudah Lapor Pajak</span>',
+							retur: '<span class="label label-inline label-danger mr-2">Retur</span>'
+						};
+
+						let html = '';
+						(full.trx_status || []).forEach(s => {
+							html += map[s] || '';
+						});
+
+						return html;
+					}
 				},
 				{
 					targets: -1,
 					render: function(data, type, full, meta) {
-						return `<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['realisasi_id']}')">
+						return `
+								<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['penjualan_id']}', '${full['wajibpajak_id']}')">
 									<span>
 										<i class="fas fa-file-invoice"></i>										
 									</span>
-								</button>`;
+								</button>
+						`;
 					},
 				},
-
 			],
 			fnDrawCallback: function(settings) {
 				var {
 					sumtotal: {
-						total_jasa = 0,
-						total_pajak = 0,
-						total_subtotal = 0,
-						total_total = 0
+						total_nominal_penjualan = 0,
 					}
 				} = settings.json;
 
-				$('#subrealisasi_total_omzet').text(`Rp. ${$.number(total_subtotal)}`);
-				$('#subrealisasi_total_jasa').text(`Rp. ${$.number(total_jasa)}`);
-				$('#subrealisasi_total_pajak').text(`Rp. ${$.number(total_pajak)}`);
-				$('#subrealisasi_total_total').text(`Rp. ${$.number(total_total)}`);
+				$('#transaksiwp_total_nominal_penjualan').text(`Rp. ${$.number(total_nominal_penjualan)}`);
 			}
 		});
 	}
 
-	function subRinci(realisasi_id) {
-		$.post(HELPER.api.read, {
-			realisasi_id: realisasi_id
-		}, function(res) {
-			$('#rinci_realisasi_id').val(realisasi_id);
-			$('#rinci_wajibpajak_npwpd').val(res.realisasi_wajibpajak_npwpd);
-			$('#rinci_wajibpajak_nama').val(res.wajibpajak_nama);
-			$('#rinci_wajibpajak_alamat').val(res.wajibpajak_alamat);
-			$('#rinci_wajibpajak_nama_penanggungjawab').val(res.wajibpajak_nama_penanggungjawab);
-			$('#realisasi_tanggal').text(res.realisasi_tanggal);
-			$('#rinci_realisasi_tanggal').val(res.realisasi_tanggal);
+	$('.dataTables_filter input').on('keydown', function(e) {
+		if (e.keyCode === 13) {
+			e.preventDefault();
+			dataTable.search($(this).val()).draw();
+		}
+	});
 
-			realisasiDetail(realisasi_id);
-
-			HELPER.toggleForm({
-				tohide: 'form_data',
-				toshow: 'sub_rinci'
-			});
-		});
-	}
-
-
-	function realisasiDetail(realisasi_id) {
-		HELPER.initTable({
-			el: "table-realisasi-detail",
-			url: HELPER.api.detail,
+	function onDetailTransaksi(trx_id, wajibpajak_id) {
+		HELPER.ajax({
+			url: HELPER.api.detailTransaksi,
+			type: 'POST',
 			data: {
-				realisasi_id: realisasi_id
+				penjualan_id: trx_id,
+				wajibpajak_id: wajibpajak_id,
+				sumber_data: window.current_sumber_data
 			},
-			searchAble: true,
-			destroyAble: true,
-			responsive: false,
-			columnDefs: [{
-					targets: 1,
-					render: function(data, type, full, meta) {
-						return full['realisasi_detail_time']
-						// moment(full['realisasi_detail_time']).format('DD-MM-YYYY');
-					},
-				},
-				{
-					targets: 2,
-					render: function(data, type, full, meta) {
-						return full['realisasi_detail_penjualan_kode'];
-					},
-				},
-				{
-					targets: 3,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_detail_sub_total']);
-					},
-				},
-				{
-					targets: 4,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_detail_jasa']);
-					},
-				},
-				{
-					targets: 5,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_detail_pajak']);
-					},
-				},
-				{
-					targets: 6,
-					render: function(data, type, full, meta) {
-						return 'Rp.' + $.number(full['realisasi_detail_total_pajak']);
-					},
-				},
+			success: function(response) {
+				const wp = response.data.wp;
+				const trx = response.data.trx;
 
-			],
-			fnDrawCallback: function(settings) {
-				var {
-					sumtotal: {
-						total_jasa = 0,
-						total_pajak = 0,
-						total_subtotal = 0,
-						total_total = 0
-					}
-				} = settings.json;
+				$('#pengaturan_title').html(wp.wajibpajak_nama);
+				$('#alamat_wp').html(wp.wajibpajak_alamat);
 
-				$('#subrealisasi_detail_total_omzet').text(`Rp. ${$.number(total_subtotal)}`);
-				$('#subrealisasi_detail_total_jasa').text(`Rp. ${$.number(total_jasa)}`);
-				$('#subrealisasi_detail_total_pajak').text(`Rp. ${$.number(total_pajak)}`);
-				$('#subrealisasi_detail_total_total').text(`Rp. ${$.number(total_total)}`);
+				$('#kode_penjualan').html(trx.trx_kode);
+				$('#tanggal').html(moment(trx.trx_tgl).format('DD-MM-YYYY'));
+				$('#waktu').html(moment(trx.trx_time).format('HH:mm'));
+
+				$('#sub_total').number(trx.trx_subtotal);
+				$('#pajak').number(trx.trx_subtotal / 10);
+				$('#grand_total').number(trx.trx_total);
+
+				$('#modal-detail-transaksi').modal('show');
 			}
 		});
 	}
@@ -417,6 +361,7 @@
 	}
 
 	function onBack() {
+		onRefresh();
 		HELPER.backMenu();
 	}
 
@@ -465,22 +410,10 @@
 		}
 	}
 
-	function onRefresh(state = 1) {
-		if (state == 1) {
-			HELPER.refresh({
-				table: 'table-realisasi'
-			});
-		}
-
-		if (state == 2) {
-			loadSubTable(gNPWPD);
-		}
-
-		if (state == 3) {
-			realisasiDetail($('#rinci_realisasi_id').val());
-		}
-
-		$("#btnReset").trigger("click");
+	function onRefresh() {
+		HELPER.refresh({
+			table: 'table-rekappajak'
+		})
 	}
 
 	function getSpreadsheetRealisasi() {
@@ -625,155 +558,6 @@
 				HELPER.unblock();
 			}
 		})
-	}
-
-	function onEditSub(id) {
-		$('#modal-realisasi_id').val(id);
-		$('#modal-tanggal').val('');
-
-		HELPER.ajax({
-			url: BASE_URL + 'realisasipajak/read',
-			data: {
-				realisasi_id: id
-			},
-			success: function(res) {
-				$('#modal-tanggal').val(res.realisasi_tanggal);
-				$('#modal-wajibpajak_npwpd').val(res.realisasi_wajibpajak_npwpd);
-
-				$('#table-rekap-form tbody').html('');
-
-				console.log($('#table-rekap-form tbody').children().html());
-
-				if (res.detail.length == 0) {
-					$('#table-rekap-form tbody').append(`<tr class="d-flex d-md-table-row">
-						<td class="col-1 col-md-auto">1</td>
-						<td class="col-4 col-md-auto"><input type="time" class="form-control" name="time[]" required/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="receiptno[]" required/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="subtotal[]" required/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="service[]" required/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="tax[]" required/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="total[]" style="background-color: #eaeaea;" readonly/></td>
-						<td class="col-2 col-md-auto">
-							<button type="button" onclick="deleteRow(this)" class="btn btn-danger btn-icon mr-2"><i class="fa fa-trash"></i></button>
-						</td>
-					</tr>`);
-				}
-
-				$.each(res.detail, (i, v) => {
-					$('#table-rekap-form tbody').append(`<tr class="d-flex d-md-table-row">
-						<td class="col-1 col-md-auto">${i+=1}</td>
-						<td class="col-4 col-md-auto"><input type="time" class="form-control" name="time[]" required value="${v.realisasi_detail_time}"/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="receiptno[]" required value="${v.realisasi_detail_penjualan_kode}"/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="subtotal[]" required value="${$.number(v.realisasi_detail_sub_total)}"/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="service[]" required value="${$.number(v.realisasi_detail_jasa)}"/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="tax[]" required value="${$.number(v.realisasi_detail_pajak)}"/></td>
-						<td class="col-3 col-md-auto"><input type="text" class="form-control" name="total[]" style="background-color: #eaeaea;" readonly/></td>
-						<td class="col-2 col-md-auto">
-							<button type="button" onclick="deleteRow(this)" class="btn btn-danger btn-icon mr-2"><i class="fa fa-trash"></i></button>
-						</td>
-					</tr>`);
-				})
-
-				calcForm();
-
-				$.each(res.detail, (i, v) => {
-					$($('#table-rekap-form tbody').children('tr')[i]).find('input[name="subtotal[]"]').trigger('input');
-					$($('#table-rekap-form tbody').children('tr')[i]).find('input[name="service[]"]').trigger('input');
-					$($('#table-rekap-form tbody').children('tr')[i]).find('input[name="tax[]"]').trigger('input');
-				})
-
-				HELPER.toggleForm({
-					tohide: 'form_data',
-					toshow: 'form_data_edit'
-				});
-			},
-			complete: function(res) {
-
-			}
-		})
-	}
-
-	function editSubPeriode(el) {
-		HELPER.confirm({
-			title: 'Pemberitahuan',
-			message: 'Apakah anda ingin menyimpan perubahan?',
-			callback: function(res) {
-				if (res == true) {
-					HELPER.block()
-					try {
-						var formData = $('#form-edit-sub-periode').serializeArray();
-						HELPER.ajax({
-							url: BASE_URL + 'realisasipajak/edit_sub_periode',
-							// data: {
-							// 	realisasi_id: $('#modal-realisasi_id').val(),
-							// 	tanggal: $('#modal-ubah_tanggal').val(),
-							// },
-							data: formData,
-							complete: function(res) {
-								if (res.success) {
-									HELPER.showMessage({
-										success: true,
-										title: 'Success',
-										message: res.message
-									});
-									$('#modal-edit-sub-periode').modal('hide');
-									$('#modal-realisasi_id').val('');
-									HELPER.toggleForm({
-										tohide: 'form_data_edit',
-										toshow: 'form_data'
-									});
-									onRefresh(2);
-								} else {
-									HELPER.showMessage({
-										success: 'info',
-										title: 'Stop',
-										message: res.message
-									})
-								}
-								HELPER.unblock(100)
-							}
-						})
-					} catch (error) {
-						console.log(error)
-					}
-				}
-			}
-		});
-	}
-
-	function onDeleteSub(id) {
-		HELPER.confirm({
-			title: 'Pemberitahuan',
-			message: 'Apakah anda ingin menghapus periode ini?',
-			callback: function(res) {
-				if (res == true) {
-					HELPER.block()
-					HELPER.ajax({
-						url: BASE_URL + 'realisasipajak/delete_sub_periode',
-						data: {
-							realisasi_id: id
-						},
-						complete: function(res) {
-							if (res.success) {
-								HELPER.showMessage({
-									success: true,
-									title: 'Success',
-									message: res.message
-								});
-								onRefresh(2);
-							} else {
-								HELPER.showMessage({
-									success: 'info',
-									title: 'Stop',
-									message: res.message
-								})
-							}
-							HELPER.unblock(100)
-						}
-					})
-				}
-			}
-		});
 	}
 
 	function loadKecamatan() {

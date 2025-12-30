@@ -23,6 +23,7 @@ class RekappajakModel extends Base_Model
 					array('name' => 'realisasi_created_by'),
 					array('name' => 'realisasi_updated_at'),
 					array('name' => 'realisasi_updated_by'),
+					array('name' => 'realisasi_deleted_at'),
 					array('name' => 'wajibpajak_nama', 'view' => true),
 					array('name' => 'realisasi_total_pajak', 'view' => true),
 				)
@@ -31,21 +32,17 @@ class RekappajakModel extends Base_Model
 				'name' => 'v_realisasi_v2',
 				'mode' => array(
 					'table' => array(
-						'distinct(realisasi_id) as realisasi_id',
+						'realisasi_id',
 						'realisasi_no',
-						'realisasi_wajibpajak_id',
 						'realisasi_wajibpajak_npwpd',
 						'realisasi_tanggal',
 						'realisasi_sub_total',
 						'realisasi_jasa',
 						'realisasi_pajak',
 						'realisasi_total',
-						'realisasi_created_at',
-						'realisasi_created_by',
-						'realisasi_updated_at',
-						'realisasi_updated_by',
 						'wajibpajak_nama',
 						'realisasi_total_pajak',
+						'realisasi_deleted_at',
 					),
 					'datatable' => array(
 						'realisasi_id',
@@ -56,6 +53,7 @@ class RekappajakModel extends Base_Model
 						'realisasi_jasa',
 						'realisasi_pajak',
 						'realisasi_total_pajak',
+						'realisasi_deleted_at',
 					)
 				)
 			)
@@ -160,6 +158,82 @@ class RekappajakModel extends Base_Model
 			"sql" 	=> $sql,
 			"data" => $query->result_array()
 		);
+	}
+
+	function detailTransaksi($data)
+	{
+		$sumber_data = $data['sumber_data'];
+
+		$this->db->select('pw.wajibpajak_id, pw.wajibpajak_nama, pw.wajibpajak_alamat');
+		$this->db->from('pajak_wajibpajak pw');
+		$this->db->where('pw.wajibpajak_id', $data['wajibpajak_id']);
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pw.pemda_id', $pemda_id);
+		}
+
+		$data_wp = $this->db->get()->row_array();
+
+		if ($sumber_data === 'POS') {
+
+			$this->db->select('
+			pp.penjualan_id AS trx_id,
+			pp.penjualan_kode AS trx_kode,
+			pp.penjualan_tanggal AS trx_tgl,
+			pp.penjualan_created AS trx_time,
+			pp.penjualan_total_harga AS trx_subtotal,
+			pp.penjualan_total_grand AS trx_total
+		');
+			$this->db->from('pos_penjualan pp');
+			$this->db->where('pp.penjualan_id', $data['penjualan_id']);
+			$this->db->where('pp.penjualan_deleted_at IS NULL', null, false);
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where("
+				EXISTS(
+					SELECT 1 FROM pajak_wajibpajak pw
+					WHERE pw.wajibpajak_id = pp.wajibpajak_id
+					AND pw.pemda_id = {$pemda_id}
+				)
+			", null, false);
+			}
+
+			$trx = $this->db->get()->row_array();
+		} else {
+
+			$this->db->select('
+			pr.realisasi_id AS trx_id,
+			pr.realisasi_no AS trx_kode,
+			pr.realisasi_tanggal AS trx_tgl,
+			pr.realisasi_tanggal AS trx_time,
+			pr.realisasi_total AS trx_subtotal,
+			pr.realisasi_total AS trx_total
+		');
+			$this->db->from('pajak_realisasi pr');
+			$this->db->where('pr.realisasi_id', $data['penjualan_id']);
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where("
+				EXISTS(
+					SELECT 1 FROM pajak_wajibpajak pw
+					WHERE pw.wajibpajak_id = pr.realisasi_wajibpajak_id
+					AND pw.pemda_id = {$pemda_id}
+				)
+			", null, false);
+			}
+
+			$trx = $this->db->get()->row_array();
+		}
+
+		return [
+			'success' => true,
+			'message' => 'Berhasil menampilkan data',
+			'data' => [
+				'wp'  => $data_wp,
+				'trx' => $trx,
+				'sumber_data' => $sumber_data
+			]
+		];
 	}
 }
 

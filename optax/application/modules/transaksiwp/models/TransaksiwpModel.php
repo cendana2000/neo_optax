@@ -71,22 +71,19 @@ class TransaksiwpModel extends Base_Model
             $this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
         }
 
-        $this->db->select('*');
-        $this->db->from('pos_penjualan');
-        // $this->db->join('pajak_toko', 'pos_penjualan.penjualan_id = pajak_toko.toko_id', 'left');
-        $this->db->where('penjualan_id', $data['penjualan_id']);
-        $this->db->where('penjualan_lock', null);
-
+        $this->db->select('pp.penjualan_id, pp.penjualan_kode, pp.penjualan_tanggal, pp.penjualan_created, pp.penjualan_total_harga, pp.penjualan_total_grand');
+        $this->db->from('pos_penjualan pp');
+        $this->db->where('pp.penjualan_id', $data['penjualan_id']);
+        $this->db->where('pp.penjualan_lock', null);
         $data1   = $this->db->get()->result_array();
 
-        $this->db->select('*');
-        $this->db->from('pajak_wajibpajak');
-        $this->db->join('pajak_toko', 'pajak_wajibpajak.wajibpajak_id = pajak_toko.toko_wajibpajak_id', 'left');
-        $this->db->where('pajak_toko.toko_kode', str_replace("posprod_", "", $data['code_store']));
+        $this->db->select('pw.wajibpajak_id, pw.wajibpajak_nama, pw.wajibpajak_alamat');
+        $this->db->from('pajak_wajibpajak pw');
+        $this->db->join('pajak_toko pt', 'pw.wajibpajak_id = pt.toko_wajibpajak_id', 'left');
+        $this->db->where('pt.toko_kode', str_replace("posprod_", "", $data['code_store']));
         if ($pemda_id = $this->session->userdata('pemda_id')) {
-            $this->db->where('pajak_wajibpajak.pemda_id', $pemda_id);
+            $this->db->where('pw.pemda_id', $pemda_id);
         }
-
         $data_wp = $this->db->get()->result_array();
 
         return [
@@ -94,7 +91,7 @@ class TransaksiwpModel extends Base_Model
             'message' => 'Berhasil menampilkan data',
             'data'    => $data1,
             'data_wp' => $data_wp,
-            'sql'     => $this->db->last_query()
+            // 'sql'     => $this->db->last_query()
         ];
     }
 }

@@ -10,9 +10,11 @@ class Rekappajak extends Base_Controller
 		$this->load->model(array(
 			'rekappajak/rekappajakparentModel' 			=> 'rekapparent',
 			'rekappajak/rekappajakparentfilterModelV8' 	=> 'rekapparentfilter',
-			'rekappajak/rekappajakModel' 				=> 'realisasi',
-			'rekappajak/rekappajakdetailModel' 			=> 'realisasidetail',
+			'rekappajak/rekappajakModel' 				=> 'rekappajak',
+			'rekappajak/rekappajakdetailModel' 			=> 'rekappajakdetail',
 			'wajibpajak/WajibpajakModel' 				=> 'wajibpajak',
+			'transaksiwp/TransaksiwpPosModel' 			=> 'transaksiwppos',
+			'transaksiwp/TransaksiwpModel' 				=> 'transaksiwp',
 		));
 	}
 
@@ -66,8 +68,181 @@ class Rekappajak extends Base_Controller
 	public function readWp()
 	{
 		$data = varPost();
-		$ops = $this->wajibpajak->read(['wajibpajak_npwpd' => $data['wp_npwpd']]);
+		$ops = $this->wajibpajak->read(['wajibpajak_id' => $data['wajibpajak_id']]);
 		$this->response($ops);
+	}
+
+	public function loadDataPos()
+	{
+		$wajibpajak_id = varPost('wajibpajak_id');
+		$sumber_data   = varPost('sumber_data');
+		$periode       = varPost('periode');
+
+		$startdate = date('Y-m-d 00:00:00');
+		$enddate   = date('Y-m-d 23:59:59');
+
+		if ($periode) {
+			$periodearr = explode(' - ', $periode);
+			if (count($periodearr) === 2) {
+				$startdate = date('Y-m-d 00:00:00', strtotime($periodearr[0]));
+				$enddate   = date('Y-m-d 23:59:59', strtotime($periodearr[1]));
+			}
+		}
+
+		if ($sumber_data === 'POS') {
+			$where = [];
+			$where["penjualan_tanggal >= '{$startdate}' AND penjualan_tanggal <= '{$enddate}'"] = null;
+			$where['penjualan_deleted_at IS NULL'] = null;
+			$where['pos_penjualan.wajibpajak_id'] = $wajibpajak_id;
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where["EXISTS(
+					SELECT 1 
+					FROM pajak_wajibpajak 
+					WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id 
+					AND pemda_id = {$pemda_id}
+				)"] = null;
+			}
+			$opr = $this->select_dt(
+				varPost(),
+				'transaksiwppos',
+				'table',
+				false,
+				$where
+			);
+			foreach ($opr['aaData'] as &$row) {
+				$row['trx_id']    = $row['penjualan_id'];
+				$row['trx_kode']  = $row['penjualan_kode'];
+				$row['trx_tgl']   = $row['penjualan_tanggal'];
+				$row['trx_time']  = $row['penjualan_created'];
+				$row['trx_total'] = $row['penjualan_total_grand'];
+				$statuses = [];
+				if ($row['penjualan_status_aktif']) {
+					$statuses[] = 'batal';
+				} else {
+					$statuses[] = 'aktif';
+				}
+
+				if (!empty($row['penjualan_total_retur'])) {
+					$statuses[] = 'retur';
+				}
+
+				if ($row['penjualan_lock'] == '1') {
+					$statuses[] = 'posting';
+				}
+
+				$row['trx_status'] = $statuses;
+			}
+			$get_total = $this->db
+				->select("SUM(penjualan_total_grand) AS total_nominal_penjualan")
+				->where($where)
+				->get('pos_penjualan')
+				->row();
+			$opr['sumtotal'] = $get_total;
+		} elseif ($sumber_data === 'POS+UPLOAD' || $sumber_data === 'UPLOAD') {
+			$where = [];
+			$where["realisasi_tanggal >= '{$startdate}' AND realisasi_tanggal <= '{$enddate}'"] = null;
+			$where['realisasi_deleted_at IS NULL'] = null;
+			$where['realisasi_wajibpajak_id'] = $wajibpajak_id;
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where["EXISTS(
+					SELECT 1 
+					FROM pajak_wajibpajak 
+					WHERE pajak_wajibpajak.wajibpajak_id = pajak_wajibpajak.wajibpajak_id 
+					AND pemda_id = {$pemda_id}
+				)"] = null;
+			}
+			$opr = $this->select_dt(
+				varPost(),
+				'rekappajak',
+				'table',
+				false,
+				$where
+			);
+			foreach ($opr['aaData'] as &$row) {
+				$row['trx_id']    = $row['realisasi_id'];
+				$row['trx_kode']  = $row['realisasi_no'];
+				$row['trx_tgl']   = $row['realisasi_tanggal'];
+				$row['trx_time']  = $row['realisasi_tanggal'];
+				$row['trx_total'] = $row['realisasi_total'];
+				$statuses = [];
+				if (empty($row['realisasi_deleted_at'])) {
+					$statuses[] = 'aktif';
+				} else {
+					$statuses[] = 'batal';
+				}
+				$row['trx_status'] = $statuses;
+			}
+
+			$get_total = $this->db
+				->select("SUM(realisasi_total) AS total_nominal_penjualan")
+				->where($where)
+				->get('pajak_realisasi')
+				->row();
+			$opr['sumtotal'] = $get_total;
+		}
+
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$this->db->where('pemda_id', $pemda_id);
+		}
+		$wp = $this->db
+			->select('
+				wajibpajak_nama_penanggungjawab,
+				wajibpajak_npwpd,
+				toko_kode,
+				toko_nama
+			')
+			->get_where('v_pajak_toko', [
+				'wajibpajak_id' => $wajibpajak_id
+			])
+			->row();
+		$opr['wajibpajak'] = $wp;
+		$this->response(
+			$opr
+		);
+	}
+
+	function detailTransaksi()
+	{
+		$data = varPost();
+		if (empty($data['sumber_data'])) {
+			return $this->response([
+				'success' => false,
+				'message' => 'Sumber data tidak ditemukan'
+			]);
+		}
+		$ops = $this->rekappajak->detailTransaksi($data);
+		$this->response($ops);
+	}
+
+
+	public function sub_table()
+	{
+		$data = varPost();
+		$realisasi_npwpd = varpost('realisasi_npwpd');
+		$where['realisasi_deleted_at'] = null;
+		$where['realisasi_wajibpajak_npwpd'] = $realisasi_npwpd;
+
+		if ($data['filterBulan'] != null) {
+			$data = explode('-', $data['filterBulan']);
+
+			$where['EXTRACT(\'month\' from  realisasi_tanggal) = \'' . $data[1] . '\''] = null;
+			$where['EXTRACT(\'year\' from  realisasi_tanggal) = \'' . $data[0] . '\''] = null;
+		}
+		$opr = $this->select_dt(varPost(), 'realisasi', 'datatable', true, $where, null, null, " GROUP BY 1,2,3,4,5,6,7,8 ");
+		$get_total = $this->db->select("sum(realisasi_jasa) as total_jasa,
+		sum(realisasi_pajak) as total_pajak,
+		sum(realisasi_sub_total) as total_subtotal,
+		sum(realisasi_sub_total) + sum(realisasi_jasa) + sum(realisasi_pajak) as total_total,")
+			->where($where)
+			->get('pajak_realisasi')
+			->row();
+		$opr['sumtotal'] = $get_total;
+		// $opr['sql2'] = $this->db->last_query();
+		$this->response(
+			$opr
+		);
 	}
 
 	public function headerRealisasi($txt, $hal)

@@ -1,43 +1,69 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/custom_statusdevice.css'); ?>">
 <div class="row form_data" style="display: none;">
-	<div class="filter-card card card-premium mb-5">
+	<div class="card card-custom gutter-b mb-5">
 		<div class="card-body">
-			<h3 class="fw-bold mb-3 text-center">
-				<i class="fa-solid fa-chart-column"></i>Transaksi Objek Pajak
-			</h3>
-			<div class="row g-2">
-				<!-- TANGGAL -->
-				<div class="col-md-6">
-					<label class="form-label fw-semibold text-dark">Periode</label>
+			<div class="text-center mb-6">
+				<h3 class="font-weight-bolder mb-1">
+					<i class="fa fa-chart-column text-primary mr-2"></i>
+					Transaksi Objek Pajak
+				</h3>
+				<span class="text-muted">Rincian transaksi berdasarkan periode</span>
+				<div class="position-absolute" style="right:15px; top:10%;">
 					<button type="button"
-						class="btn btn-light-primary w-100 text-start periode-btn"
-						data-toggle="modal"
-						data-target="#modalPeriode">
-						<i class="la la-calendar mr-2"></i>
-						<span id="label-periode">Pilih Periode</span>
+						class="btn btn-sm btn-secondary"
+						onclick="onBack()">
+						<i class="fa fa-arrow-left mr-1"></i> Kembali
 					</button>
-					<input type="hidden" id="periode" name="periode">
 				</div>
-				<div class="col-md-6">
-					<label class="form-label fw-semibold text-dark">Jenis Pajak</label>
-					<select class="form-select" id="filter_jenis_pajak">
-						<option value="">-- Semua --</option>
-						<option value="Hotel">Hotel</option>
-						<option value="Restoran">Restoran</option>
-						<option value="Hiburan">Hiburan</option>
-						<option value="Parkir">Parkir</option>
-					</select>
+			</div>
+
+			<div class="row mt-5">
+				<div class="col-md-8">
+					<div class="row">
+						<div class="col-md-6 mb-4">
+							<div class="text-muted small">NPWPD</div>
+							<div class="font-weight-bolder" id="sub_wajibpajak_npwpd" name="sub_wajibpajak_npwpd">-</div>
+						</div>
+						<div class="col-md-6 mb-4">
+							<div class="text-muted small">Nama Perusahaan</div>
+							<div class="font-weight-bolder" id="sub_wajibpajak_nama" name="sub_wajibpajak_nama">-</div>
+						</div>
+						<div class="col-md-6 mb-4">
+							<div class="text-muted small">Alamat</div>
+							<div class="font-weight-bolder" id="sub_wajibpajak_alamat" name="sub_wajibpajak_alamat">-</div>
+						</div>
+						<div class="col-md-6 mb-4">
+							<div class="text-muted small">Penanggung Jawab</div>
+							<div class="font-weight-bolder" id="sub_wajibpajak_nama_penanggungjawab" name="sub_wajibpajak_nama_penanggungjawab">-</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="bg-light-success rounded p-4 h-100">
+						<div class="text-muted small mb-1">Periode Transaksi</div>
+						<button type="button"
+							class="btn btn-success btn-block text-left"
+							data-toggle="modal"
+							data-target="#modalPeriode">
+							<i class="la la-calendar mr-2"></i>
+							<span id="label-periode">Pilih Periode</span>
+						</button>
+						<input type="hidden" id="periode" name="periode">
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
 	<div class="col">
 		<div class="card card-custom">
 			<div class="card-header">
 				<div class="card-title">
-					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
-					</span>
+					<h5 class="card-label">
+						<i class="fas fa-table text-primary mr-2"></i>
+						Daftar Transaksi
+					</h5>
 				</div>
 				<div class="card-toolbar">
 					<div class="btn-group">
@@ -51,83 +77,140 @@
 								<li><a class="dropdown-item" href="javascript:getPdf()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
 							</ul>
 						</div>
-						<button type="reset" class="btn btn-sm btn-secondary" onclick="onBackCard(2)"><i class="fa fa-arrow-left"></i> Kembali</button>
 					</div>
 				</div>
 			</div>
 			<div class="card-body">
-				<div class="row">
-					<div class="col-12">
-						<div class="row">
-							<div class="col-xl-6">
-								<div class="form-group">
-									<label class="text-dark">NPWPD</label>
-									<input class="form-control" type="text" readonly name="sub_wajibpajak_npwpd" id="sub_wajibpajak_npwpd" autocomplete="off" style="background: ghostwhite;" />
-								</div>
-							</div>
-							<div class="col-xl-6">
-								<div class="form-group">
-									<label class="text-dark">Nama Perusahaan</label>
-									<input class="form-control" type="text" readonly name="sub_wajibpajak_nama" id="sub_wajibpajak_nama" autocomplete="off" readonly="" style="background: ghostwhite;" />
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-xl-6">
-								<div class="form-group">
-									<label class="text-dark">Alamat</label>
-									<input class="form-control" type="text" readonly name="sub_wajibpajak_alamat" id="sub_wajibpajak_alamat" autocomplete="off" readonly="" style="background: ghostwhite;" />
-								</div>
-							</div>
-							<div class="col-xl-6">
-								<div class="form-group">
-									<label class="text-dark">Nama Penangung Jawab</label>
-									<input class="form-control" type="text" readonly name="sub_wajibpajak_nama_penanggungjawab" id="sub_wajibpajak_nama_penanggungjawab" autocomplete="off" style="background: ghostwhite;" />
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
 				<div class="table-responsive">
-					<table class="table table-head-custom table-head-bg table-borderless table-vertical-center table-hover" id="table-sub-realisasi">
+					<table class="table table-head-custom table-head-bg table-borderless table-vertical-center table-hover" id="table-rincirekappajak">
 						<thead>
 							<tr>
 								<th style="width:5%;">No.</th>
-								<th>Tanggal</th>
-								<th>NPWP</th>
-								<th>Wajib Pajak</th>
-								<th>Omzet</th>
-								<th>Jasa</th>
-								<th>Pajak</th>
-								<th>Total</th>
-								<th>Detail</th>
+								<th>Objek Pajak</th>
+								<th>Tanggal Penjualan</th>
+								<th>Waktu</th>
+								<th>Nominal Penjualan</th>
+								<th>Kode Penjualan</th>
+								<th>Status</th>
+								<th>Action</th>
 							</tr>
 						</thead>
-						<tbody></tbody>
+						<tbody>
+						</tbody>
 						<tfoot>
-							<!-- <tr>
-								<th>No.</th>
-								<th>Tanggal</th>
-								<th>NPWP</th>
-								<th>Wajib Pajak</th>
-								<th>Omzet</th>
-								<th>Jasa</th>
-								<th>Pajak</th>
-								<th>Total</th>
-								<th>Detail</th>
-							</tr> -->
 							<tr>
 								<th class="table-primary" colspan="4">Total</th>
-								<th class="table-primary" id="subrealisasi_total_omzet">Rp.0</th>
-								<th class="table-primary" id="subrealisasi_total_jasa">Rp.0</th>
-								<th class="table-primary" id="subrealisasi_total_pajak">Rp.0</th>
-								<th class="table-primary" id="subrealisasi_total_total">Rp.0</th>
-								<th class="table-primary"></th>
+								<th class="table-primary" id="transaksiwp_total_nominal_penjualan">Rp. 0</th>
+								<th class="table-primary" colspan="3"></th>
 							</tr>
 						</tfoot>
 					</table>
 				</div>
 			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Filter Tanggal -->
+<div class="modal fade" id="modalPeriode" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h5 class="modal-title">
+					<i class="la la-calendar mr-2 text-primary"></i> Filter Periode
+				</h5>
+				<button type="button" class="close" data-dismiss="modal">
+					<span>&times;</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-4 border-right">
+						<h6 class="mb-3 font-weight-bold">Quick Range</h6>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item list-range" data-range="today">Today</li>
+							<li class="list-group-item list-range" data-range="yesterday">Yesterday</li>
+							<li class="list-group-item list-range" data-range="7">Last 7 days</li>
+							<li class="list-group-item list-range" data-range="30">Last 30 days</li>
+							<li class="list-group-item list-range" data-range="90">Last 90 days</li>
+							<li class="list-group-item list-range" data-range="365">Last 365 days</li>
+						</ul>
+					</div>
+
+					<div class="col-md-8">
+						<h6 class="mb-3 font-weight-bold">Custom Range</h6>
+						<input type="text" class="form-control" id="customRange" placeholder="Pilih range tanggal">
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn btn-sm btn-light" data-dismiss="modal">Batal</button>
+				<button class="btn btn-sm btn-success" id="btnApplyPeriode" type="button">
+					<i class="la la-check mr-1"></i> Apply
+				</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Struk -->
+<div class="modal fade" id="modal-detail-transaksi" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="pengaturan_title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-body" style="border-bottom: 2px dotted grey;">
+				<div class="container">
+					<h4 class="d-flex justify-content-center" style="padding-top: 10px;" id="pengaturan_title"></h4>
+					<p class="d-flex justify-content-center text-muted" style="padding-top: 5px; margin-bottom:0px;" id="alamat_wp"></p>
+				</div>
+			</div>
+			<form action="javascript:;" id="form-detail-transaksi">
+				<div class="modal-body">
+					<div class="container">
+						<table class="table table-borderless">
+							<tbody>
+								<tr>
+									<td style="max-width: 100px;">Kode Penjualan</td>
+									<td>:</td>
+									<td id="kode_penjualan"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Tanggal</td>
+									<td>:</td>
+									<td id="tanggal"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Waktu</td>
+									<td>:</td>
+									<td id="waktu"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Sub Total</td>
+									<td>:</td>
+									<td id="sub_total"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Pajak</td>
+									<td>:</td>
+									<td id="pajak"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Grand Total</td>
+									<td>:</td>
+									<td id="grand_total"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer border-0 pt-0 d-flex justify-content-end">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
