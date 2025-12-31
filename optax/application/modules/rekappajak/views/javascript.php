@@ -15,15 +15,10 @@
 		]);
 		HELPER.api = {
 			table: BASE_URL + 'rekappajak/',
-			subTable: BASE_URL + 'rekappajak/sub_table',
-			read: BASE_URL + 'rekappajak/read',
-			detail: BASE_URL + 'rekappajak/realisasi_detail',
-			update: BASE_URL + 'rekappajak/update',
-			destroy: BASE_URL + 'rekappajak/destroy',
 			wp_header: BASE_URL + 'rekappajak/wp_header',
 			readWp: BASE_URL + 'rekappajak/readWp',
 			kecamatan: BASE_URL + 'rekappajak/get_kecamatan',
-			loadDataPos: BASE_URL + 'rekappajak/loadDataPos',
+			loadData: BASE_URL + 'rekappajak/loadData',
 			detailTransaksi: BASE_URL + 'rekappajak/detailTransaksi',
 		}
 
@@ -234,7 +229,7 @@
 		};
 		HELPER.initTable({
 			el: "table-rincirekappajak",
-			url: HELPER.api.loadDataPos,
+			url: HELPER.api.loadData,
 			data: data,
 			searchAble: true,
 			destroyAble: true,
@@ -298,7 +293,7 @@
 					targets: -1,
 					render: function(data, type, full, meta) {
 						return `
-								<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['penjualan_id']}', '${full['wajibpajak_id']}')">
+								<button type="button" class="btn btn-secondary btn-sm btn-elevate" style="margin-right:10px;" id="btn-detail" onclick="onDetailTransaksi('${full['trx_id']}', '${full['wajibpajak_id']}')">
 									<span>
 										<i class="fas fa-file-invoice"></i>										
 									</span>
@@ -347,6 +342,10 @@
 				$('#waktu').html(moment(trx.trx_time).format('HH:mm'));
 
 				$('#sub_total').number(trx.trx_subtotal);
+				let jasa = parseFloat(trx.trx_jasa) || 0;
+				let diskon = parseFloat(trx.trx_diskon) || 0;
+				$('#service').number(jasa);
+				$('#diskon').number(diskon);
 				$('#pajak').number(trx.trx_subtotal / 10);
 				$('#grand_total').number(trx.trx_total);
 
@@ -416,84 +415,93 @@
 		})
 	}
 
-	function getSpreadsheetRealisasi() {
-		event.preventDefault();
+	function getExcelRekap() {
 		HELPER.block();
-		$.ajax({
-			url: BASE_URL + '/realisasipajak/spreadsheet_realisasi',
-			type: 'post',
-			data: {
-				filterBulan: $('#bulan').val()
-			},
-			dataType: 'JSON',
-			success: function(res) {
-				console.log(res);
-				if (res.success) {
-					let fileLocation = BASE_ASSETS + 'laporan/monitor_realisasi/' + res.file;
-					window.location.href = fileLocation;
-				}
-			},
-			complete: function(res) {
-				HELPER.unblock();
-			}
-		})
+
+		let form = $('<form>', {
+			action: BASE_URL + '/rekappajak/spreadsheet_rekap',
+			method: 'POST',
+			target: '_blank'
+		});
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'kecamatan',
+			value: $('#select_kecamatan').val()
+		}));
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'jenis_pajak',
+			value: $('#filter_jenis_pajak').val()
+		}));
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'jenis_device',
+			value: $('#filter_jenis_device').val()
+		}));
+
+		$('body').append(form);
+		form.submit();
+		form.remove();
+
+		setTimeout(() => {
+			HELPER.unblock();
+		}, 1000);
 	}
 
-	function getSpreadsheetSubRealisasi() {
-		event.preventDefault();
+	function getExcelRinciRekap() {
 		HELPER.block();
-		$.ajax({
-			url: BASE_URL + '/realisasipajak/spreadsheet_subrealisasi',
-			type: 'post',
-			data: {
-				realisasi_npwpd: $('#sub_wajibpajak_npwpd').val(),
-				filterBulan: $('#sub_bulan').val(),
-			},
-			dataType: 'JSON',
-			success: function(res) {
-				console.log(res);
-				if (res.success) {
-					let fileLocation = BASE_ASSETS + 'laporan/monitor_realisasi/' + res.file;
-					window.location.href = fileLocation;
-				}
-			},
-			complete: function(res) {
-				HELPER.unblock();
-			}
-		})
+
+		let form = $('<form>', {
+			action: BASE_URL + '/rekappajak/spreadsheet_rincirekap',
+			method: 'POST',
+			target: '_blank'
+		});
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'periode',
+			value: $('#periode').val()
+		}));
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'wajibpajak_id',
+			value: window.wajibpajak_id
+		}));
+
+		form.append($('<input>', {
+			type: 'hidden',
+			name: 'sumber_data',
+			value: window.sumber_data
+		}));
+
+		console.log('EXPORT', {
+			wajibpajak_id: window.wajibpajak_id,
+			sumber_data: window.current_sumber_data
+		});
+
+		$('body').append(form);
+		form.submit();
+		form.remove();
+
+		setTimeout(() => {
+			HELPER.unblock();
+		}, 1000);
 	}
 
-	function getSpreadsheetRinciRealisasi() {
-		event.preventDefault();
-		HELPER.block();
-		$.ajax({
-			url: BASE_URL + '/realisasipajak/spreadsheet_rincirealisasi',
-			type: 'post',
-			data: {
-				realisasi_id: $('#rinci_realisasi_id').val(),
-				wp_npwpd: $('#rinci_wajibpajak_npwpd').val(),
-				realisasi_tanggal: $('#rinci_realisasi_tanggal').val(),
-			},
-			dataType: 'JSON',
-			success: function(res) {
-				console.log(res);
-				if (res.success) {
-					let fileLocation = BASE_ASSETS + 'laporan/monitor_realisasi/' + res.file;
-					window.location.href = fileLocation;
-				}
-			},
-			complete: function(res) {
-				HELPER.unblock();
-			}
-		})
-	}
 
-	function getPdfRealisasi() {
+
+	function getPdfRekap() {
 		HELPER.block();
 		$.ajax({
-			url: BASE_URL + 'realisasipajak/pdf_realisasi',
+			url: BASE_URL + 'rekappajak/pdf_rekap',
 			data: {
-				filterBulan: $('#bulan').val()
+				kecamatan: $('#select_kecamatan').val(),
+				jenisPajak: $('#filter_jenis_pajak').val(),
+				jenisDevice: $('#filter_jenis_device').val(),
 			},
 			type: 'post',
 			dataType: 'json',
@@ -511,10 +519,10 @@
 		})
 	}
 
-	function getPdfSubRealisasi() {
+	function getPdfRinciRekap() {
 		HELPER.block();
 		$.ajax({
-			url: BASE_URL + 'realisasipajak/pdf_subrealisasi',
+			url: BASE_URL + 'rekappajak/pdf_rincirekap',
 			data: {
 				realisasi_npwpd: $('#sub_wajibpajak_npwpd').val(),
 				filterBulan: $('#sub_bulan').val(),
@@ -529,31 +537,6 @@
 				HELPER.toggleForm({
 					tohide: 'form_data',
 					toshow: 'subreport_data_pdf'
-				});
-				HELPER.unblock();
-			}
-		})
-	}
-
-	function getPdfRinciRealisasi() {
-		HELPER.block();
-		$.ajax({
-			url: BASE_URL + 'realisasipajak/pdf_rincirealisasi',
-			data: {
-				realisasi_id: $('#rinci_realisasi_id').val(),
-				wp_npwpd: $('#rinci_wajibpajak_npwpd').val(),
-				realisasi_tanggal: $('#rinci_realisasi_tanggal').val(),
-			},
-			type: 'post',
-			dataType: 'json',
-			success: function(res) {
-				let htmlobject = $('#rincipdf-laporan').html();
-				$("#rincipdf-laporan object").remove();
-				$("#rincipdf-laporan").append(htmlobject);
-				$("#rincipdf-laporan object").attr("data", res.record);
-				HELPER.toggleForm({
-					tohide: 'sub_rinci',
-					toshow: 'rincireport_data_pdf'
 				});
 				HELPER.unblock();
 			}

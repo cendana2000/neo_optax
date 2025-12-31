@@ -25,6 +25,7 @@ class RekappajakModel extends Base_Model
 					array('name' => 'realisasi_updated_by'),
 					array('name' => 'realisasi_deleted_at'),
 					array('name' => 'wajibpajak_nama', 'view' => true),
+					array('name' => 'wajibpajak_id', 'view' => true),
 					array('name' => 'realisasi_total_pajak', 'view' => true),
 				)
 			),
@@ -41,6 +42,7 @@ class RekappajakModel extends Base_Model
 						'realisasi_pajak',
 						'realisasi_total',
 						'wajibpajak_nama',
+						'wajibpajak_id',
 						'realisasi_total_pajak',
 						'realisasi_deleted_at',
 					),
@@ -49,6 +51,7 @@ class RekappajakModel extends Base_Model
 						'realisasi_tanggal',
 						'realisasi_wajibpajak_npwpd',
 						'wajibpajak_nama',
+						'wajibpajak_id',
 						'realisasi_sub_total',
 						'realisasi_jasa',
 						'realisasi_pajak',
@@ -177,13 +180,15 @@ class RekappajakModel extends Base_Model
 		if ($sumber_data === 'POS') {
 
 			$this->db->select('
-			pp.penjualan_id AS trx_id,
-			pp.penjualan_kode AS trx_kode,
-			pp.penjualan_tanggal AS trx_tgl,
-			pp.penjualan_created AS trx_time,
-			pp.penjualan_total_harga AS trx_subtotal,
-			pp.penjualan_total_grand AS trx_total
-		');
+				pp.penjualan_id AS trx_id,
+				pp.penjualan_kode AS trx_kode,
+				pp.penjualan_tanggal AS trx_tgl,
+				pp.penjualan_created AS trx_time,
+				pp.penjualan_total_harga AS trx_subtotal,
+				pp.penjualan_jasa AS trx_jasa,
+				pp.penjualan_total_potongan_persen AS trx_diskon,
+				pp.penjualan_total_grand AS trx_total
+			');
 			$this->db->from('pos_penjualan pp');
 			$this->db->where('pp.penjualan_id', $data['penjualan_id']);
 			$this->db->where('pp.penjualan_deleted_at IS NULL', null, false);
@@ -207,6 +212,8 @@ class RekappajakModel extends Base_Model
 			pr.realisasi_tanggal AS trx_tgl,
 			pr.realisasi_tanggal AS trx_time,
 			pr.realisasi_total AS trx_subtotal,
+			pr.realisasi_jasa AS trx_jasa,
+			pr.realisasi_diskon AS trx_diskon,
 			pr.realisasi_total AS trx_total
 		');
 			$this->db->from('pajak_realisasi pr');

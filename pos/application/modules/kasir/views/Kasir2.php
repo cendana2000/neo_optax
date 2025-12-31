@@ -829,7 +829,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class=" form-group row" style="display: none;">
+                                    <div class=" form-group row">
                                         <label for="discount" class="col-5 col-form-label" style="font-size: var(--label-checkout);">Diskon(%)</label>
                                         <div class="col-sm-7  float-left">
                                             <div class="input-group">

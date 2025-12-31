@@ -73,8 +73,8 @@
 								<i class="fas fa-file-export me-1"></i> Export
 							</button>
 							<ul class="dropdown-menu dropdown-menu-right">
-								<li><a class="dropdown-item" href="javascript:getExcel()"><i class="far fa-file-excel text-success me-2"></i> Excel</a></li>
-								<li><a class="dropdown-item" href="javascript:getPdf()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
+								<li><a class="dropdown-item" href="javascript:getExcelRinciRekap()"><i class="far fa-file-excel text-success me-2"></i> Excel</a></li>
+								<li><a class="dropdown-item" href="javascript:getPdfRinciRekap()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
 							</ul>
 						</div>
 					</div>
@@ -189,9 +189,19 @@
 									<td id="waktu"></td>
 								</tr>
 								<tr>
-									<td style="max-width: 100px;">Sub Total</td>
+									<td style="max-width: 100px;">Sub Total(DPP)</td>
 									<td>:</td>
 									<td id="sub_total"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Service Charge</td>
+									<td>:</td>
+									<td id="service"></td>
+								</tr>
+								<tr>
+									<td style="max-width: 100px;">Diskon</td>
+									<td>:</td>
+									<td id="diskon"></td>
 								</tr>
 								<tr>
 									<td style="max-width: 100px;">Pajak</td>
@@ -306,42 +316,6 @@
 				</div>
 			</form>
 
-		</div>
-	</div>
-</div>
-
-<div class="row mt-3 report_data_pdf" style="display: none;">
-	<div class="col-12">
-		<div class="card card-custom">
-			<div class="card-header">
-				<div class="card-title">
-					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
-					</span>
-					<h3 class="card-label"> HASIL LAPORAN REKAP PAJAK</h3>
-				</div>
-
-				<div class="card-toolbar">
-					<button type="button" class="btn btn-sm btn-secondary" onclick="onBackCard(1)"><i class="fa fa-arrow-left"></i> Kembali</button>
-				</div>
-			</div>
-			<div class="card-body table-responsive">
-				<div class="kt-portlet kt-portlet--mobile ">
-					<div class="kt-portlet__head">
-						<div class="kt-portlet__head-label">
-							<h3 class="kt-portlet__head-title">
-
-							</h3>
-						</div>
-					</div>
-					<div class="kt-form">
-						<div class="kt-portlet__body form" id="pdf-laporan">
-							<object data="" type="application/pdf" width="100%" height="500px"></object>
-						</div>
-					</div>
-				</div>
-				<div class="kt-portlet kt-portlet--mobile"></div>
-			</div>
 		</div>
 	</div>
 </div>

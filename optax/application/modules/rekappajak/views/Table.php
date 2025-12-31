@@ -54,8 +54,8 @@
                             <i class="fas fa-file-export me-1"></i> Export
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a class="dropdown-item" href="javascript:getExcel()"><i class="far fa-file-excel text-success me-2"></i> Excel</a></li>
-                            <li><a class="dropdown-item" href="javascript:getPdf()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
+                            <li><a class="dropdown-item" href="javascript:getExcelRekap()"><i class="far fa-file-excel text-success me-2"></i> Excel</a></li>
+                            <li><a class="dropdown-item" href="javascript:getPdfRekap()"><i class="far fa-file-pdf text-danger me-2"></i> PDF</a></li>
                         </ul>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                     <span class="card-icon">
                         <i class="fas fa-table text-primary"></i>
                     </span>
-                    <h3 class="card-label">DATA LAST ACTIVITY (POS MOBILE)</h3>
+                    <h3 class="card-label">DATA REKAP PAJAK</h3>
                 </div>
                 <div class="card-toolbar">
                     <button type="button" class="btn btn-sm btn-secondary" onclick="onBack()"><i class="fa fa-arrow-left"></i> Kembali</button>

@@ -31,11 +31,9 @@ class Rekappajak extends Base_Controller
 		if (!empty($post['kecamatan'])) {
 			$where['kecamatan_id'] = $post['kecamatan'];
 		}
-
 		if (!empty($post['jenis_pajak'])) {
 			$where['jenis_nama'] = $post['jenis_pajak'];
 		}
-
 		if (!empty($post['jenis_device'])) {
 			$where['jenis_device'] = $post['jenis_device'];
 		}
@@ -51,20 +49,6 @@ class Rekappajak extends Base_Controller
 		return $this->response($result);
 	}
 
-	function getSubRekap()
-	{
-		if (!empty($post['filterBulan'])) {
-			$periode = explode(' - ', $post['filterBulan']);
-			if (count($periode) === 2) {
-				$start = date('Y-m-d 00:00:00', strtotime(str_replace('/', '-', $periode[0])));
-				$end   = date('Y-m-d 23:59:59', strtotime(str_replace('/', '-', $periode[1])));
-
-				$where[] = ['field' => 'tanggal_last_transaksi', 'op' => '>=', 'value' => $start];
-				$where[] = ['field' => 'tanggal_last_transaksi', 'op' => '<=', 'value' => $end];
-			}
-		}
-	}
-
 	public function readWp()
 	{
 		$data = varPost();
@@ -72,7 +56,7 @@ class Rekappajak extends Base_Controller
 		$this->response($ops);
 	}
 
-	public function loadDataPos()
+	public function loadData()
 	{
 		$wajibpajak_id = varPost('wajibpajak_id');
 		$sumber_data   = varPost('sumber_data');
@@ -116,6 +100,8 @@ class Rekappajak extends Base_Controller
 				$row['trx_tgl']   = $row['penjualan_tanggal'];
 				$row['trx_time']  = $row['penjualan_created'];
 				$row['trx_total'] = $row['penjualan_total_grand'];
+				$row['trx_jasa'] = $row['penjualan_jasa'] * $row['penjualan_total_harga'];
+				$row['trx_diskon'] = $row['penjualan_total_potongan_persen'] * $row['penjualan_total_harga'];
 				$statuses = [];
 				if ($row['penjualan_status_aktif']) {
 					$statuses[] = 'batal';
@@ -166,6 +152,8 @@ class Rekappajak extends Base_Controller
 				$row['trx_tgl']   = $row['realisasi_tanggal'];
 				$row['trx_time']  = $row['realisasi_tanggal'];
 				$row['trx_total'] = $row['realisasi_total'];
+				$row['trx_jasa'] = $row['realisasi_jasa'] * $row['realisasi_sub_total'];
+				$row['trx_diskon'] = $row['realisasi_diskon'] * $row['realisasi_sub_total'];
 				$statuses = [];
 				if (empty($row['realisasi_deleted_at'])) {
 					$statuses[] = 'aktif';
@@ -216,33 +204,52 @@ class Rekappajak extends Base_Controller
 		$this->response($ops);
 	}
 
-
-	public function sub_table()
+	public function get_kecamatan()
 	{
-		$data = varPost();
-		$realisasi_npwpd = varpost('realisasi_npwpd');
-		$where['realisasi_deleted_at'] = null;
-		$where['realisasi_wajibpajak_npwpd'] = $realisasi_npwpd;
+		$loginAccess = $this->session->userdata('login_access');
+		$roleAccess  = $this->session->userdata('pegawai_role_access_id');
+		$pemdaId     = $this->session->userdata('pemda_id');
 
-		if ($data['filterBulan'] != null) {
-			$data = explode('-', $data['filterBulan']);
+		$this->db->select('
+			ck.kecamatan_id,
+			ck.kecamatan_nama
+		');
+		$this->db->from('conf_kecamatan ck');
+		$this->db->join('conf_pemda cp', 'cp.kabkota_id = ck.kabkota_id', 'left');
 
-			$where['EXTRACT(\'month\' from  realisasi_tanggal) = \'' . $data[1] . '\''] = null;
-			$where['EXTRACT(\'year\' from  realisasi_tanggal) = \'' . $data[0] . '\''] = null;
+		if ($roleAccess === '123') {
+
+			if (empty($pemdaId)) {
+				return $this->response([]);
+			}
+
+			$this->db->where('cp.pemda_id', (int) $pemdaId);
+		} else {
+			$this->db->where('cp.pemda_id', (int) $pemdaId);
 		}
-		$opr = $this->select_dt(varPost(), 'realisasi', 'datatable', true, $where, null, null, " GROUP BY 1,2,3,4,5,6,7,8 ");
-		$get_total = $this->db->select("sum(realisasi_jasa) as total_jasa,
-		sum(realisasi_pajak) as total_pajak,
-		sum(realisasi_sub_total) as total_subtotal,
-		sum(realisasi_sub_total) + sum(realisasi_jasa) + sum(realisasi_pajak) as total_total,")
-			->where($where)
-			->get('pajak_realisasi')
-			->row();
-		$opr['sumtotal'] = $get_total;
-		// $opr['sql2'] = $this->db->last_query();
-		$this->response(
-			$opr
-		);
+
+		$this->db->group_by(['ck.kecamatan_id', 'ck.kecamatan_nama']);
+		$this->db->order_by('ck.kecamatan_nama', 'ASC');
+
+		$result = $this->db->get()->result_array();
+		return $this->response($result);
+	}
+
+	public function get_pemda()
+	{
+		if ($this->session->userdata('login_access') != 'pemda') {
+			$where = [
+				'kabkota_id' => $this->session->userdata('kabkota_id')
+			];
+			return $this->response(
+				$this->select_dt(varPost(), 'pemda', 'table', true, $where)
+			);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'Mohon login menggunakan role selain pemda.'
+			]);
+		}
 	}
 
 	public function headerRealisasi($txt, $hal)
@@ -269,349 +276,264 @@ class Rekappajak extends Base_Controller
 			</tr>';
 	}
 
-	public function spreadsheet_realisasi()
+	public function spreadsheet_rekap()
 	{
-		$data = varPost();
-		if (empty($data['filterBulan'])) {
-			$masapajak = 'All';
-		} else {
-			$bulan = explode('-', $data['filterBulan']);
-			$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		}
+		$post  = varPost();
+		$where = [];
 		try {
+			$pemdaId = (int) $this->session->userdata('pemda_id');
+			if ($pemdaId > 0) {
+				$where['pemda_id'] = $pemdaId;
+			}
+
+			if (!empty($post['kecamatan'])) {
+				$where['kecamatan_id'] = $post['kecamatan'];
+			}
+
+			if (!empty($post['jenis_pajak'])) {
+				$where['jenis_nama'] = $post['jenis_pajak'];
+			}
+
+			if (!empty($post['jenis_device'])) {
+				$where['jenis_device'] = $post['jenis_device'];
+			}
+			$data = $this->db
+				->where($where)
+				->order_by('tanggal_last_transaksi', 'DESC')
+				->get('v_rekap_pajak')
+				->result_array();
+
 			$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$sheet = $spreadsheet->getActiveSheet();
 
-			// Set Header
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
+			$sheet->mergeCells('A1:G1');
+			$sheet->setCellValue('A1', 'REKAP WAJIB PAJAK');
+
+			$sheet->getStyle('A1')->applyFromArray([
+				'font' => ['bold' => true],
 				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
 				],
 				'fill' => [
 					'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-					'startColor' => [
-						'argb' => 'eaeaea',
-					],
-					'endColor' => [
-						'argb' => 'eaeaea',
-					],
-				],
-			];
-			$sheet->mergeCells('A1:H1');
-			$sheet->setCellValue('A1', 'REKAP PAJAK');
-			$sheet->getStyle('A1')->applyFromArray($styleArray);
+					'startColor' => ['argb' => 'EAEAEA']
+				]
+			]);
 
-			foreach (range('A', 'J') as $columnID) {
-				$sheet->getColumnDimension($columnID)
-					->setAutoSize(true);
+			foreach (range('A', 'G') as $col) {
+				$sheet->getColumnDimension($col)->setAutoSize(true);
 			}
 
-			$sheet->mergeCells('A3:C3');
-			$sheet->mergeCells('A4:C4');
-			$sheet->mergeCells('A5:C5');
-			$sheet->setCellValue('A3', 'Masa Pajak');
-			$sheet->setCellValue('A4', 'Jumlah WP Terdaftar');
+			$headerRow = 3;
+			$sheet->setCellValue("A{$headerRow}", 'No');
+			$sheet->setCellValue("B{$headerRow}", 'NPWPD');
+			$sheet->setCellValue("C{$headerRow}", 'Nama WP');
+			$sheet->setCellValue("D{$headerRow}", 'Jenis Pajak');
+			$sheet->setCellValue("E{$headerRow}", 'Kecamatan');
+			$sheet->setCellValue("F{$headerRow}", 'Transaksi Terakhir');
+			$sheet->setCellValue("G{$headerRow}", 'Jenis Device');
 
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
-				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
-				],
-			];
-
-			$wp_terdaftar = $this->db->query("select count(*) as wp_terdaftar from pajak_wajibpajak pw  where wajibpajak_status  = '2'")->row_array()['wp_terdaftar'];
-			$wp_terkoneksi = $this->db->query("select count(*) as wp_terkoneksi from pajak_toko where toko_status = '2'")->row_array()['wp_terkoneksi'];
-			$sheet->mergeCells('D3:I3');
-			$sheet->mergeCells('D4:I4');
-			$sheet->mergeCells('D5:I5');
-			$sheet->setCellValue('D3', $masapajak);
-			$sheet->setCellValue('D4', $wp_terdaftar);
-			$sheet->getStyle('D3:D5')->applyFromArray($styleArray);
-
-			// Set Table Header
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
-				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-				],
+			$sheet->getStyle("A{$headerRow}:G{$headerRow}")->applyFromArray([
+				'font' => ['bold' => true],
 				'borders' => [
 					'allBorders' => [
-						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-					],
+						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+					]
 				],
 				'fill' => [
 					'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-					'startColor' => [
-						'argb' => 'eaeaea',
-					],
-					'endColor' => [
-						'argb' => 'eaeaea',
-					],
-				],
-			];
-			$sheet->getStyle('A7:H7')->applyFromArray($styleArray);
-			$sheet->setCellValue('A7', 'No');
-			$sheet->setCellValue('B7', 'NPWPD');
-			$sheet->setCellValue('C7', 'Nama WP');
-			$sheet->setCellValue('D7', 'Transaksi Terakhir');
-			$sheet->setCellValue('E7', 'Omzet(Rp)');
-			$sheet->setCellValue('F7', 'Pajak(Rp)');
-			$sheet->setCellValue('G7', 'Tgl. Pemasangan');
-			$sheet->setCellValue('H7', 'Jenis Pajak');
+					'startColor' => ['argb' => 'EAEAEA']
+				]
+			]);
 
-			// Set Borders
-			$styleArray = [
+			$row = $headerRow;
+			foreach ($data as $i => $val) {
+				$row++;
+
+				$sheet->setCellValue("A{$row}", $i + 1);
+				$sheet->setCellValue("B{$row}", $val['npwpd'] ?? '-');
+				$sheet->setCellValue("C{$row}", $val['nama_wp'] ?? '-');
+				$sheet->setCellValue("D{$row}", $val['jenis_nama'] ?? '-');
+				$sheet->setCellValue("E{$row}", $val['kecamatan_nama'] ?? '-');
+				$sheet->setCellValue("F{$row}", $val['tanggal_last_transaksi'] ?? '-');
+				$sheet->setCellValue("G{$row}", $val['jenis_device'] ?? '-');
+			}
+
+			$sheet->getStyle("A{$headerRow}:G{$row}")->applyFromArray([
 				'borders' => [
 					'allBorders' => [
-						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-					],
-				],
-			];
+						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+					]
+				]
+			]);
+			$filename = 'Rekap Pajak - ' . $this->session->userdata("pegawai_nama") . ' - ' . date('Ymd-His') . '.xlsx';
 
-			if (empty($data['filterBulan'])) {
-				$where = [
-					'realisasi_parent_wajibpajak_status' => '2',
-				];
-				$ops = $this->realisasiparent->select([
-					'filters_static' => $where
-				])['data'];
-			} else {
-				$where = [
-					'realisasi_parent_wajibpajak_status' => '2',
-					'realisasi_parent_tanggal' => $data['filterBulan']
-				];
-				$ops = $this->realisasiparentfilter->select([
-					'filters_static' => $where
-				])['data'];
-			}
-			$no = 7;
-			foreach ($ops as $key => $value) {
-				foreach ($value as $vkey => $vvalue) {
-					if (is_null($vvalue)) {
-						$value[$vkey] = "-";
-					}
-				}
-				$no += 1;
-				$sheet->setCellValue('A' . $no, $key + 1);
-				$sheet->setCellValue('B' . $no, $value['realisasi_parent_npwpd']);
-				$sheet->setCellValue('C' . $no, $value['realisasi_parent_nama']);
-				$sheet->setCellValue('D' . $no, $value['realisasi_parent_transaksi_terakhir']);
-				$sheet->setCellValue('E' . $no, $value['realisasi_parent_sub_total']);
-				$sheet->setCellValue('F' . $no, $value['realisasi_parent_sub_total'] / 10);
-				$sheet->setCellValue('G' . $no, $value['realisasi_parent_tanggal_daftar']);
-				$sheet->setCellValue('H' . $no, $value['realisasi_parent_jenis_pajak']);
-			}
-			$sheet->getStyle('A7:H' . $no)->applyFromArray($styleArray);
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Cache-Control: max-age=0');
+			header('Pragma: public');
 
-			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-			// Save the new .xlsx file
-			$filename = 'rekappajak-' . date('d-m-y-H:i:s') . '.xlsx';
-			if (!file_exists(FCPATH . 'assets/laporan/monitor_realisasi/')) {
-				mkdir(FCPATH . 'assets/laporan/monitor_realisasi/', 0777, true);
-			}
-			$file = FCPATH . 'assets/laporan/monitor_realisasi/' . $filename;
-			$writer->save($file);
-
-			$this->response([
-				'success' => true,
-				'file' => $filename
-			]);
-		} catch (\Throwable $th) {
-			$this->response([
-				'success' => false,
-			]);
-		}
-	}
-
-	public function spreadsheet_subrealisasi()
-	{
-		$data = varPost();
-		$realisasi_npwpd = varPost('realisasi_npwpd');
-		$where['realisasi_deleted_at'] = null;
-		$where['realisasi_wajibpajak_npwpd'] = $realisasi_npwpd;
-
-		if ($data['filterBulan'] != null) {
-			$bulan = explode('-', $data['filterBulan']);
-
-			$where['EXTRACT(\'month\' from  realisasi_tanggal) = \'' . $bulan[1] . '\''] = null;
-			$where['EXTRACT(\'year\' from  realisasi_tanggal) = \'' . $bulan[0] . '\''] = null;
-		}
-
-		if (empty($data['filterBulan'])) {
-			$masapajak = 'All';
-		} else {
-			$bulan = explode('-', $data['filterBulan']);
-			$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		}
-
-		try {
-			$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-			$sheet = $spreadsheet->getActiveSheet();
-
-			// Set Header
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
-				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-				],
-				'fill' => [
-					'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-					'startColor' => [
-						'argb' => 'eaeaea',
-					],
-					'endColor' => [
-						'argb' => 'eaeaea',
-					],
-				],
-			];
-			$sheet->mergeCells('A1:H1');
-			$sheet->setCellValue('A1', 'SUB REKAP PAJAK');
-			$sheet->getStyle('A1')->applyFromArray($styleArray);
-
-			foreach (range('A', 'H') as $columnID) {
-				$sheet->getColumnDimension($columnID)
-					->setAutoSize(true);
-			}
-
-			$sheet->mergeCells('A3:C3');
-			$sheet->mergeCells('A4:C4');
-			$sheet->mergeCells('A5:C5');
-			$sheet->mergeCells('A6:C6');
-			$sheet->mergeCells('A7:C7');
-			$sheet->setCellValue('A3', 'Masa Pajak');
-			$sheet->setCellValue('A4', 'NPWPD');
-			$sheet->setCellValue('A5', 'ALAMAT');
-			$sheet->setCellValue('A6', 'Nama WP');
-			$sheet->setCellValue('A7', 'Nama Penanggung Jawab');
-
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
-				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
-				],
-			];
-
-			$wp = $this->wajibpajak->read(array('wajibpajak_npwpd' => $realisasi_npwpd));
-			$sheet->mergeCells('D3:H3');
-			$sheet->mergeCells('D4:H4');
-			$sheet->mergeCells('D5:H5');
-			$sheet->mergeCells('D6:H6');
-			$sheet->mergeCells('D7:H7');
-			$sheet->setCellValue('D3', $masapajak);
-			$sheet->setCellValue('D4', $wp['wajibpajak_npwpd']);
-			$sheet->setCellValue('D5', $wp['wajibpajak_alamat']);
-			$sheet->setCellValue('D6', $wp['wajibpajak_nama']);
-			$sheet->setCellValue('D7', $wp['wajibpajak_nama_penanggungjawab']);
-			$sheet->getStyle('D3:D7')->applyFromArray($styleArray);
-
-			// Set Table Header
-			$styleArray = [
-				'font' => [
-					'bold' => true,
-				],
-				'alignment' => [
-					'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-				],
-				'borders' => [
-					'allBorders' => [
-						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-					],
-				],
-				'fill' => [
-					'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-					'startColor' => [
-						'argb' => 'eaeaea',
-					],
-					'endColor' => [
-						'argb' => 'eaeaea',
-					],
-				],
-			];
-			$sheet->getStyle('A9:H9')->applyFromArray($styleArray);
-			$sheet->setCellValue('A9', 'No');
-			$sheet->setCellValue('B9', 'Tanggal');
-			$sheet->setCellValue('C9', 'Subtotal');
-			$sheet->setCellValue('D9', 'Service Charge');
-			$sheet->setCellValue('E9', 'Lain-Lain');
-			$sheet->setCellValue('F9', 'Diskon');
-			$sheet->setCellValue('G9', 'Pajak');
-			$sheet->setCellValue('H9', 'Total');
-
-			// Set Borders
-			$styleArray = [
-				'borders' => [
-					'allBorders' => [
-						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-					],
-				],
-			];
-
-			$ops = $this->realisasi->select([
-				'filters_static' => $where
-			])['data'];
-			$no = 9;
-			foreach ($ops as $key => $value) {
-				$no += 1;
-				$sheet->setCellValue('A' . $no, $key + 1);
-				$sheet->setCellValue('B' . $no, $value['realisasi_tanggal']);
-				$sheet->setCellValue('C' . $no, $value['realisasi_sub_total']);
-				$sheet->setCellValue('D' . $no, $value['realisasi_jasa']);
-				$sheet->setCellValue('E' . $no, '0');
-				$sheet->setCellValue('F' . $no, '0');
-				$sheet->setCellValue('G' . $no, $value['realisasi_pajak']);
-				$sheet->setCellValue('H' . $no, $value['realisasi_total']);
-			}
-			$sheet->getStyle('A9:H' . $no)->applyFromArray($styleArray);
-
-			// Write a new .xlsx file
-			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-			// Save the new .xlsx file
-			$filename = 'subrekappajak-' . date('d-m-y-H:i:s') . '.xlsx';
-			if (!file_exists(FCPATH . 'assets/laporan/monitor_realisasi/')) {
-				mkdir(FCPATH . 'assets/laporan/monitor_realisasi/', 0777, true);
-			}
-			$file = FCPATH . 'assets/laporan/monitor_realisasi/' . $filename;
-			$writer->save($file);
-
-			$this->response([
-				'success' => true,
-				'file' => $filename
-			]);
-		} catch (\Throwable $th) {
-			print_r('<pre>');
-			print_r($th);
-			print_r('</pre>');
+			$writer->save('php://output');
 			exit;
-			$this->response([
+		} catch (\Throwable $th) {
+			return $this->response([
 				'success' => false,
+				'message' => $th->getMessage()
 			]);
 		}
 	}
 
-	public function pdf_realisasi()
+
+	public function spreadsheet_rincirekap()
+	{
+		$wajibpajak_id = varPost('wajibpajak_id');
+		$sumber_data   = varPost('sumber_data');
+		$periode       = varPost('periode');
+
+		$startdate = date('Y-m-d 00:00:00');
+		$enddate   = date('Y-m-d 23:59:59');
+
+		if ($periode) {
+			$arr = explode(' - ', $periode);
+			if (count($arr) === 2) {
+				$startdate = date('Y-m-d 00:00:00', strtotime($arr[0]));
+				$enddate   = date('Y-m-d 23:59:59', strtotime($arr[1]));
+			}
+		}
+		if ($sumber_data === 'POS') {
+
+			$where = [];
+			$where["penjualan_tanggal >= '{$startdate}' AND penjualan_tanggal <= '{$enddate}'"] = null;
+			$where['penjualan_deleted_at IS NULL'] = null;
+			$where['pos_penjualan.wajibpajak_id'] = $wajibpajak_id;
+
+			$opr = $this->select_dt(
+				[],
+				'transaksiwppos',
+				'table',
+				false,
+				$where
+			);
+
+			$rows = $opr['aaData'];
+
+			foreach ($rows as &$r) {
+				$r['trx_tgl']      = $r['penjualan_tanggal'];
+				$r['trx_time']     = $r['penjualan_created'];
+				$r['trx_kode']     = $r['penjualan_kode'];
+				$r['trx_subtotal'] = $r['penjualan_total_harga'];
+				$r['trx_jasa']     = $r['penjualan_jasa'] * $r['penjualan_total_harga'];
+				$r['trx_diskon']   = $r['penjualan_total_potongan_persen'] * $r['penjualan_total_harga'];
+				$r['trx_total']    = $r['penjualan_total_grand'];
+			}
+		} else {
+
+			$where = [];
+			$where["realisasi_tanggal >= '{$startdate}' AND realisasi_tanggal <= '{$enddate}'"] = null;
+			$where['realisasi_deleted_at IS NULL'] = null;
+			$where['realisasi_wajibpajak_id'] = $wajibpajak_id;
+
+			$opr = $this->select_dt(
+				[],
+				'rekappajak',
+				'table',
+				false,
+				$where
+			);
+
+			$rows = $opr['aaData'];
+
+			foreach ($rows as &$r) {
+				$r['trx_tgl']      = $r['realisasi_tanggal'];
+				$r['trx_time']     = $r['realisasi_tanggal'];
+				$r['trx_kode']     = $r['realisasi_no'];
+				$r['trx_subtotal'] = $r['realisasi_sub_total'];
+				$r['trx_jasa']     = $r['realisasi_jasa'] * $r['realisasi_sub_total'];
+				$r['trx_diskon']   = $r['realisasi_diskon'] * $r['realisasi_sub_total'];
+				$r['trx_total']    = $r['realisasi_total'];
+			}
+		}
+		$wp = $this->db
+			->get_where('v_pajak_toko', ['wajibpajak_id' => $wajibpajak_id])
+			->row();
+
+		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$sheet = $spreadsheet->getActiveSheet();
+
+		foreach (range('A', 'K') as $c) {
+			$sheet->getColumnDimension($c)->setAutoSize(true);
+		}
+
+		$sheet->mergeCells('A1:K1');
+		$sheet->setCellValue('A1', 'RINCIAN REKAP PAJAK');
+		$sheet->getStyle('A1')->getFont()->setBold(true);
+
+		$sheet->setCellValue('A3', 'NPWPD');
+		$sheet->setCellValue('C3', $wp->wajibpajak_npwpd);
+
+		$sheet->setCellValue('A4', 'Nama WP');
+		$sheet->setCellValue('C4', $wp->toko_nama);
+
+		$sheet->setCellValue('A5', 'Penanggung Jawab');
+		$sheet->setCellValue('C5', $wp->wajibpajak_nama_penanggungjawab);
+
+		$header = 7;
+		$cols = [
+			'A' => 'No',
+			'B' => 'Nama Toko',
+			'C' => 'Tanggal',
+			'D' => 'Waktu',
+			'E' => 'Kode',
+			'F' => 'Subtotal',
+			'G' => 'Jasa',
+			'H' => 'Diskon',
+			'I' => 'Pajak',
+			'J' => 'Total',
+			'K' => 'Status',
+		];
+
+		foreach ($cols as $col => $label) {
+			$sheet->setCellValue($col . $header, $label);
+			$sheet->getStyle($col . $header)->getFont()->setBold(true);
+		}
+
+		$row = $header;
+		foreach ($rows as $i => $r) {
+			$row++;
+
+			$jasa   = (float) $r['trx_jasa'];
+			$diskon = (float) $r['trx_diskon'];
+			$pajak  = $r['trx_subtotal'] / 10;
+
+			$sheet->setCellValue("A{$row}", $i + 1);
+			$sheet->setCellValue("B{$row}", $wp->toko_nama);
+			$sheet->setCellValue("C{$row}", date('d-m-Y', strtotime($r['trx_tgl'])));
+			$sheet->setCellValue("D{$row}", date('H:i', strtotime($r['trx_time'])));
+			$sheet->setCellValue("E{$row}", $r['trx_kode']);
+			$sheet->setCellValue("F{$row}", $r['trx_subtotal']);
+			$sheet->setCellValue("G{$row}", $jasa);
+			$sheet->setCellValue("H{$row}", $diskon);
+			$sheet->setCellValue("I{$row}", $pajak);
+			$sheet->setCellValue("J{$row}", $r['trx_total']);
+			$sheet->setCellValue("K{$row}", implode(', ', $r['trx_status'] ?? []));
+		}
+		$filename = 'Rincian Rekap Pajak - ' . $wp->toko_nama  . ' - ' . date('Ymd-His') . '.xlsx';
+
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		$writer->save('php://output');
+		exit;
+	}
+
+	public function pdf_rekap()
 	{
 		$data = varPost();
-		if (empty($data['filterBulan'])) {
-			$masapajak = 'All';
-		} else {
-			$bulan = explode('-', $data['filterBulan']);
-			$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
-		}
-		$hal = 1;
+		$where = [];
+
 		$html = '<style>
 			*, table, p, li{
 				line-height:1.6;
@@ -697,7 +619,6 @@ class Rekappajak extends Base_Controller
 			}
 		</style>';
 
-		$wp_terdaftar = $this->db->query("select count(*) as wp_terdaftar from pajak_wajibpajak pw where wajibpajak_status  = '2' and wajibpajak_deleted_at is null")->row_array()['wp_terdaftar'];
 
 		$html .= '<table style="width:100%;">
 			<tr>
@@ -711,58 +632,50 @@ class Rekappajak extends Base_Controller
 						<h4>REKAP PAJAK</h4><br>
 				</td>
 			</tr>
-		</table>
-		<table style="width:100%;">
-			<tr>
-				<td width="20%">Masa Pajak</td>
-				<td>: ' . $masapajak . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Jumlah WP Terdaftar</td>
-				<td>: ' . $wp_terdaftar . '</td>
-			</tr>
-		</table>
+		</table>		
 		<br>
 		<table class="laporan" cellspacing=0 style="width:100%; border-collapse: collapse;">
 			<tr>
 				<th class="t-center">No</th>
 				<th class="t-center">NPWPD</th>
 				<th class="t-center">Nama WP</th>
-				<th class="t-center">Transaksi Terakhir</th>
-				<th class="t-center">Sub Total(Rp)</th>
-				<th class="t-center">Pajak(Rp)</th>
-				<th class="t-center">Total(Rp)</th>
-				<!-- <th class="t-center">Tgl. Pemasangan</th> -->
 				<th class="t-center">Jenis Pajak</th>
+				<th class="t-center">Kecamatan</th>
+				<th class="t-center">Transaksi Terakhir</th>
+				<th class="t-center">Jenis Device</th>
 			</tr>';
-		if (empty($data['filterBulan'])) {
-			$where = [
-				'realisasi_parent_wajibpajak_status' => '2',
-			];
-			$ops = $this->realisasiparent->select([
-				'filters_static' => $where
-			])['data'];
-		} else {
-			$where = [
-				'realisasi_parent_wajibpajak_status' => '2',
-				'realisasi_parent_tanggal' => $data['filterBulan']
-			];
-			$ops = $this->realisasiparentfilter->select([
-				'filters_static' => $where
-			])['data'];
+		$pemdaId = (int) $this->session->userdata('pemda_id');
+		if ($pemdaId > 0) {
+			$where['pemda_id'] = $pemdaId;
 		}
+
+		if (!empty($post['kecamatan'])) {
+			$where['kecamatan_id'] = $post['kecamatan'];
+		}
+
+		if (!empty($post['jenis_pajak'])) {
+			$where['jenis_nama'] = $post['jenis_pajak'];
+		}
+
+		if (!empty($post['jenis_device'])) {
+			$where['jenis_device'] = $post['jenis_device'];
+		}
+		$data = $this->db
+			->where($where)
+			->order_by('tanggal_last_transaksi', 'DESC')
+			->get('v_rekap_pajak')
+			->result_array();
 		$no = $total = $tbl_no = 1;
 
-		foreach ($ops as $key => $value) {
+		foreach ($data as $key => $value) {
 			$html .= '<tr>
 					<td>' . $tbl_no . '</td>
-					<td>' . $value['realisasi_parent_npwpd'] . '</td>
-					<td>' . $value['realisasi_parent_nama'] . '</td>
-					<td>' . $value['realisasi_parent_transaksi_terakhir'] . '</td>
-					<td style="text-align: right;">' . number_format($value['realisasi_parent_sub_total']) . '</td>
-					<td style="text-align: right;">' . number_format($value['realisasi_parent_pajak']) . '</td>
-					<td style="text-align: right;">' . number_format($value['realisasi_parent_total_pajak']) . '</td>
-					<td>' . $value['realisasi_parent_jenis_pajak'] . '</td>
+					<td>' . $value['npwpd'] . '</td>
+					<td>' . $value['nama_wp'] . '</td>
+					<td>' . $value['jenis_nama'] . '</td>
+					<td>' . $value['kecamatan_nama'] . '</td>
+					<td>' . $value['tanggal_last_transaksi'] . '</td>
+					<td>' . $value['jenis_device'] . '</td>					
 				</tr>';
 			$tbl_no++;
 			$no++;
@@ -783,7 +696,7 @@ class Rekappajak extends Base_Controller
 		));
 	}
 
-	public function pdf_subrealisasi()
+	public function pdf_rincirekap()
 	{
 		$data = varPost();
 		$realisasi_npwpd = varPost('realisasi_npwpd');
@@ -1025,54 +938,6 @@ class Rekappajak extends Base_Controller
 			// 'font_face'     => 'cour',
 			'font_size'     => '10',
 		));
-	}
-
-	public function get_kecamatan()
-	{
-		$loginAccess = $this->session->userdata('login_access');
-		$roleAccess  = $this->session->userdata('pegawai_role_access_id');
-		$pemdaId     = $this->session->userdata('pemda_id');
-
-		$this->db->select('
-			ck.kecamatan_id,
-			ck.kecamatan_nama
-		');
-		$this->db->from('conf_kecamatan ck');
-		$this->db->join('conf_pemda cp', 'cp.kabkota_id = ck.kabkota_id', 'left');
-
-		if ($roleAccess === '123') {
-
-			if (empty($pemdaId)) {
-				return $this->response([]);
-			}
-
-			$this->db->where('cp.pemda_id', (int) $pemdaId);
-		} else {
-			$this->db->where('cp.pemda_id', (int) $pemdaId);
-		}
-
-		$this->db->group_by(['ck.kecamatan_id', 'ck.kecamatan_nama']);
-		$this->db->order_by('ck.kecamatan_nama', 'ASC');
-
-		$result = $this->db->get()->result_array();
-		return $this->response($result);
-	}
-
-	public function get_pemda()
-	{
-		if ($this->session->userdata('login_access') != 'pemda') {
-			$where = [
-				'kabkota_id' => $this->session->userdata('kabkota_id')
-			];
-			return $this->response(
-				$this->select_dt(varPost(), 'pemda', 'table', true, $where)
-			);
-		} else {
-			$this->response([
-				'status' => false,
-				'message' => 'Mohon login menggunakan role selain pemda.'
-			]);
-		}
 	}
 }
 
