@@ -30,11 +30,15 @@ services:
   optax:
     build:
       context: .
-      dockerfile: php74.Dockerfile
+      dockerfile: optax.d/Dockerfile
     volumes:
       - ./optax:/var/www/optax
+      - ./optax.d/supervisor/supervisor.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./optax.d/supervisor/logs:/tmp
+      - ./optax.d/crontab:/etc/cron.d/optax
     depends_on:
       - db-postgresql
+      - rabbitmq
     networks:
       - optax-network
 

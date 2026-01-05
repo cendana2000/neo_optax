@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+0 1 * * * root /usr/local/bin/php -d opcache.enable=0 /var/www/optax/index.php journey check_inactive_transaction 2>&1
