@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+0 22 * * * root /usr/local/bin/php -d opcache.enable=0 /var/www/outer-api/index.php crawl sync 2>&1

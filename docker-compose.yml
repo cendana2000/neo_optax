@@ -75,9 +75,12 @@ services:
   outer-api:
     build:
       context: .
-      dockerfile: php74.Dockerfile
+      dockerfile: outer-api.d/Dockerfile
     volumes:
       - ./outer-api:/var/www/outer-api
+      - ./outer-api.d/supervisor/supervisor.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./outer-api.d/supervisor/logs:/tmp
+      - ./outer-api.d/crontab:/etc/cron.d/outer
     depends_on:
       - db-postgresql
     networks:

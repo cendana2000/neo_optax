@@ -1,4 +1,12 @@
 <?php
+if (file_exists(__DIR__ . '/.envconfig')) {
+	$env = parse_ini_file(__DIR__ . '/.envconfig');
+	foreach ($env as $key => $value) {
+		$_ENV[$key] = $value;
+		putenv("$key=$value");
+	}
+}
+
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT
