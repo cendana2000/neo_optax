@@ -105,8 +105,73 @@
                     render: function(data, type, full, meta) {
                         return full['kecamatan_nama']
                     }
-                }
+                },
+                {
+                    targets: 6,
+                    render: function(data, type, full, meta) {
+                        return full['kelurahan_nama']
+                    }
+                },
             ]
+        })
+    }
+
+    function onBack() {
+        HELPER.toggleForm({
+            tohide: 'report_data_pdf',
+            toshow: 'table_data'
+        });
+    }
+
+    function getPdf() {
+        HELPER.block();
+
+        $.ajax({
+            url: BASE_URL + 'laporannotrx/pdf',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                periode: $('#periode').val(),
+                kecamatan_id: $('#kecamatan_id').val(),
+                kelurahan_id: $('#kelurahan_id').val(),
+                wajibpajak_id: $('#wajibpajak_id').val(),
+            },
+            success: function(res) {
+                let htmlobject = $('#pdf-laporan').html();
+                $("#pdf-laporan object").remove();
+                $("#pdf-laporan").append(htmlobject);
+                $("#pdf-laporan object").attr("data", res.record);
+                HELPER.toggleForm({
+                    tohide: 'table_data',
+                    toshow: 'report_data_pdf'
+                });
+                HELPER.unblock();
+            }
+        })
+    }
+
+    function getExcel() {
+        HELPER.block();
+
+        $.ajax({
+            url: BASE_URL + 'laporannotrx/spreadsheet',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                periode: $('#periode').val(),
+                kecamatan_id: $('#kecamatan_id').val(),
+                kelurahan_id: $('#kelurahan_id').val(),
+                wajibpajak_id: $('#wajibpajak_id').val(),
+            },
+            success: function(res) {
+                if (res.success) {
+                    let fileLocation = BASE_ASSETS + 'laporan/no_trx/' + res.file;
+                    window.location.href = fileLocation;
+                }
+            },
+            complete: function(res) {
+                HELPER.unblock();
+            }
         })
     }
 </script>
