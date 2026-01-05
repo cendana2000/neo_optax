@@ -73,7 +73,7 @@ class Journey extends Base_Controller
     public function check_inactive_transaction()
     {
         try {
-            $tanggal    = date('Y-m-d');
+            $tanggal    = date('Y-m-d', strtotime('-1 days'));
 
             // masukkan ke journey activity
             $where1     = "NOT EXISTS (SELECT 1 FROM pajak_realisasi WHERE pajak_realisasi.realisasi_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pajak_realisasi.realisasi_tanggal='$tanggal')";
