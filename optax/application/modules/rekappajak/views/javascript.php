@@ -22,6 +22,10 @@
 			detailTransaksi: BASE_URL + 'rekappajak/detailTransaksi',
 		}
 
+		$('#btnPeriode').on('click', function() {
+			$('#modalPeriode').modal('show');
+		});
+
 		$(document).on('click', '.list-range', function() {
 			var type = $(this).data('range');
 			var start, end;
@@ -60,22 +64,25 @@
 				alert('Silakan pilih periode terlebih dahulu');
 				return;
 			}
+
 			const $btn = $(this);
 			$btn.prop('disabled', true);
 			$btn.html('<span class="spinner-border spinner-border-sm mr-1"></span> Memproses...');
-			const modalEl = document.getElementById('modalPeriode');
-			const modal = bootstrap.Modal.getInstance(modalEl);
-			if (modal) modal.hide();
+
+			$('#modalPeriode').modal('hide');
+
 			loadRinciRekap(
 				window.current_wp_id,
 				window.current_sumber_data,
 				$('#periode').val()
 			);
+
 			setTimeout(() => {
 				$btn.prop('disabled', false);
 				$btn.html('<i class="la la-check mr-1"></i> Apply');
 			}, 600);
 		});
+
 
 
 		$(".monthpicker").datepicker({
@@ -138,7 +145,7 @@
 			destroyAble: true,
 			responsive: false,
 			order: [
-				[2, 'desc']
+				[2, 'asc']
 			],
 			search: {
 				return: true
@@ -469,19 +476,14 @@
 		form.append($('<input>', {
 			type: 'hidden',
 			name: 'wajibpajak_id',
-			value: window.wajibpajak_id
+			value: window.current_wp_id
 		}));
 
 		form.append($('<input>', {
 			type: 'hidden',
 			name: 'sumber_data',
-			value: window.sumber_data
+			value: window.current_sumber_data
 		}));
-
-		console.log('EXPORT', {
-			wajibpajak_id: window.wajibpajak_id,
-			sumber_data: window.current_sumber_data
-		});
 
 		$('body').append(form);
 		form.submit();
@@ -491,8 +493,6 @@
 			HELPER.unblock();
 		}, 1000);
 	}
-
-
 
 	function getPdfRekap() {
 		HELPER.block();
@@ -523,25 +523,27 @@
 		HELPER.block();
 		$.ajax({
 			url: BASE_URL + 'rekappajak/pdf_rincirekap',
-			data: {
-				realisasi_npwpd: $('#sub_wajibpajak_npwpd').val(),
-				filterBulan: $('#sub_bulan').val(),
-			},
 			type: 'post',
 			dataType: 'json',
+			data: {
+				wajibpajak_id: window.current_wp_id,
+				sumber_data: window.current_sumber_data,
+				periode: $('#periode').val()
+			},
 			success: function(res) {
-				let htmlobject = $('#subpdf-laporan').html();
 				$("#subpdf-laporan object").remove();
-				$("#subpdf-laporan").append(htmlobject);
+				$("#subpdf-laporan").append('<object type="application/pdf" width="100%" height="600"></object>');
 				$("#subpdf-laporan object").attr("data", res.record);
+
 				HELPER.toggleForm({
 					tohide: 'form_data',
 					toshow: 'subreport_data_pdf'
 				});
 				HELPER.unblock();
 			}
-		})
+		});
 	}
+
 
 	function loadKecamatan() {
 		$.ajax({

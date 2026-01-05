@@ -55,30 +55,44 @@
 							<input type="hidden" name="pegawai_id" id="pegawai_id">
 
 							<div class="form-group row">
-								<label class="col-lg-4 col-form-label text-left" for="pegawai_role_access_id">Select Permission</label>
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_role_access_id">Select Role Access</label>
 								<div class="col-lg-8">
-									<select class="form-select select2 form-control" id="pegawai_role_access_id" name="pegawai_role_access_id"></select>
+									<select class="form-select select2 form-control" id="pegawai_role_access_id" name="pegawai_role_access_id" required></select>
 								</div>
 							</div>
 
 							<div class="form-group row">
-								<label class="col-lg-4 col-form-label text-left" for="pegawai_nama">Name</label>
+								<label class="col-lg-4 col-form-label text-left" for="select_pemda">Select Pemda</label>
 								<div class="col-lg-8">
-									<input type="text" id="pegawai_nama" name="pegawai_nama" class="form-control" placeholder="Name" required minlength="3" maxlength="150">
+									<select class="form-select select2 form-control" id="select_pemda" name="select_pemda" required></select>
 								</div>
 							</div>
 
 							<div class="form-group row">
-								<label class="col-lg-4 col-form-label text-left" for="pegawai_alamat">Address</label>
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_nama">Nama</label>
 								<div class="col-lg-8">
-									<textarea id="pegawai_alamat" name="pegawai_alamat" class="form-control" placeholder="Address" required></textarea>
+									<input type="text" id="pegawai_nama" name="pegawai_nama" class="form-control" placeholder="Nama" required minlength="3" maxlength="150">
 								</div>
 							</div>
 
 							<div class="form-group row">
-								<label class="col-lg-4 col-form-label text-left" for="pegawai_hp">Phone</label>
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_nip">NIP</label>
 								<div class="col-lg-8">
-									<input type="number" id="pegawai_hp" name="pegawai_hp" class="form-control" placeholder="Phone" required>
+									<input type="text" id="pegawai_nip" name="pegawai_nip" class="form-control" placeholder="NIP" minlength="3" maxlength="20">
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_alamat">Alamat</label>
+								<div class="col-lg-8">
+									<textarea id="pegawai_alamat" name="pegawai_alamat" class="form-control" placeholder="Alamat"></textarea>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_hp">Telepon</label>
+								<div class="col-lg-8">
+									<input type="number" id="pegawai_hp" name="pegawai_hp" class="form-control" placeholder="Telepon">
 								</div>
 							</div>
 
@@ -86,6 +100,13 @@
 								<label class="col-lg-4 col-form-label text-left" for="pegawai_email">Email</label>
 								<div class="col-lg-8">
 									<input type="email" id="pegawai_email" name="pegawai_email" class="form-control" placeholder="Email" required>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-lg-4 col-form-label text-left" for="pegawai_password" id="label-password">Password</label>
+								<div class="col-lg-8">
+									<input type="password" id="pegawai_password" name="pegawai_password" class="form-control" placeholder="Password" required>
 								</div>
 							</div>
 						</div>

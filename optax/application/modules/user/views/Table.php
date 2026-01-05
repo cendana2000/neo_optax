@@ -10,8 +10,7 @@
 				</div>
 				<div class="card-toolbar">
 					<div class="btn-group" id="dropdown-div">
-						<button class="btn btn-info btn-sm m-3 radius-5" onclick="onCreate()" data-roleable="true" data-role="User-Create"><i class="fa fa-plus"></i>Create New</button>
-						<!-- <button class="btn btn-warning btn-sm m-3 radius-5" onclick="onRefresh()"><i class="flaticon-refresh"></i>Refresh</button> -->
+						<button class="btn btn-light-primary btn-sm m-3 radius-5" onclick="onCreate()" data-roleable="true" data-role="User-Create"><i class="fa fa-plus"></i>Create New</button>
 					</div>
 				</div>
 			</div>
@@ -20,8 +19,10 @@
 					<thead>
 						<tr>
 							<th>No</th>
-							<th>Name</th>
-							<th>Phone</th>
+							<th>Nama User</th>
+							<th>Role</th>
+							<th>Nama Pemda</th>
+							<th>Kab/Kota</th>
 							<th>Email</th>
 							<th>Status</th>
 							<th>Action</th>

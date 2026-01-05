@@ -94,6 +94,7 @@ class Rekappajak extends Base_Controller
 				false,
 				$where
 			);
+			$opr['sumber_data'] = $sumber_data;
 			foreach ($opr['aaData'] as &$row) {
 				$row['trx_id']    = $row['penjualan_id'];
 				$row['trx_kode']  = $row['penjualan_kode'];
@@ -146,6 +147,7 @@ class Rekappajak extends Base_Controller
 				false,
 				$where
 			);
+			$opr['sumber_data'] = $sumber_data;
 			foreach ($opr['aaData'] as &$row) {
 				$row['trx_id']    = $row['realisasi_id'];
 				$row['trx_kode']  = $row['realisasi_no'];
@@ -394,6 +396,10 @@ class Rekappajak extends Base_Controller
 		$startdate = date('Y-m-d 00:00:00');
 		$enddate   = date('Y-m-d 23:59:59');
 
+		if (!$wajibpajak_id || !$sumber_data) {
+			show_error('Parameter tidak lengkap (wajibpajak_id / sumber_data)', 400);
+		}
+
 		if ($periode) {
 			$arr = explode(' - ', $periode);
 			if (count($arr) === 2) {
@@ -403,57 +409,69 @@ class Rekappajak extends Base_Controller
 		}
 		if ($sumber_data === 'POS') {
 
-			$where = [];
-			$where["penjualan_tanggal >= '{$startdate}' AND penjualan_tanggal <= '{$enddate}'"] = null;
-			$where['penjualan_deleted_at IS NULL'] = null;
-			$where['pos_penjualan.wajibpajak_id'] = $wajibpajak_id;
+			$this->db->select('
+				pp.penjualan_id AS trx_id,
+				pp.penjualan_kode AS trx_kode,
+				pp.penjualan_tanggal AS trx_tgl,
+				pp.penjualan_created AS trx_time,
+				pp.penjualan_total_harga AS trx_subtotal,
+				(pp.penjualan_jasa * pp.penjualan_total_harga) AS trx_jasa,
+				(pp.penjualan_total_potongan_persen * pp.penjualan_total_harga) AS trx_diskon,
+				pp.penjualan_total_grand AS trx_total
+			');
+			$this->db->from('pos_penjualan pp');
+			$this->db->where('pp.wajibpajak_id', $wajibpajak_id);
+			$this->db->where('pp.penjualan_deleted_at IS NULL', null, false);
+			$this->db->where('pp.penjualan_tanggal >=', $startdate);
+			$this->db->where('pp.penjualan_tanggal <=', $enddate);
 
-			$opr = $this->select_dt(
-				[],
-				'transaksiwppos',
-				'table',
-				false,
-				$where
-			);
-
-			$rows = $opr['aaData'];
-
-			foreach ($rows as &$r) {
-				$r['trx_tgl']      = $r['penjualan_tanggal'];
-				$r['trx_time']     = $r['penjualan_created'];
-				$r['trx_kode']     = $r['penjualan_kode'];
-				$r['trx_subtotal'] = $r['penjualan_total_harga'];
-				$r['trx_jasa']     = $r['penjualan_jasa'] * $r['penjualan_total_harga'];
-				$r['trx_diskon']   = $r['penjualan_total_potongan_persen'] * $r['penjualan_total_harga'];
-				$r['trx_total']    = $r['penjualan_total_grand'];
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where("
+					EXISTS (
+						SELECT 1 FROM pajak_wajibpajak pw
+						WHERE pw.wajibpajak_id = pp.wajibpajak_id
+						AND pw.pemda_id = {$pemda_id}
+					)
+				", null, false);
 			}
+
+			$this->db->order_by('pp.penjualan_tanggal', 'DESC');
+			$this->db->order_by('pp.penjualan_created', 'DESC');
+
+			$rows = $this->db->get()->result_array();
 		} else {
 
-			$where = [];
-			$where["realisasi_tanggal >= '{$startdate}' AND realisasi_tanggal <= '{$enddate}'"] = null;
-			$where['realisasi_deleted_at IS NULL'] = null;
-			$where['realisasi_wajibpajak_id'] = $wajibpajak_id;
+			$this->db->select('
+				pr.realisasi_id AS trx_id,
+				pr.realisasi_no AS trx_kode,
+				pr.realisasi_tanggal AS trx_tgl,
+				pr.realisasi_tanggal AS trx_time,
+				pr.realisasi_sub_total AS trx_subtotal,
+				(pr.realisasi_jasa * pr.realisasi_sub_total) AS trx_jasa,
+				(pr.realisasi_diskon * pr.realisasi_sub_total) AS trx_diskon,
+				pr.realisasi_total AS trx_total
+			');
+			$this->db->from('pajak_realisasi pr');
+			$this->db->where('pr.realisasi_wajibpajak_id', $wajibpajak_id);
+			$this->db->where('pr.realisasi_tanggal >=', $startdate);
+			$this->db->where('pr.realisasi_tanggal <=', $enddate);
 
-			$opr = $this->select_dt(
-				[],
-				'rekappajak',
-				'table',
-				false,
-				$where
-			);
-
-			$rows = $opr['aaData'];
-
-			foreach ($rows as &$r) {
-				$r['trx_tgl']      = $r['realisasi_tanggal'];
-				$r['trx_time']     = $r['realisasi_tanggal'];
-				$r['trx_kode']     = $r['realisasi_no'];
-				$r['trx_subtotal'] = $r['realisasi_sub_total'];
-				$r['trx_jasa']     = $r['realisasi_jasa'] * $r['realisasi_sub_total'];
-				$r['trx_diskon']   = $r['realisasi_diskon'] * $r['realisasi_sub_total'];
-				$r['trx_total']    = $r['realisasi_total'];
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where("
+					EXISTS (
+						SELECT 1 FROM pajak_wajibpajak pw
+						WHERE pw.wajibpajak_id = pr.realisasi_wajibpajak_id
+						AND pw.pemda_id = {$pemda_id}
+					)
+				", null, false);
 			}
+
+			$this->db->order_by('pr.realisasi_tanggal', 'DESC');
+			$this->db->order_by('pr.realisasi_id', 'DESC');
+
+			$rows = $this->db->get()->result_array();
 		}
+
 		$wp = $this->db
 			->get_where('v_pajak_toko', ['wajibpajak_id' => $wajibpajak_id])
 			->row();
@@ -461,21 +479,30 @@ class Rekappajak extends Base_Controller
 		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$sheet = $spreadsheet->getActiveSheet();
 
-		foreach (range('A', 'K') as $c) {
+		foreach (range('A', 'J') as $c) {
 			$sheet->getColumnDimension($c)->setAutoSize(true);
 		}
 
-		$sheet->mergeCells('A1:K1');
+		$sheet->mergeCells('A1:J1');
 		$sheet->setCellValue('A1', 'RINCIAN REKAP PAJAK');
-		$sheet->getStyle('A1')->getFont()->setBold(true);
+		$sheet->getStyle('A1')->applyFromArray([
+			'font' => ['bold' => true],
+			'alignment' => [
+				'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+			],
+			'fill' => [
+				'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+				'startColor' => ['argb' => 'EAEAEA']
+			]
+		]);
 
 		$sheet->setCellValue('A3', 'NPWPD');
 		$sheet->setCellValue('C3', $wp->wajibpajak_npwpd);
 
-		$sheet->setCellValue('A4', 'Nama WP');
+		$sheet->setCellValue('A4', 'Nama Objek Pajak');
 		$sheet->setCellValue('C4', $wp->toko_nama);
 
-		$sheet->setCellValue('A5', 'Penanggung Jawab');
+		$sheet->setCellValue('A5', 'PIC');
 		$sheet->setCellValue('C5', $wp->wajibpajak_nama_penanggungjawab);
 
 		$header = 7;
@@ -490,7 +517,6 @@ class Rekappajak extends Base_Controller
 			'H' => 'Diskon',
 			'I' => 'Pajak',
 			'J' => 'Total',
-			'K' => 'Status',
 		];
 
 		foreach ($cols as $col => $label) {
@@ -516,7 +542,6 @@ class Rekappajak extends Base_Controller
 			$sheet->setCellValue("H{$row}", $diskon);
 			$sheet->setCellValue("I{$row}", $pajak);
 			$sheet->setCellValue("J{$row}", $r['trx_total']);
-			$sheet->setCellValue("K{$row}", implode(', ', $r['trx_status'] ?? []));
 		}
 		$filename = 'Rincian Rekap Pajak - ' . $wp->toko_nama  . ' - ' . date('Ymd-His') . '.xlsx';
 
@@ -531,7 +556,7 @@ class Rekappajak extends Base_Controller
 
 	public function pdf_rekap()
 	{
-		$data = varPost();
+		$post = varPost();
 		$where = [];
 
 		$html = '<style>
@@ -698,246 +723,134 @@ class Rekappajak extends Base_Controller
 
 	public function pdf_rincirekap()
 	{
-		$data = varPost();
-		$realisasi_npwpd = varPost('realisasi_npwpd');
-		$where['realisasi_deleted_at'] = null;
-		$where['realisasi_wajibpajak_npwpd'] = $realisasi_npwpd;
+		$wajibpajak_id = varPost('wajibpajak_id');
+		$sumber_data   = varPost('sumber_data');
+		$periode       = varPost('periode');
 
-		if ($data['filterBulan'] != null) {
-			$bulan = explode('-', $data['filterBulan']);
-
-			$where['EXTRACT(\'month\' from  realisasi_tanggal) = \'' . $bulan[1] . '\''] = null;
-			$where['EXTRACT(\'year\' from  realisasi_tanggal) = \'' . $bulan[0] . '\''] = null;
+		if (!$wajibpajak_id || !$sumber_data) {
+			show_error('Parameter tidak lengkap', 400);
 		}
 
-		if (empty($data['filterBulan'])) {
-			$masapajak = 'All';
+		$startdate = date('Y-m-d 00:00:00');
+		$enddate   = date('Y-m-d 23:59:59');
+
+		if ($periode) {
+			$arr = explode(' - ', $periode);
+			if (count($arr) === 2) {
+				$startdate = date('Y-m-d 00:00:00', strtotime($arr[0]));
+				$enddate   = date('Y-m-d 23:59:59', strtotime($arr[1]));
+			}
+		}
+
+		if ($sumber_data === 'POS') {
+
+			$this->db->select('
+            pp.penjualan_tanggal   AS trx_tgl,
+            pp.penjualan_created   AS trx_time,
+            pp.penjualan_kode      AS trx_kode,
+            pp.penjualan_total_harga AS trx_subtotal,
+            (pp.penjualan_jasa * pp.penjualan_total_harga) AS trx_jasa,
+            (pp.penjualan_total_potongan_persen * pp.penjualan_total_harga) AS trx_diskon,
+            pp.penjualan_total_grand AS trx_total
+        ');
+			$this->db->from('pos_penjualan pp');
+			$this->db->where('pp.wajibpajak_id', $wajibpajak_id);
+			$this->db->where('pp.penjualan_deleted_at IS NULL', null, false);
+			$this->db->where("pp.penjualan_tanggal BETWEEN '{$startdate}' AND '{$enddate}'", null, false);
+			$this->db->order_by('pp.penjualan_tanggal', 'ASC');
+
+			$rows = $this->db->get()->result_array();
 		} else {
-			$bulan = explode('-', $data['filterBulan']);
-			$masapajak = phpChgMonth(intval($bulan[1])) . ' ' . $bulan[0];
+
+			$this->db->select('
+            pr.realisasi_tanggal AS trx_tgl,
+            pr.realisasi_tanggal AS trx_time,
+            pr.realisasi_no      AS trx_kode,
+            pr.realisasi_sub_total AS trx_subtotal,
+            (pr.realisasi_jasa * pr.realisasi_sub_total) AS trx_jasa,
+            (pr.realisasi_diskon * pr.realisasi_sub_total) AS trx_diskon,
+            pr.realisasi_total   AS trx_total
+        ');
+			$this->db->from('pajak_realisasi pr');
+			$this->db->where('pr.realisasi_wajibpajak_id', $wajibpajak_id);
+			$this->db->where('pr.realisasi_deleted_at IS NULL', null, false);
+			$this->db->where("pr.realisasi_tanggal BETWEEN '{$startdate}' AND '{$enddate}'", null, false);
+			$this->db->order_by('pr.realisasi_tanggal', 'ASC');
+
+			$rows = $this->db->get()->result_array();
 		}
 
-		$get_total = $this->db->select("sum(realisasi_jasa) as total_jasa,
-		sum(realisasi_pajak) as total_pajak,
-		sum(realisasi_sub_total) as total_subtotal,
-		sum(realisasi_total) as total_total,")
-			->where($where)
-			->get('pajak_realisasi')
+		$wp = $this->db
+			->get_where('v_pajak_toko', ['wajibpajak_id' => $wajibpajak_id])
 			->row();
 
-		$hal = 1;
-		$html = '<style>
-			*, table, p, li{
-				line-height:1.6;
-				font-size:11px;
-			}
-			.kop{
-				text-align: center;
-				display:block;
-				margin:0 auto;
-			}
-			.kop h1{
-				font-size: 10px;
-			}
+		$total_subtotal = $total_jasa = $total_diskon = $total_pajak = $total_total = 0;
 
-			.left{
-				padding:2px;
-			}
+		foreach ($rows as $r) {
+			$pajak = $r['trx_subtotal'] / 10;
 
-			.right{
-
-				text-align:right;
-				padding: 2px;
-			}
-			.t-center{
-				vertical-align:middle!important;
-				text-align:center;
-				background-color : #5a8ed1;
-				width: 1px;
-    			white-space: nowrap;
-			}
-
-			.divider{
-				border-right: 1px solid black;
-			}
-
-			.laporan td, .laporan th{
-				border: 1px solid black;
-				border-collapse: collapse;
-				padding:0px 10px;
-			}
-
-			.ttd{
-				border: 1px solid black;
-				border-collapse: collapse;
-				padding : 0px 3px;
-				text-align:center;
-				vertical-align:top;
-			}
-
-			.ttd td {
-				border : 0px 1px solid black;
-				border-collapse: collapse;
-				padding:0px 3px;
-				height:40px;
-			}
-
-			.ttd .top{
-				text-align:center;
-				vertical-align:top;
-				border-right : 1px solid black;
-				border-collapse: collapse;
-			}
-
-			.ttd .bottom{
-				text-align:center;
-				vertical-align:bottom;
-				border-right : 1px solid black;
-				border-collapse: collapse;
-			}
-
-			.laporan .total {
-				border-top: 1px solid black;
-				border-bottom: 1px solid black;
-				border-collapse: collapse;
-				padding: 0px 10px;
-			}	
-
-			table{
-				border-collapse: collapse;
-				width:100%;
-			}
-			.laporan th {
-				border: 1px solid black;
-				border-collapse: collapse;
-			}
-		</style>';
-
-		$ops = $this->realisasi->select([
-			'filters_static' => $where
-		])['data'];
-		$wp = $this->wajibpajak->read(array('wajibpajak_npwpd' => $realisasi_npwpd));
-		$pajak_total = 0;
-		$realisasi_total_total = 0;
-		foreach ($ops as $key => $value) {
-			$pajak 					 = ceil(($value['realisasi_sub_total'] + $value['realisasi_jasa']) * 10 / 100);
-			// $pajak_total	   		+= $pajak;			 
-			$pajak_total	   		+= $value['realisasi_pajak'];
-			// $realisasi_total 		 = $value['realisasi_sub_total'] + $value['realisasi_jasa'] + $pajak;
-			$realisasi_total 		 = $value['realisasi_total'];
-			$realisasi_total_total  += $realisasi_total;
+			$total_subtotal += $r['trx_subtotal'];
+			$total_jasa     += $r['trx_jasa'];
+			$total_diskon   += $r['trx_diskon'];
+			$total_pajak    += $pajak;
+			$total_total    += $r['trx_total'];
 		}
 
-		$html .= '<table style="width:100%;">
-			<tr>
-				<td class="left">
-					<p>OPTAX</p>
-				</td>
-				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
-			</tr>
-			<tr>
-				<td colspan="2" class="kop">
-						<h4>REKAP OMZET WAJIB PAJAK</h4><br>
-				</td>
-			</tr>
-		</table>
-		<table style="width:100%;">
-			<tr>
-				<td width="20%">Masa Pajak</td>
-				<td>: ' . $masapajak . '</td>
-			</tr>
-			<tr>
-				<td width="20%">NPWPD</td>
-				<td>: ' . $wp['wajibpajak_npwpd'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Alamat</td>
-				<td>: ' . $wp['wajibpajak_alamat'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Nama WP</td>
-				<td>: ' . $wp['wajibpajak_nama'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Nama Penanggung Jawab</td>
-				<td>: ' . $wp['wajibpajak_nama_penanggungjawab'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Pajak Yang Dibayarkan</td>
-				<td>: ' . number_format($pajak_total, 0, ",", ".") . '</td>
-			</tr>
-		</table>
-		<br>
-		<table class="laporan" cellspacing=0 style="border-collapse: collapse;">
-			<tr>
-				<th class="t-center">No</th>
-				<th class="t-center">Tanggal</th>
-				<th class="t-center">Subtotal</th>
-				<th class="t-center">Service Charge</th>
-				<!--
-				<th class="t-center">Lain-Lain</th>
-				<th class="t-center">Diskon</th>
-				-->
-				<th class="t-center">Pajak</th>
-				<th class="t-center">Total</th>
-			</tr>';
+		$html = '<h3 style="text-align:center">RINCIAN REKAP PAJAK</h3>
+		<table width="100%" cellpadding="4">
+			<tr><td width="20%">NPWPD</td><td>: ' . $wp->wajibpajak_npwpd . '</td></tr>
+			<tr><td>Nama Toko</td><td>: ' . $wp->toko_nama . '</td></tr>
+			<tr><td>PIC</td><td>: ' . $wp->wajibpajak_nama_penanggungjawab . '</td></tr>
+			<tr><td>Periode</td><td>: ' . $periode . '</td></tr>
+		</table><br>';
 
-		$no = $total = $tbl_no = 1;
-		$dtCaption = '';
+		$html .= '<table border="1" width="100%" cellpadding="4" cellspacing="0">
+        <tr style="background:#eee">
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Waktu</th>
+            <th>Kode</th>
+            <th>Subtotal</th>
+            <th>Jasa</th>
+            <th>Diskon</th>
+            <th>Pajak</th>
+            <th>Total</th>
+        </tr>';
 
-		foreach ($ops as $key => $value) {
-			$pajak 					 = ($value['realisasi_sub_total'] + $value['realisasi_jasa']) * 10 / 100;
-			// $pajak_total	   		 = $value['realisasi_pajak'];
-			$realisasi_total 		 = $value['realisasi_sub_total'] + $value['realisasi_jasa'] + $pajak;
-			$html 			   		.= '<tr>
-				<td style="text-align: center;">' . $tbl_no . '</td>
-				<td style="text-align: center;">' . $value['realisasi_tanggal'] . '</td>
-				<td style="text-align: right;">' . number_format($value['realisasi_sub_total']) . '</td>
-				<td style="text-align: right;">' . number_format($value['realisasi_jasa']) . '</td>
-				<!--
-				<td>0</td>
-				<td>0</td>
-				-->
-				<td style="text-align: right;">' . number_format($value['realisasi_pajak']) . '</td>
-				<td style="text-align: right;">' . number_format($value['realisasi_total']) . '</td>
+		foreach ($rows as $i => $r) {
+			$pajak = $r['trx_subtotal'] / 10;
+			$html .= '<tr>
+				<td align="center">' . ($i + 1) . '</td>
+				<td>' . date('d-m-Y', strtotime($r['trx_tgl'])) . '</td>
+				<td>' . date('H:i', strtotime($r['trx_time'])) . '</td>
+				<td>' . $r['trx_kode'] . '</td>
+				<td align="right">' . number_format($r['trx_subtotal']) . '</td>
+				<td align="right">' . number_format($r['trx_jasa']) . '</td>
+				<td align="right">' . number_format($r['trx_diskon']) . '</td>
+				<td align="right">' . number_format($pajak) . '</td>
+				<td align="right">' . number_format($r['trx_total']) . '</td>
 			</tr>';
-			$tbl_no++;
-			$no++;
-			if ($hal == 1) $total = 45;
-			else $total = 50;
-			if ($no > $total) {
-				$no = 1;
-				$hal++;
-				$html .= '</table><div style="page-break-after: always"></div>' . $this->headerRealisasi($dtCaption, $hal);
-			}
-			if (count($ops) == $key + 1) {
-				$html .= '<tr>
-					<th colspan="2">TOTAL</th>
-					<th style="text-align: right;">' . number_format(ceil($get_total->total_subtotal * pow(100, 10)) / pow(100, 10), 0, ".", ",") . '</th>
-					<th style="text-align: right;">' . number_format($get_total->total_jasa, 0, ".", ",") . '</th>
-					<!--
-					<th>0</th>
-					<th>0</th>
-					-->
-					<th style="text-align: right;">' . number_format($pajak_total, 0, ".", ",") . '</th>
-					<th style="text-align: right;">' . number_format($realisasi_total_total, 0, ".", ",") . '</th>
-				</tr>';
-			}
 		}
 
-		$html .= '</table>';
+		$html .= '<tr style="font-weight:bold">
+			<td colspan="4" align="center">TOTAL</td>
+			<td align="right">' . number_format($total_subtotal) . '</td>
+			<td align="right">' . number_format($total_jasa) . '</td>
+			<td align="right">' . number_format($total_diskon) . '</td>
+			<td align="right">' . number_format($total_pajak) . '</td>
+			<td align="right">' . number_format($total_total) . '</td>
+		</tr>
+		</table>';
 
-		createPdf(array(
-			'data'          => $html,
-			'json'          => true,
-			'paper_size'    => 'A4',
-			'file_name'     => 'Sub Rekap Pajak',
-			'title'         => 'Sub Rekap Pajak',
-			'stylesheet'    => './assets/laporan/print.css',
-			'margin'        => '10 5 10 5',
-			// 'font_face'     => 'cour',
-			'font_size'     => '10',
-		));
+		createPdf([
+			'data'       => $html,
+			'json'       => true,
+			'paper_size' => 'A4',
+			'file_name'  => 'Rincian Rekap Pajak',
+			'title'      => 'Rincian Rekap Pajak',
+			'margin'     => '10 10 10 10',
+			'font_size'  => '10'
+		]);
 	}
 }
 

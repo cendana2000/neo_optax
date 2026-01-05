@@ -115,7 +115,7 @@
     /* ukuran box mengikuti status-box datatable */
     .summary-box {
         width: auto;
-        min-width: 135px;
+        min-width: 220px;
         padding: 10px 10px;
         display: flex;
         align-items: center;

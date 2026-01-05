@@ -211,7 +211,7 @@ class RekappajakModel extends Base_Model
 			pr.realisasi_no AS trx_kode,
 			pr.realisasi_tanggal AS trx_tgl,
 			pr.realisasi_tanggal AS trx_time,
-			pr.realisasi_total AS trx_subtotal,
+			pr.realisasi_sub_total AS trx_subtotal,
 			pr.realisasi_jasa AS trx_jasa,
 			pr.realisasi_diskon AS trx_diskon,
 			pr.realisasi_total AS trx_total

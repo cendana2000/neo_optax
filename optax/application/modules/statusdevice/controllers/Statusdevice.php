@@ -42,7 +42,6 @@ class Statusdevice extends Base_Controller
         if (!empty($statusData)) {
             $map = [
                 'active'   => 'Active',
-                'inactive' => 'Inactive',
                 'offline'  => 'Offline',
             ];
 
@@ -62,9 +61,8 @@ class Statusdevice extends Base_Controller
             ->result_array();
         $totalRows = count($allRows);
 
-
-        $summaryDevice = ['online' => 0, 'offline' => 0, 'warning' => 0];
-        $summaryData   = ['active' => 0, 'inactive' => 0, 'offline' => 0];
+        $summaryDevice = ['online' => 0, 'offline' => 0];
+        $summaryData   = ['active' => 0, 'inactive' => 0];
 
         foreach ($allRows as $row) {
             $timestamps = array_filter([
@@ -84,8 +82,6 @@ class Statusdevice extends Base_Controller
                 $row['tanggal_last_transaksi'] === null
             ) {
                 $summaryDevice['offline']++;
-            } elseif ($row['web_last_active'] === null && $row['tanggal_last_transaksi'] !== null && $row['toko_is_oapi'] === null) {
-                $summaryDevice['warning']++;
             } else {
                 if ($latest !== null && $latest >= $max_timestamp) {
                     $summaryDevice['online']++;
@@ -98,9 +94,7 @@ class Statusdevice extends Base_Controller
             $tglTrx = $row['tanggal_last_transaksi'];
             $stat   = strtolower($row['status_active']);
 
-            if ($tglTrx === null || $stat === 'offline') {
-                $summaryData['offline']++;
-            } elseif ($stat === 'inactive') {
+            if ($tglTrx === null || $stat === 'inactive') {
                 $summaryData['inactive']++;
             } else {
                 $summaryData['active']++;
@@ -140,10 +134,10 @@ class Statusdevice extends Base_Controller
 
             // STATUS DEVICE
             $timestamps = array_filter([
-                $row['mobile_last_active'],
-                $row['web_last_active'],
-                $row['toko_desktop_ping_timestamp'],
-                $row['tanggal_last_transaksi'],
+                $this->fmt_datetime($row['mobile_last_active']),
+                $this->fmt_datetime($row['web_last_active']),
+                $this->fmt_datetime($row['toko_desktop_ping_timestamp']),
+                $this->fmt_datetime($row['tanggal_last_transaksi']),
             ], fn($v) => !empty($v));
 
             $latest = !empty($timestamps) ? max($timestamps) : null;
@@ -156,8 +150,6 @@ class Statusdevice extends Base_Controller
                 $row['tanggal_last_transaksi'] === null
             ) {
                 $row['status_device'] = '<div class="status-box status-offline">Device Nonaktif</div>';
-            } elseif ($row['web_last_active'] === null && $row['tanggal_last_transaksi'] !== null && $row['toko_is_oapi'] === null) {
-                $row['status_device'] = '<div class="status-box status-idle">Device Disconnected</div>';
             } elseif ($row['toko_is_oapi'] === 'ACTIVE') {
                 if ($latest !== null && $latest >= $max_timestamp && $latest <= $now) {
                     $row['status_device'] = '<div class="status-box status-online">' . $latest . '</div>';
@@ -173,15 +165,13 @@ class Statusdevice extends Base_Controller
             }
 
             // STATUS DATA
-            $tglTransaksi = $row['tanggal_last_transaksi'];
+            $tglTransaksi = $this->fmt_datetime($row['tanggal_last_transaksi']);
             if (!$tglTransaksi) {
                 $row['status_data'] = '<div class="status-box status-offline">Tidak Ada Transaksi</div>';
             } else {
                 $stat = strtolower($row['status_active']);
                 if ($stat === 'active') {
                     $row['status_data'] = '<div class="status-box status-online">' . $tglTransaksi . '</div>';
-                } elseif ($stat === 'inactive') {
-                    $row['status_data'] = '<div class="status-box status-idle">' . $tglTransaksi . '</div>';
                 } else {
                     $row['status_data'] = '<div class="status-box status-offline">' . $tglTransaksi . '</div>';
                 }
@@ -196,18 +186,17 @@ class Statusdevice extends Base_Controller
             if ($jenisDevice && $jenisDevice !== $row['jenis_device']) continue;
 
             // status_device
-            preg_match('/status-(online|offline|idle)/', $row['status_device'], $m);
+            preg_match('/status-(online|offline)/', $row['status_device'], $m);
             $row['status_device_class'] = $m[1] ?? null;
 
             // status_data
-            preg_match('/status-(online|offline|idle)/', $row['status_data'], $m2);
+            preg_match('/status-(online|offline)/', $row['status_data'], $m2);
             $row['status_data_class'] = $m2[1] ?? null;
 
             if ($statusDevice) {
                 $mapStatusDevice = [
                     'online'  => 'online',
-                    'offline' => 'offline',
-                    'warning' => 'idle'
+                    'offline' => 'offline'
                 ];
                 if ($row['status_device_class'] !== $mapStatusDevice[$statusDevice]) continue;
             }
@@ -215,8 +204,7 @@ class Statusdevice extends Base_Controller
             if ($statusData) {
                 $mapStatusData = [
                     'active'   => 'online',
-                    'inactive' => 'idle',
-                    'offline'  => 'offline'
+                    'inactive'  => 'inactive'
                 ];
                 if ($row['status_data_class'] !== $mapStatusData[$statusData]) continue;
             }
@@ -247,6 +235,18 @@ class Statusdevice extends Base_Controller
         ]);
         exit;
     }
+
+    function fmt_datetime($ts)
+    {
+        if (!$ts) return null;
+
+        try {
+            return (new DateTime($ts))->format('Y-m-d H:i:s');
+        } catch (Exception $e) {
+            return $ts;
+        }
+    }
+
 
     public function select_wp()
     {

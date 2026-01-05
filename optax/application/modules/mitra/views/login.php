@@ -114,11 +114,6 @@ License: You must have a valid license purchased only from themeforest(the above
 										</div>
 									</a>
 								</div>
-								<!-- <div class="row">
-									<div class="col-md-12 d-flex flex-row-reverse">
-										<a href="<?= $_ENV['PORTAL_URL'] ?>" title="Kembali ke homepage" class="btn btn-secondary btn-lg font-weight-bolder font-size-h6 px-4 py-4 btn-icon my-3"><i class="fa fa-home"></i></a>
-									</div>
-								</div> -->
 							</div>
 							<div class="wizard-nav pt-5">
 								<div class="wizard-steps d-flex flex-column flex-sm-row">
@@ -244,7 +239,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="col-xl-12">
 											<div class="form-group">
 												<label class="font-size-h6 font-weight-bolder text-dark">NIK</label>
-												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nik" id="wajibpajak_nik" autocomplete="off" required/>
+												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nik" id="wajibpajak_nik" autocomplete="off" required />
 											</div>
 										</div>
 									</div>
@@ -252,7 +247,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="col-xl-6">
 											<div class="form-group">
 												<label class="font-size-h6 font-weight-bolder text-dark">NPWPD</label>
-												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" required/>
+												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" required />
 											</div>
 										</div>
 										<div class="col-xl-6">

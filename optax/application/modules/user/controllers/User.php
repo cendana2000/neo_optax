@@ -8,22 +8,27 @@ class User extends Base_Controller
     {
         parent::__construct();
         $this->load->model(array(
-            'UserModel' => 'User',
-            'UserSuperModel' => 'UserSuper',
-            'managementuser/RoleAccessModel' => 'roleaccess',
-            'project/ProjectModel' => 'Project',
-            'UserProjectModel'  => 'UserProject',
-            'pegawai/PegawaiModel' => 'pegawai',
+            'UserModel'                         => 'User',
+            'UserSuperModel'                    => 'UserSuper',
+            'managementuser/RoleAccessModel'    => 'roleaccess',
+            'project/ProjectModel'              => 'Project',
+            'UserProjectModel'                  => 'UserProject',
+            'pegawai/PegawaiModel'              => 'pegawai',
+            'user/UserPegawaiModel'             => 'userpegawai',
+            'pemda/PemdaModel'                  => 'pemda',
         ));
     }
 
-    public function loadTable()
+    public function index()
     {
         $data = varPost();
-
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $this->db->where('pemda_id', $pemda_id);
+        }
         $where = [];
         $where["pegawai_status='1'"] = null;
-        $operation = $this->select_dt($data, 'pegawai', 'datatable', true, $where);
+        $where["pegawai_role_access_id <> '123'"] = null;
+        $operation = $this->select_dt($data, 'userpegawai', 'datatable', true, $where);
 
         $this->response($operation);
     }
@@ -34,12 +39,38 @@ class User extends Base_Controller
             'role_access_deleted_at' => null
         );
         $operation = $this->roleaccess->select(array(
-            // 'filters_static' => $where,
+            'filters_static' => $where,
             'sort_static' => 'role_access_nama ASC'
         ));
 
         $this->response($operation);
     }
+
+    public function combobox_pemda()
+    {
+        $data = $this->db
+            ->select([
+                'pemda_id',
+                'pemda_nama',
+                'pemda_kode',
+                'kabkota_id',
+                'pemda_deleted_at'
+            ])
+            ->from('conf_pemda')
+            ->where('pemda_deleted_at IS NULL', null, false)
+            ->order_by('pemda_nama', 'ASC')
+            ->get()
+            ->result_array();
+
+        $response = [
+            'success' => true,
+            'total'   => count($data),
+            'data'    => $data
+        ];
+
+        $this->response($response);
+    }
+
     public function combobox_project()
     {
         $data = varPost();
@@ -71,17 +102,19 @@ class User extends Base_Controller
     }
     public function store()
     {
-        $data = varPost();
+        $post = varPost();
         $data['pegawai_status']            = 1;
-        $data['pegawai_is_registered']     = 1;
-        if ($this->session->userdata('hak_akses_is_super') != 1) {
-            $data['pegawai_project_id'] = $this->session->userdata('pegawai_project_id');
-        }
-        $data['pegawai_created_at']        = date("Y-m-d H:i:s");
-        $data['pegawai_created_by']        = $this->session->userdata('pegawai_id');
-        $data['pegawai_updated_at']        = date("Y-m-d H:i:s");
+        $data['pegawai_nama']              = $post['pegawai_nama'];
+        $data['pegawai_nip']               = $post['pegawai_nip'];
+        $data['pegawai_email']             = $post['pegawai_email'];
+        $data['pegawai_password']          = md5(md5($post['pegawai_password']));
+        $data['pegawai_role_access_id']    = $post['pegawai_role_access_id'];
+        $data['pegawai_hp']                = $post['pegawai_hp'];
+        $data['pegawai_alamat']            = $post['pegawai_alamat'];
         $data['pegawai_last_change_password'] = date('Y-m-d H:i:s');
-        $data['pegawai_password'] = $this->password($this->config->item('password_default'));
+        $data['pegawai_created_at']        = date("Y-m-d H:i:s");
+        $data['pegawai_created_by']        = $this->session->userdata('user_pegawai_id');
+        $data['pemda_id']                  = $post['select_pemda'];
 
         if (!file_exists("./dokumen/user")) {
             mkdir("./dokumen/user", 0777, true);
@@ -110,7 +143,7 @@ class User extends Base_Controller
                 $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                 $resize = array();
                 $size   =  array(
-                    array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                    array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                 );
                 foreach ($size as $r) {
                     $resize = array(
@@ -139,7 +172,23 @@ class User extends Base_Controller
 
     public function update()
     {
-        $data = varPost();
+        $post = varPost();
+        $data['pegawai_nama']              = $post['pegawai_nama'];
+        $data['pegawai_nip']               = $post['pegawai_nip'];
+        $data['pegawai_email']             = $post['pegawai_email'];
+        $data['pegawai_role_access_id']    = $post['pegawai_role_access_id'];
+        $data['pegawai_hp']                = $post['pegawai_hp'];
+        $data['pegawai_alamat']            = $post['pegawai_alamat'];
+        $data['pegawai_last_change_password'] = date('Y-m-d H:i:s');
+        $data['pegawai_created_at']        = date("Y-m-d H:i:s");
+        $data['pegawai_created_by']        = $this->session->userdata('user_pegawai_id');
+        $data['pemda_id']                  = $post['select_pemda'];
+        if (!empty($post['pegawai_password'])) {
+            $post['pegawai_password'] = md5(md5($post['pegawai_password']));
+        } else {
+            unset($post['pegawai_password']);
+        }
+
         if (!file_exists("./dokumen/user")) {
             mkdir("./dokumen/user", 0777, true);
             mkdir("./dokumen/user/thumbs", 0777, true);
@@ -168,7 +217,7 @@ class User extends Base_Controller
                 $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                 $resize = array();
                 $size   =  array(
-                    array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                    array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                 );
                 foreach ($size as $r) {
                     $resize = array(

@@ -15,13 +15,6 @@
                         <div class="value" id="sum-device-online">0</div>
                     </div>
                 </div>
-                <div class="summary-box box-yellow">
-                    <i class="fa-solid fa-circle-exclamation summary-icon"></i>
-                    <div class="box-info">
-                        <div class="label-summary">WARNING</div>
-                        <div class="value" id="sum-device-warning">0</div>
-                    </div>
-                </div>
                 <div class="summary-box box-red">
                     <i class="fa-solid fa-circle-xmark summary-icon"></i>
                     <div class="box-info">
@@ -46,18 +39,11 @@
                         <div class="value" id="sum-data-active">0</div>
                     </div>
                 </div>
-                <div class="summary-box box-yellow">
-                    <i class="fa-solid fa-circle-exclamation summary-icon"></i>
-                    <div class="box-info">
-                        <div class="label-summary">INACTIVE</div>
-                        <div class="value" id="sum-data-inactive">0</div>
-                    </div>
-                </div>
                 <div class="summary-box box-red">
                     <i class="fa-solid fa-circle-xmark summary-icon"></i>
                     <div class="box-info">
-                        <div class="label-summary">OFFLINE</div>
-                        <div class="value" id="sum-data-offline">0</div>
+                        <div class="label-summary">INACTIVE</div>
+                        <div class="value" id="sum-data-inactive">0</div>
                     </div>
                 </div>
             </div>
@@ -77,7 +63,6 @@
                     <select class="form-select" id="filter_status_device">
                         <option value="">-- Semua --</option>
                         <option value="online">Online</option>
-                        <option value="warning">Warning</option>
                         <option value="offline">Offline</option>
                     </select>
                 </div>
@@ -88,8 +73,7 @@
                     <select class="form-select" id="filter_status_data">
                         <option value="">-- Semua --</option>
                         <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="offline">Offline</option>
+                        <option value="offline">Inactive</option>
                     </select>
                 </div>
 
@@ -105,7 +89,7 @@
                     </select>
                 </div>
                 <div class="col-md-12 mt-3 d-flex justify-content-end">
-                    <button id="btnFilter" class="btn btn-primary fw-bold px-5">
+                    <button id="btnFilter" class="btn btn-sm btn-primary fw-bold px-5">
                         <i class="fa-solid fa-search me-2"></i> Terapkan Filter
                     </button>
                 </div>
@@ -118,8 +102,8 @@
         <div class="card-header d-flex align-items-center">
             <h4 class="fw-bold mb-0">Daftar Status Device</h4>
             <div class="ml-auto dropdown">
-                <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-file-export mr-1"></i> Export
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="exportDropdown">
+                    <i class="fas fa-file-export me-1"></i> Export
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
                     <li><a class="dropdown-item" href="javascript:getExcel()">Excel</a></li>

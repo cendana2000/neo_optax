@@ -93,38 +93,17 @@ class BASE_Controller extends MX_Controller
         $_filterQuery  = ($filterQuery !== null) ? $this->_where($filterQuery) : null;
         $_filterRecord = ($filterRecord !== null) ? $this->_where($filterRecord) : null;
 
-        // print_r($table);
         $ssp_data = $this->ssp->complex($client, $db, $table, $primaryKey, $columns, $_filterRecord, $_filterQuery, $group_by);
-        // $print[] = $this->db->last_query();
         $data_rendered = array();
-        // print_r($ssp_data);die();
 
         $nomor = $client['start'] + 1;
         foreach ($ssp_data['data'] as $key => $value) {
-            // $val_encoded = base64_encode(json_encode($this->$modelname->read($value[$primaryKey])));
             $val_encoded = base64_encode(json_encode([$primaryKey => $value[$primaryKey]]));
             $input       = '<input type="checkbox" name="checkbox" class="checkbox d-none mx-auto" data-record="' . $val_encoded . '" /><span></span>';
-            // $input       = '<input type="hidden" name="checkbox" data-record="'.$val_encoded.'" />';  
             $value[0]     = '<span class="not-checkbox">' . $nomor . '.</span> ' . $input;
             $nomor++;
-            // $i           = 0;
-            // if ($serialNumber) {
-            //     $i=1;
-            // }
-            // unset($value[$primaryKey]);
-            // foreach ($value as $k => $v) {
-            //     if ($i==0) {
-            //         $data[$i] = '<span>'.$value[$k].'.</span> '.$input; 
-            //     }else{
-            //         $data[$i] = $value[$k];
-            //     }
-            //     $i++;
-            // }
             array_push($data_rendered, $value);
-            // print_r($data_rendered);
-
         }
-        // print_r($data_rendered);
         return
             array(
                 // 'draw'              => $ssp_data['draw'],

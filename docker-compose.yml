@@ -61,22 +61,10 @@ services:
     ports:
       - "${POS_PORT}:80"
       - "${MONITORING_PORT}:81"
-      - "${PORTAL_PORT}:82"
-      - "${OUTER_PORT}:83"
+      - "${OUTER_PORT}:82"
     depends_on:
       - optax
       - pos
-    networks:
-      - optax-network
-
-  portal:
-    build:
-      context: .
-      dockerfile: php74.Dockerfile
-    volumes:
-      - ./portal:/var/www/portal
-    depends_on:
-      - db-postgresql
     networks:
       - optax-network
 

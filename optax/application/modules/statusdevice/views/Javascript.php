@@ -161,11 +161,9 @@
             type: 'POST',
             success: function(res) {
                 $('#sum-device-online').text(res.summary.device.online);
-                $('#sum-device-warning').text(res.summary.device.warning);
                 $('#sum-device-offline').text(res.summary.device.offline);
                 $('#sum-data-active').text(res.summary.data.active);
                 $('#sum-data-inactive').text(res.summary.data.inactive);
-                $('#sum-data-offline').text(res.summary.data.offline);
             }
         })
     });
@@ -223,7 +221,7 @@
                     targets: 5,
                     orderable: false,
                     render: function(data, type, full, meta) {
-                        return `<button data-id="${full['toko_id']}" class="btn btn-sm btn-light-primary btn-detail"><i class="fa fa-info-circle"></i></button>`;
+                        return `<button data-id="${full['toko_id']}" class="btn btn-sm btn-secondary btn-detail"><i class="fa fa-info-circle"></i></button>`;
                     }
                 },
             ]

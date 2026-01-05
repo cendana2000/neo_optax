@@ -15,9 +15,10 @@
 			'pegawai_lat',
 			'pegawai_long',
 			'pegawai_password',
+			'pemda_id',
 		];
 		HELPER.api = {
-			table: BASE_URL + 'user/loadTable',
+			table: BASE_URL + 'user',
 			store: BASE_URL + 'user/store',
 			update: BASE_URL + 'user/update',
 			read: BASE_URL + 'user/read',
@@ -31,6 +32,18 @@
 			valueField: 'role_access_id',
 			displayField: 'role_access_nama',
 			url: BASE_URL + 'user/combobox_role',
+			withNull: true,
+			grouped: false,
+			select2: true,
+			select2Parent: '#modalData',
+			callback: function() {}
+		});
+
+		HELPER.createCombo({
+			el: ['select_pemda'],
+			valueField: 'pemda_id',
+			displayField: 'pemda_nama',
+			url: BASE_URL + 'user/combobox_pemda',
 			withNull: true,
 			grouped: false,
 			select2: true,
@@ -124,17 +137,29 @@
 					targets: 2,
 					orderable: false,
 					render: function(data, type, full, meta) {
-						return full['pegawai_hp'];
+						return full['role_access_kode'];
 					},
 				},
 				{
 					targets: 3,
 					render: function(data, type, full, meta) {
-						return full['pegawai_email'];
+						return full['pemda_nama'];
 					},
 				},
 				{
 					targets: 4,
+					render: function(data, type, full, meta) {
+						return full['kabkota_nama'];
+					},
+				},
+				{
+					targets: 5,
+					render: function(data, type, full, meta) {
+						return full['pegawai_email'];
+					},
+				},
+				{
+					targets: 6,
 					render: function(data, type, full, meta) {
 						status = full['pegawai_status'];
 						if (status == 1) {
@@ -144,7 +169,7 @@
 					},
 				},
 				{
-					targets: 5,
+					targets: -1,
 					width: '20px',
 					orderable: false,
 					render: function(data, type, full, meta) {
@@ -158,7 +183,6 @@
 						dropdown = ""
 						if (HELPER.get_role_access('User-Update')) {
 							menu += `<li class="nav-item"><a class="nav-link" href="javascript:;" onclick="onEdit('` + full['pegawai_id'] + `')"><i class="nav-icon fa fa-pen"></i><span class="nav-text">Edit</span></a></li>`;
-							// menu += `<li class="nav-item"><a class="nav-link" href="javascript:;" onclick="onSetProject('` + full['pegawai_id'] + `')"><i class="nav-icon fa fa-pen"></i><span class="nav-text">Set Project</span></a></li>`;
 						}
 						if (HELPER.get_role_access('User-Delete')) {
 							menu += `<li class="nav-item"><a class="nav-link" href="javascript:;" onclick="onDelete('` + full['pegawai_id'] + `')"><i class="nav-icon fa fa-trash"></i><span class="nav-text">Delete</span></a></li>`;
@@ -202,6 +226,9 @@
 		$("#modal-title").html('Add User')
 		$("#modalData").modal('show')
 		$('#pegawai_role_access_id').select2({
+			dropdownParent: $('#modalData')
+		});
+		$('#select_pemda').select2({
 			dropdownParent: $('#modalData')
 		});
 		fv.resetForm(true)
@@ -255,18 +282,24 @@
 				id: user_id
 			},
 			complete: function(res) {
+				$('#pegawai_password').removeAttr('required');
 				$('#pegawai_foto').css('background-image', 'url(./assets/media/noimage.png)');
 				$("#modal-title").html('Update user')
 				$("#modalData").modal('show')
 				$('#pegawai_role_access_id').select2({
 					dropdownParent: $('#modalData')
 				});
+				$('#select_pemda').select2({
+					dropdownParent: $('#modalData')
+				});
 				HELPER.populateForm($('#form-user'), res);
 				if (res.pegawai_foto) {
 					$('#pegawai_foto').css('background-image', 'url(dokumen/user/' + res.pegawai_foto + ')');
 				}
-				console.log(res.pegawai_role_access_id)
 				$("#pegawai_role_access_id").val(res.pegawai_role_access_id).trigger("change")
+				$("#select_pemda").val(res.pemda_id).trigger("change")
+				$("#pegawai_alamat").val(res.pegawai_alamat)
+				$("#label-password").html('Password <small class="text-muted">(kosongkan jika tidak diubah)</small>')
 			}
 		})
 	}

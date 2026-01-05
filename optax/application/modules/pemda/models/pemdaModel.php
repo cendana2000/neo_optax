@@ -10,7 +10,10 @@ class PemdaModel extends Base_Model
                 'primary' => 'pemda_id',
                 'fields' => array(
                     array('name' => 'pemda_id'),
-                    array('name' => 'pemda_nama')
+                    array('name' => 'pemda_nama'),
+                    array('name' => 'pemda_kode'),
+                    array('name' => 'kabkota_id'),
+                    array('name' => 'pemda_deleted_at')
                 )
             ),
             'view' => array(
@@ -18,6 +21,9 @@ class PemdaModel extends Base_Model
                     'table' => array(
                         'pemda_id',
                         'pemda_nama',
+                        'pemda_kode',
+                        'kabkota_id',
+                        'pemda_deleted_at',
                     )
                 )
             )

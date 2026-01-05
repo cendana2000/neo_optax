@@ -109,12 +109,6 @@ License: You must have a valid license purchased only from themeforest(the above
 									</div>
 								</div>
 							</div>
-							<div class="d-flex justify-content-between pt-7">
-								<button type="button" class="btn btn-primary btn-lg font-weight-bolder font-size-h6 my-3 btn-next" onclick="doLogin()">Login</button>
-								<div>
-									<a href="<?= $_ENV['PORTAL_URL'] ?>" title="Kembali ke <?= $_ENV['PORTAL_URL'] ?>" class="btn btn-secondary btn-lg font-weight-bolder font-size-h6 px-4 py-4 btn-icon my-3"><i class="fa fa-home"></i></a>
-								</div>
-							</div>
 						</form>
 					</div>
 				</div>
