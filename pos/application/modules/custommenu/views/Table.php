@@ -4,7 +4,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">FORM CUSTOM MENU</h3>
 				</div>
@@ -47,7 +47,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">DATA CUSTOM MENU</h3>
 				</div>
