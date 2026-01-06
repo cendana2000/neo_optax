@@ -22,7 +22,7 @@ class Laporanpricelist extends Base_Controller
 			unset($filter['print_color']);
 			if (!$filter) $filter = [];
 			$filter['barang_deleted_at'] = null;
-			$this->response($this->select_dt(varPost(), 'barang', 'pricelist', false, $filter, null, $_ENV['PREFIX_DBPOS'] . $data['codestore']));
+			$this->response($this->select_dt(varPost(), 'barang', 'pricelist', false, $filter, null));
 		} else {
 			$this->response(array(
 				'success' => false
