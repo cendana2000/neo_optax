@@ -30,39 +30,46 @@ class Profil extends Base_Controller
 
   public function update()
   {
-    $file = $_FILES['wajibpajak_image']['name'];
-    $config['upload_path']  = './assets/berkasnpwp/images/';
-    $config['allowed_types'] = 'jpeg|jpg|png';
-    $config['max_size'] = 1000;
-    $config['file_name'] = uniqid('npwp_', false) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+    $data = varPost();
 
-    $this->upload->initialize($config);
+    if (!empty($_FILES['wajibpajak_image']['name'])) {
 
-    if ($file) {
-      if (!$this->upload->do_upload('wajibpajak_image')) {
-        $status = "failed upload image";
-        $msg = $this->upload->display_errors('', '');
+      $uploadPath = APPPATH . '../assets/media/berkasnpwpd/';
 
-        $data = varPost();
-        $operation = $this->wajibpajak->update($data['wajibpajak_id'], $data);
-      } else {
-        $status = "success upload image";
-        $dataupload = $this->upload->data();
-
-        $data = varPost();
-        $pathfile = $config['upload_path'] . $config['file_name'];
-        $data['wajibpajak_berkas'] = ltrim($pathfile, '.');
-
-        $operation = $this->wajibpajak->update($data['wajibpajak_id'], $data);
+      if (!is_dir($uploadPath)) {
+        mkdir($uploadPath, 0777, true);
       }
-    } else {
-      $data = varPost();
-      $data['wajibpajak_coord'] = "({$data['wajibpajak_coord']})";
-      $operation = $this->wajibpajak->update($data['wajibpajak_id'], $data);
+
+      $config['upload_path']   = realpath($uploadPath);
+      $config['allowed_types'] = 'jpg|jpeg|png';
+      $config['max_size']      = 1024;
+      $config['encrypt_name']  = true;
+
+      $this->load->library('upload');
+      $this->upload->initialize($config);
+
+      if (!$this->upload->do_upload('wajibpajak_image')) {
+        $this->response([
+          'success' => false,
+          'message' => $this->upload->display_errors('', '')
+        ]);
+        return;
+      }
+
+      $upload = $this->upload->data();
+      $data['wajibpajak_berkas'] = $upload['file_name'];
     }
+
+    $operation = $this->wajibpajak->update(
+      $data['wajibpajak_id'],
+      $data
+    );
+
     log_activity('Ubah profil wajibpajak');
     $this->response($operation);
   }
+
+
 
   public function removeImage()
   {

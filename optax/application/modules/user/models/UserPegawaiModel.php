@@ -19,6 +19,7 @@ class UserPegawaiModel extends Base_Model
 					array('name' => 'pegawai_password'),
 					array('name' => 'pegawai_status'),
 					array('name' => 'pegawai_foto'),
+					array('name' => 'pemda_id'),
 					array('name' => 'pemda_nama'),
 					array('name' => 'role_access_kode'),
 					array('name' => 'kabkota_nama'),
@@ -37,6 +38,7 @@ class UserPegawaiModel extends Base_Model
 						'pegawai_email',
 						'pegawai_password',
 						'pegawai_foto',
+						'pemda_id',
 						'pemda_nama',
 						'role_access_kode',
 						'kabkota_nama'
@@ -51,6 +53,7 @@ class UserPegawaiModel extends Base_Model
 						'pegawai_email',
 						'pegawai_password',
 						'pegawai_foto',
+						'pemda_id',
 						'pemda_nama',
 						'role_access_kode',
 						'kabkota_nama'

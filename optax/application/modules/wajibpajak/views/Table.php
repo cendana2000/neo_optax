@@ -1,3 +1,67 @@
+<div class="row table_data">
+	<div class="col-12 col-md-12 mb-3">
+		<div class="card card-custom">
+			<div class="card-header">
+				<div class="card-title">
+					<span class="card-icon">
+						<i class="fas fa-table text-primary"></i>
+					</span>
+					<h3 class="card-label">DATA OBJEK PAJAK</h3>
+				</div>
+				<div class="card-toolbar">
+					<div class="example-tools justify-content-center">
+						<button class="btn btn-info btn-sm" onclick="onSyncOAPI()"><i class="flaticon-refresh"></i> Sinkronkan OAPI</button>
+					</div>
+				</div>
+			</div>
+			<div class="p-5">
+				<ul class="nav nav-pills nav-fill border border-primary sort-by-status rounded">
+					<li class="nav-item">
+						<a class="nav-link active" href="javascript:void(0)" data="all">Semua</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="javascript:void(0)" data="2">Aktif</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="javascript:void(0)" data="0">Tidak Aktif</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="javascript:void(0)" data="5">Dummy</a>
+					</li>
+				</ul>
+			</div>
+			<div class="card-body table-responsive">
+				<table class="table table-head-custom table-head-bg table-striped table-checkable table-condensed table-hover" id="table-wajibpajak">
+					<thead>
+						<tr>
+							<th style="width:5%;">No.</th>
+							<th>NPWPD</th>
+							<th>Nama</th>
+							<th>Jenis Pajak</th>
+							<th>PIC</th>
+							<th>Tgl Pendaftaran</th>
+							<th>Status</th>
+							<th>Aksi</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+					<tfoot>
+						<tr>
+							<th style="width:5%;">No.</th>
+							<th>NPWPD</th>
+							<th>Nama</th>
+							<th>Jenis Pajak</th>
+							<th>PIC</th>
+							<th>Tgl Pendaftaran</th>
+							<th>Status</th>
+							<th>Aksi</th>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="row form_data" style="display:none">
 	<div class="col-12 col-md-12 mb-3" data-roleable="false" data-role="customer-Create" data-action="hide">
 		<div class="card card-custom">
@@ -6,7 +70,7 @@
 					<span class="card-icon">
 						<i class="fas fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">DETAIL AKUN WAJIB PAJAK</h3>
+					<h3 class="card-label">DETAIL AKUN OBJEK PAJAK</h3>
 				</div>
 			</div>
 			<form action="javascript:save('form-wajibpajak')" method="post" id="form-wajibpajak" name="form-wajibpajak" autocomplete="off">
@@ -77,7 +141,6 @@
 									</div>
 								</div>
 							</div>
-
 						</div>
 					</div>
 					<div class="separator separator-dashed my-5"></div>
@@ -98,7 +161,7 @@
 								<option value="5"> Dummy </option>
 							</select>
 							<!-- <button type="button" class="btn btn-light-primary font-weight-bold btn-sm">Setup login verification</button> -->
-							<p class="form-text text-muted pt-2">Silahkan pilih status verifikasi untuk mengizinkan/menolak user(wajib pajak) akses ke portal wajib pajak.
+							<p class="form-text text-muted pt-2">Silahkan pilih status verifikasi untuk mengizinkan/menolak user(objek pajak) akses ke portal objek pajak.
 							</p>
 						</div>
 					</div>
@@ -114,79 +177,6 @@
 					</div>
 				</div>
 			</form>
-		</div>
-	</div>
-</div>
-<div class="row table_data">
-	<div class="col-12 col-md-12 mb-3">
-		<div class="card card-custom">
-			<div class="card-header">
-				<div class="card-title">
-					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
-					</span>
-					<h3 class="card-label">DATA WAJIB PAJAK</h3>
-				</div>
-				<div class="card-toolbar">
-					<div class="example-tools justify-content-center">
-						<button class="btn btn-info btn-sm" onclick="onSyncOAPI()"><i class="flaticon-refresh"></i> Sinkronkan OAPI</button>
-						<!-- <button class="btn btn-warning btn-sm" onclick="onRefresh()"><i class="flaticon-refresh"></i> Muat Ulang</button> -->
-					</div>
-				</div>
-			</div>
-			<div class="p-5">
-				<ul class="nav nav-pills nav-fill border border-primary sort-by-status rounded">
-					<li class="nav-item">
-						<a class="nav-link active" href="javascript:void(0)" data="all">Semua</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="javascript:void(0)" data="1">Permohonan</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="javascript:void(0)" data="2">Disetujui</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="javascript:void(0)" data="3">Ditolak</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="javascript:void(0)" data="0">Tidak Aktif</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="javascript:void(0)" data="5">Dummy</a>
-					</li>
-				</ul>
-			</div>
-			<div class="card-body table-responsive">
-				<table class="table table-head-custom table-head-bg table-striped table-checkable table-condensed table-hover" id="table-wajibpajak">
-					<thead>
-						<tr>
-							<th style="width:5%;">No.</th>
-							<th>NPWPD</th>
-							<th>Kode Toko</th>
-							<th>Nama</th>
-							<th>Jenis</th>
-							<th>Penanggung Jawab</th>
-							<th>Tanggal Pendaftaran</th>
-							<th>Status</th>
-							<th>Aksi</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-					<tfoot>
-						<tr>
-							<th style="width:5%;">No.</th>
-							<th>NPWPD</th>
-							<th>Kode Toko</th>
-							<th>Nama</th>
-							<th>Jenis</th>
-							<th>Penanggung Jawab</th>
-							<th>Tanggal Pendaftaran</th>
-							<th>Status</th>
-							<th>Aksi</th>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
 		</div>
 	</div>
 </div>

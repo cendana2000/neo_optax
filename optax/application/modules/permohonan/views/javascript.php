@@ -22,10 +22,6 @@
 			placeholder: "Pilih",
 			allowClear: true
 		});
-		/*HELPER.initTable({
-			el : 'table-wajibpajak',
-			url: HELPER.api.table,
-		})*/
 		loadTable();
 	});
 
@@ -75,23 +71,13 @@
 				},
 				{
 					targets: 6,
-					// width: '50px',
 					orderable: false,
 					visible: true,
 					render: function(data, type, full, meta) {
 						let btn_aksi = "";
-						// if (HELPER.get_role_access('wajibpajak-Update')) {
 						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-primary" onclick="onDetail('` + full['wajibpajak_id'] + `')">
 											Detail
 										</a>`;
-						// }
-						// if (HELPER.get_role_access('wajibpajak-Delete')) {
-						// btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-danger btn-icon mx-1" onclick="onDelete('` + full['wajibpajak_id'] + `')"">
-						// 					<span class="svg-icon svg-icon-md">
-						// 						<i class="fa fa-trash"></i>
-						// 					</span>
-						// 				</a>`;
-						// }
 						return btn_aksi;
 					},
 				},
