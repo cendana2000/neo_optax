@@ -36,7 +36,7 @@ class Login extends BASE_Controller
         $google_client = new Google_Client();
         $google_client->setClientId('247007558195-ted8nm32eplo7nske0kduikqoq2kotu9.apps.googleusercontent.com'); //masukkan ClientID anda 
         $google_client->setClientSecret('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'); //masukkan Client Secret Key anda
-        $google_client->setRedirectUri(base_url() . 'index.php/login/doauth'); //Masukkan Redirect Uri anda
+        $google_client->setRedirectUri(base_url() . '/login/doauth'); //Masukkan Redirect Uri anda
         $google_client->addScope('email');
         $google_client->addScope('profile');
         if (isset($_GET["code"])) {

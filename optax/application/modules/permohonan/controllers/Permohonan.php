@@ -71,12 +71,12 @@ class Permohonan extends Base_Controller
 				'template'      => 'ConfirmRegister',
 				'data'          => [
 					'to_email'          => strtolower($data['wajibpajak_email']),
-					'link'              => base_url() . 'index.php/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
+					'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
 					'wajibpajak'        => $data['wajibpajak_nama'],
 					'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
 					'base_url' 					=> base_url(),
 					'status_verifikasi' => $data['wajibpajak_status'],
-					'link_revisi'				=> base_url() . 'index.php/mitra/revisi/' . base64url_encode($operation['record']['wajibpajak_email']),
+					'link_revisi'				=> base_url() . '/mitra/revisi/' . base64url_encode($operation['record']['wajibpajak_email']),
 					'emailfrom'         => $this->config->item('app_email'),
 				]
 			];

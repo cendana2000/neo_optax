@@ -36,7 +36,7 @@ class Mitra extends Base_Controller
         $google_client = new Google_Client();
         $google_client->setClientId($_ENV['GAPI_CLIENT_ID']);
         $google_client->setClientSecret($_ENV['GAPI_CLIENT_SECRET']);
-        $google_client->setRedirectUri(base_url() . 'index.php/login/doauth');
+        $google_client->setRedirectUri(base_url() . '/login/doauth');
         $google_client->addScope('email');
         $google_client->addScope('profile');
 
@@ -417,7 +417,7 @@ class Mitra extends Base_Controller
                     'template'      => 'ConfirmRegister',
                     'data'          => [
                         'to_email'          => strtolower($data['wajibpajak_email']),
-                        'link'              => base_url() . 'index.php/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
+                        'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
                         'wajibpajak'        => $data['wajibpajak_nama'],
                         'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
                         'base_url'          => base_url(),

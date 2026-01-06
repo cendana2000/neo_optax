@@ -1,5 +1,5 @@
 <script>
-    BASE_URL = '<?= base_url('index.php/') ?>';
+    BASE_URL = '<?= base_url('/') ?>';
     // $('#mb_wp').hide();
     // $('#mb_bp').hide();
 

@@ -534,7 +534,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		<script src="https://www.google.com/recaptcha/api.js?render=<?= $_ENV['GAPI_CAPTCHA_SITE_KEY'] ?>"></script>
 	<?php endif; ?>
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('Content/get/') ?>";

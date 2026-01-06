@@ -295,7 +295,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<a href="#" class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary"><?= $this->session->userdata('pegawai_nama') ?></a>
 					<div class="navi mt-2 d-flex">
 						<a href="javascript:void(0)" class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5 menu-link" id="btn-Profile" onclick="HELPER.loadPage(this)" data-menu="profile-Table">Edit Profile</a>
-						<a href="<?= base_url('index.php/login/logout') ?>" class="btn btn-sm btn-light-danger font-weight-bolder py-2 px-5">Sign Out</a>
+						<a href="<?= base_url('/login/logout') ?>" class="btn btn-sm btn-light-danger font-weight-bolder py-2 px-5">Sign Out</a>
 					</div>
 				</div>
 			</div>
@@ -513,7 +513,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script type="text/javascript" src="assets/plugins/custom/jqueryNumber/jquery.number.min.js"></script>
 	<!--end::Page Vendors-->
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('dokumen/') ?>"

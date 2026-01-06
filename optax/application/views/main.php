@@ -1168,7 +1168,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<ul class="navi navi-hover py-4">
 										<!--begin::Item-->
 										<li class="navi-item side-nemu">
-											<a href="javascript:void(0)" id="btn-profile" data-page="index.php/Profile/Profile" class="navi-link">
+											<a href="javascript:void(0)" id="btn-profile" data-page="/Profile/Profile" class="navi-link">
 												<span class="navi-text">My Profile</span>
 											</a>
 										</li>
@@ -2560,7 +2560,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script src="assets/helper/jquery.cookie.js"></script>
 
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		var base_ws = 'wss://api-fms.pttimah.co.id/api/socket';

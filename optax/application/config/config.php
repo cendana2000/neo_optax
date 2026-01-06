@@ -43,7 +43,6 @@ $config['modules_locations'] = array(
 |
 */
 $config['index_page'] = '';
-// $config['index_page'] = 'index.php';
 
 /*
 |--------------------------------------------------------------------------

@@ -160,7 +160,7 @@
 
     <script type="text/javascript">
         var fv
-        BASE_URL = "<?php echo base_url() ?>index.php/";
+        BASE_URL = "<?php echo base_url() ?>/";
         $(function() {
             fv = HELPER.newHandleValidation({
                 el: 'form-change-password',

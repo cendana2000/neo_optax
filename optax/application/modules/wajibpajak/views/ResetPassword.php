@@ -187,7 +187,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<!-- <script type="text/javascript" src="<?php echo base_url(); ?>assets/helper/jquery.cookie.js"></script> -->
 
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('Content/get/') ?>";

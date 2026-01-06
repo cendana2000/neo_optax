@@ -235,7 +235,7 @@ class Permohonantoko extends Base_Controller
 						'template'      => 'ConfirmToko',
 						'data'          => [
 							'to_email'          => strtolower($data['wajibpajak_email']),
-							'link'              => base_url() . 'index.php/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
+							'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
 							'wajibpajak'        => $data['wajibpajak_nama'],
 							'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
 							'toko_kode'	 				=> $data['toko_kode'],

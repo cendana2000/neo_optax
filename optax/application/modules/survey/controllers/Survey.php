@@ -107,9 +107,9 @@ class Survey extends Base_Controller
   {
     $survey = $this->survey->read(array('survey_status' => '1'));
     if (!empty($survey)) {
-      redirect(base_url() . 'index.php/survey/form/' . rawurlencode($survey['survey_judul']) . '/' . $kodetoko);
+      redirect(base_url() . '/survey/form/' . rawurlencode($survey['survey_judul']) . '/' . $kodetoko);
     } else {
-      redirect(base_url() . 'index.php/survey/form/inactive/' . $kodetoko);
+      redirect(base_url() . '/survey/form/inactive/' . $kodetoko);
     }
   }
 

@@ -145,7 +145,7 @@ class Wajibpajak extends Base_Controller
                             'template'      => 'ConfirmRegister',
                             'data'          => [
                                 'to_email'          => strtolower($data['wajibpajak_email']),
-                                'link'              => base_url() . 'index.php/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
+                                'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
                                 'wajibpajak'        => $data['wajibpajak_nama'],
                                 'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
                                 'base_url'          => base_url(),
@@ -185,7 +185,7 @@ class Wajibpajak extends Base_Controller
                     'template'      => 'ForgotPasswordEmailTheme',
                     'data'          => [
                         'to_email'          => strtolower($wpexist['wajibpajak_email']),
-                        'link'              => base_url() . 'index.php/wajibpajak/resetpassword/' . $this->base64url_encode($token),
+                        'link'              => base_url() . '/wajibpajak/resetpassword/' . $this->base64url_encode($token),
                         'wajibpajak'        => $wpexist['wajibpajak_nama'],
                         'penanggungjawab'   => $wpexist['wajibpajak_nama_penanggungjawab'],
                         'base_url'          => base_url(),
