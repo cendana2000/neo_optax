@@ -81,42 +81,33 @@ class Toko extends Base_Controller
 
   public function pos_user()
   {
-    $data = varPost();
-    $post = [];
-    $this->http_build_query_for_curl($data, $post);
-    // print_r('<pre>');print_r($data);print_r('</pre>');exit;
-    // $ch = curl_init($_ENV['POS_URL'] . 'api/user/all/' . $data['toko_kode']);
-    $ch = curl_init($_ENV['POS_URL'] . '?code_store=' . $data['toko_kode']);
-    $request_headers = array(
-      'Token:123',
-      'CLient:PMU01',
-    );
-    // $data = null;
-    /* curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+    $post = $this->input->post();
 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  */
-    curl_setopt_array($ch, [
-      CURLOPT_HTTPHEADER => $request_headers,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_POST => true,
-      CURLOPT_POSTFIELDS => http_build_query($data),
-      CURLOPT_FAILONERROR => true,
-      CURLOPT_FOLLOWLOCATION => false,
-    ]);
-
-    $result = curl_exec($ch);
-    if (!$result) {
-      # code...
-      print_r('Error: ' . curl_error($ch));
+    if (empty($post['toko_kode'])) {
+      return $this->response([
+        'data' => [],
+        'message' => 'Kode toko tidak ditemukan'
+      ]);
     }
 
-    curl_close($ch);
+    $this->db->select('
+        user_id,
+        user_nama,
+        user_telepon,
+        user_email,
+        user_status
+    ');
+    $this->db->from('pos_user');
+    $this->db->where('user_code_store', $post['toko_kode']);
+    $this->db->where('user_deleted_at IS NULL', null, false);
 
-    // print_r('<pre>');print_r($result);print_r('</pre>');exit;
-    $this->response(json_decode($result, true));
+    $query = $this->db->get()->result_array();
+
+    $this->response([
+      'data' => $query
+    ]);
   }
+
 
   /**
    * It recursively converts the multi dimension (deep) array to single dimension array as it was posted from an html form

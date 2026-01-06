@@ -1,3 +1,11 @@
+<style>
+    .show-wajibpajak-image {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 200px;
+    }
+</style>
 <div class="card card-custom card-stretch">
     <!--begin::Header-->
     <div class="card-header py-3">
@@ -126,13 +134,12 @@
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-12 order-lg-2 order-1">
-                    <h5 class="font-weight-bold mb-6">Berkas NPWP</h5>
+                    <h5 class="font-weight-bold mb-6">Berkas NPWPD</h5>
                     <div class="image-input image-input-outline img-fluid w-100" id="kt_profile_avatar" style="height:200px;background-image: url(assets/media/users/blank.png)">
                         <div class="image-input-wrapper show-wajibpajak-image img-fluid w-100" style="height: 100%;background-size:cover;background-position-y:center;background-position-x:center;"></div>
                         <label onchange="onChangeImage(this)" class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
                             <i class="fa fa-pen icon-sm text-muted"></i>
-                            <input disabled="" class="is_edit_picture" id="wajibpajak_image" type="file" name="wajibpajak_image" accept=".png, .jpg, .jpeg">
-                            <!-- <input type="hidden" name="profile_avatar_remove" /> -->
+                            <input class="is_edit_picture" id="wajibpajak_image" type="file" name="wajibpajak_image" accept=".png, .jpg, .jpeg">
                         </label>
                         <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
                             <i class="ki ki-bold-close icon-xs text-muted"></i>

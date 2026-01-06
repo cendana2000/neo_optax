@@ -1,12 +1,12 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/custom_statusdevice.css'); ?>">
 <div class="row table_data">
     <div class="container mt-4">
-        <h3 class="page-title-custom">Rekap Pajak <i class="fa-solid fa-file-signature"></i></h3>
+        <h3 class="page-title-custom">Transaksi Pajak <i class="fa-solid fa-file-signature"></i></h3>
         <!-- FILTER CARD -->
         <div class="filter-card card card-premium mb-5">
             <div class="card-body">
                 <h5 class="fw-bold mb-3">
-                    <i class="fa-solid fa-filter me-2 text-primary"></i> Filter Rekap Pajak
+                    <i class="fa-solid fa-filter me-2 text-primary"></i> Filter Transaksi Pajak
                 </h5>
                 <div class="row g-3">
                     <!-- KECAMATAN -->
@@ -47,7 +47,7 @@
         <div class="col">
             <div class="card card-custom">
                 <div class="card-header d-flex align-items-center">
-                    <h4 class="fw-bold mb-0">Daftar Rekap Pajak</h4>
+                    <h4 class="fw-bold mb-0">Daftar Transaksi Pajak</h4>
                     <div class="ml-auto dropdown">
                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="exportDropdown"
                             data-bs-toggle="dropdown" aria-expanded="false">

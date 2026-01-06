@@ -109,6 +109,9 @@ License: You must have a valid license purchased only from themeforest(the above
 									</div>
 								</div>
 							</div>
+							<div class="d-flex justify-content-between pt-7">
+								<button type="button" class="btn btn-primary btn-lg font-weight-bolder font-size-h6 my-3 btn-next" onclick="doLogin()">Login</button>
+							</div>
 						</form>
 					</div>
 				</div>

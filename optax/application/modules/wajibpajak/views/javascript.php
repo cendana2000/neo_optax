@@ -43,7 +43,7 @@
 		mstatus = {
 			0: '<span class="label label-inline label-warning">Tidak Aktif</span>',
 			1: '<span class="label label-inline ">Permohonan</span>',
-			2: '<span class="label label-inline label-success">Disetujui</span>',
+			2: '<span class="label label-inline label-success">Aktif</span>',
 			3: '<span class="label label-inline label-danger">Ditolak</span>',
 			4: '<span class="label label-inline label-danger">Ditolak Dengan Revisi</span>',
 			5: '<span class="label label-inline label-primary">Dummy</span>',
@@ -51,8 +51,8 @@
 		posstatus = {
 			posActive: '<span class="label label-inline label-secondary ml-2">POS</span>',
 			posInactive: '<span class="label label-inline label-secondary ml-2">POS Tidak Aktif</span>',
-			oapiActive: '<span class="label label-inline label-info ml-2">Outer API</span>',
-			oapiInactive: '<span class="label label-inline label-secondary ml-2">Outer API Tidak Aktif</span>',
+			oapiActive: '<span class="label label-inline label-secondary ml-2">API Reader</span>',
+			oapiInactive: '<span class="label label-inline label-secondary ml-2">API Tidak Aktif</span>',
 		}
 		HELPER.initTable({
 			el: "table-wajibpajak",
@@ -75,41 +75,35 @@
 				{
 					targets: 2,
 					render: function(data, type, full, meta) {
-						return full['toko_kode'];
+						return full['wajibpajak_nama'];
 					},
 				},
 				{
 					targets: 3,
 					render: function(data, type, full, meta) {
-						return full['wajibpajak_nama'];
+						return full['jenis_nama'];
 					},
 				},
 				{
 					targets: 4,
 					render: function(data, type, full, meta) {
-						return full['jenis_nama'];
+						return full['wajibpajak_nama_penanggungjawab'];
 					},
 				},
 				{
 					targets: 5,
 					render: function(data, type, full, meta) {
-						return full['wajibpajak_nama_penanggungjawab'];
+						return full['wajibpajak_created_at'];
 					},
 				},
 				{
 					targets: 6,
 					render: function(data, type, full, meta) {
-						return full['wajibpajak_created_at'];
+						return mstatus[full['wajibpajak_status']] + (full['toko_is_oapi'] === 'ACTIVE' ? posstatus['oapiActive'] : '');
 					},
 				},
 				{
-					targets: 7,
-					render: function(data, type, full, meta) {
-						return mstatus[full['wajibpajak_status']] + (full['toko_is_pos'] === 'ACTIVE' ? posstatus['posActive'] : '') + (full['toko_is_oapi'] === 'ACTIVE' ? posstatus['oapiActive'] : '');
-					},
-				},
-				{
-					targets: 8,
+					targets: -1,
 					// width: '50px',
 					orderable: false,
 					visible: true,
@@ -120,8 +114,8 @@
 								Detail
 							</button>
 							<div class="dropdown-menu">
-										<a class="dropdown-item" href="#" onclick="onDetail('` + full['wajibpajak_id'] + `')">Detail WP</a>
-										<a class="dropdown-item" href="#" onclick="onPosOapi('` + full['wajibpajak_id'] + `')">${full['toko_is_oapi'] === 'ACTIVE' ? 'Edit' : 'Aktifkan'} POS OAPI</a>
+										<a class="dropdown-item" href="#" onclick="onDetail('` + full['wajibpajak_id'] + `')">Detail</a>
+										<a class="dropdown-item" href="#" onclick="onPosOapi('` + full['wajibpajak_id'] + `')">${full['toko_is_oapi'] === 'ACTIVE' ? 'Edit' : 'Aktifkan'} API Reader</a>
 							</div>
 						</div>`;
 						return btn_aksi;
@@ -144,16 +138,53 @@
 				wajibpajak_id: id
 			},
 			callback: function(res) {
+				console.log('Response:', res);
+				console.log('Berkas filename:', res.wajibpajak_berkas);
+
+				BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas
+				console.log('BASE_URL_NO_INDEX:', BASE_URL_NO_INDEX);
+
 				$('#wajibpajak_usaha_nama').val(res.jenis_nama);
 				$('input[name=wajibpajak_nama]').val(res.wajibpajak_nama);
-				$('#wajibpajak_berkas_npwp').attr('style', 'height:200px;background-image: url(' + BASE_URL_NO_INDEX + res.wajibpajak_berkas + ')');
-				// console.log(res);
+				const imagePath = BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas;
+				console.log('Full image path:', imagePath);
+				testImageLoad(imagePath, function(success) {
+					if (success) {
+						$('#wajibpajak_berkas_npwp').css({
+							'background-image': 'url(' + imagePath + ')',
+							'background-size': 'cover',
+							'background-position': 'center',
+							'height': '200px'
+						});
+					} else {
+						$('#wajibpajak_berkas_npwp').css({
+							'background-image': 'url(assets/media/users/blank.png)',
+							'background-size': 'cover',
+							'background-position': 'center',
+							'height': '200px'
+						});
+					}
+				});
+
 				HELPER.toggleForm({
 					tohide: 'table_data',
 					toshow: 'form_data'
-				})
+				});
 			}
-		})
+		});
+	}
+
+	function testImageLoad(url, callback) {
+		const img = new Image();
+		img.onload = function() {
+			console.log('Gambar berhasil dimuat:', url);
+			callback(true);
+		};
+		img.onerror = function() {
+			console.error('GAGAL memuat gambar:', url);
+			callback(false);
+		};
+		img.src = url;
 	}
 
 	function onEdit2(el) {

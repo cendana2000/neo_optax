@@ -107,7 +107,7 @@ class Permohonan extends Base_Controller
 		$this->response($operation);
 	}
 
-	public function save_status(Type $var = null)
+	public function save_status()
 	{
 		$data = varPost();
 		$operation = $this->wajibpajak->update(varPost('id', varExist($data, $this->wajibpajak->get_primary(true))));

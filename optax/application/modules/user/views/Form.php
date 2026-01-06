@@ -61,10 +61,10 @@
 								</div>
 							</div>
 
-							<div class="form-group row">
+							<div class="form-group row" id="wrap-pemda" style="display:none">
 								<label class="col-lg-4 col-form-label text-left" for="select_pemda">Select Pemda</label>
 								<div class="col-lg-8">
-									<select class="form-select select2 form-control" id="select_pemda" name="select_pemda" required></select>
+									<select class="form-select select2 form-control" id="select_pemda" name="select_pemda"></select>
 								</div>
 							</div>
 
@@ -106,7 +106,7 @@
 							<div class="form-group row">
 								<label class="col-lg-4 col-form-label text-left" for="pegawai_password" id="label-password">Password</label>
 								<div class="col-lg-8">
-									<input type="password" id="pegawai_password" name="pegawai_password" class="form-control" placeholder="Password" required>
+									<input type="password" id="pegawai_password" name="pegawai_password" class="form-control" placeholder="Password">
 								</div>
 							</div>
 						</div>

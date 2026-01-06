@@ -309,7 +309,7 @@ class Rekappajak extends Base_Controller
 			$sheet = $spreadsheet->getActiveSheet();
 
 			$sheet->mergeCells('A1:G1');
-			$sheet->setCellValue('A1', 'REKAP WAJIB PAJAK');
+			$sheet->setCellValue('A1', 'REKAP OBJEK PAJAK');
 
 			$sheet->getStyle('A1')->applyFromArray([
 				'font' => ['bold' => true],

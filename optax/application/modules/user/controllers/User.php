@@ -22,10 +22,10 @@ class User extends Base_Controller
     public function index()
     {
         $data = varPost();
-        if ($pemda_id = $this->session->userdata('pemda_id')) {
-            $this->db->where('pemda_id', $pemda_id);
-        }
         $where = [];
+        if ($pemda_id = $this->session->userdata('pemda_id')) {
+            $where['pemda_id'] = $pemda_id;
+        }
         $where["pegawai_status='1'"] = null;
         $where["pegawai_role_access_id <> '123'"] = null;
         $operation = $this->select_dt($data, 'userpegawai', 'datatable', true, $where);
@@ -100,9 +100,42 @@ class User extends Base_Controller
 
         $this->response($operation);
     }
+
+    private function email_exists($email, $exclude_id = null)
+    {
+        $this->db->where('pegawai_email', $email);
+        if ($exclude_id) {
+            $this->db->where('pegawai_id <>', $exclude_id);
+        }
+        return $this->db->get('pajak_pegawai')->num_rows() > 0;
+    }
+
+    private function is_role_pemda($role_id)
+    {
+        $role = $this->db
+            ->select('role_access_kode')
+            ->where('role_access_id', $role_id)
+            ->get('pajak_role_access')
+            ->row_array();
+
+        return isset($role['role_access_kode']) && $role['role_access_kode'] === 'pemda';
+    }
+
+
     public function store()
     {
         $post = varPost();
+
+        if ($this->email_exists($post['pegawai_email'])) {
+            $this->response([
+                'success' => false,
+                'message' => 'Email sudah digunakan'
+            ]);
+            return;
+        }
+
+        $id = gen_uuid($this->pegawai->get_table());
+        $data['pegawai_id']                = $id;
         $data['pegawai_status']            = 1;
         $data['pegawai_nama']              = $post['pegawai_nama'];
         $data['pegawai_nip']               = $post['pegawai_nip'];
@@ -115,6 +148,18 @@ class User extends Base_Controller
         $data['pegawai_created_at']        = date("Y-m-d H:i:s");
         $data['pegawai_created_by']        = $this->session->userdata('user_pegawai_id');
         $data['pemda_id']                  = $post['select_pemda'];
+
+        $final_pemda_id = null;
+        if ($this->is_role_pemda($post['pegawai_role_access_id'])) {
+            if (empty($post['select_pemda'])) {
+                $this->response([
+                    'success' => false,
+                    'message' => 'Pemda wajib dipilih untuk role Pemda'
+                ]);
+                return;
+            }
+            $final_pemda_id = (int) $post['select_pemda'];
+        }
 
         if (!file_exists("./dokumen/user")) {
             mkdir("./dokumen/user", 0777, true);
@@ -165,14 +210,33 @@ class User extends Base_Controller
                 }
             }
         }
-        $operation = $this->pegawai->insert(gen_uuid($this->pegawai->get_table()), $data);
-
+        $operation = $this->pegawai->insert($id, $data);
+        if ($final_pemda_id !== null) {
+            $this->db->where('pegawai_id', $id)
+                ->update('pajak_pegawai', [
+                    'pemda_id' => $final_pemda_id
+                ]);
+        } else {
+            $this->db->where('pegawai_id', $id)
+                ->update('pajak_pegawai', [
+                    'pemda_id' => null
+                ]);
+        }
         $this->response($operation);
     }
 
     public function update()
     {
         $post = varPost();
+        if ($this->email_exists($post['pegawai_email'], $post['pegawai_id'])) {
+            $this->response([
+                'success' => false,
+                'message' => 'Email sudah digunakan oleh user lain'
+            ]);
+            return;
+        }
+
+        $data['pegawai_id']                = $post['pegawai_id'];
         $data['pegawai_nama']              = $post['pegawai_nama'];
         $data['pegawai_nip']               = $post['pegawai_nip'];
         $data['pegawai_email']             = $post['pegawai_email'];
@@ -240,6 +304,11 @@ class User extends Base_Controller
             }
         }
         $operation = $this->pegawai->update($data['pegawai_id'], $data);
+        $this->db->where('pegawai_id', $post['pegawai_id'])
+            ->update('pajak_pegawai', [
+                'pemda_id' => $post['select_pemda']
+            ]);
+
         $this->response($operation);
     }
 

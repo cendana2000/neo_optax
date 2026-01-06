@@ -18,7 +18,8 @@
       'wajibpajak_alamat',
       'kecamatan_id',
       'kelurahan_id',
-      'wajibpajak_coord'
+      'wajibpajak_coord',
+      'wajibpajak_berkas'
     ];
     HELPER.setRequired([]);
     HELPER.api = {
@@ -69,11 +70,23 @@
 
           $('#' + item).val(res[item]).trigger('change');
         });
-
         $('#toko_kode').val(res.toko_kode);
-        var urlImage = BASE_URL.replace('/index.php/', '') + res['wajibpajak_berkas'];
-        $('.show-wajibpajak-image').css('background-image', 'url(' + urlImage + ')');
-        $('.show-wajibpajak-image').data('imagedb', res['wajibpajak_berkas']);
+        if (res.wajibpajak_berkas) {
+          const imgUrl = 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas;
+
+          $('#kt_profile_avatar').css('background-image', 'none');
+          $('.show-wajibpajak-image')
+            .css({
+              'background-image': 'url(' + imgUrl + '?t=' + Date.now() + ')',
+              'background-size': 'cover',
+              'background-repeat': 'no-repeat',
+              'background-position': 'center center',
+              'display': 'block'
+            })
+            .data('imagedb', res.wajibpajak_berkas);
+        } else {
+          console.log('Tidak ada berkas untuk ditampilkan');
+        }
         is_init = true
 
         HELPER.createCombo({
@@ -217,7 +230,7 @@
     $('#kelurahan_id').removeAttr('disabled');
     $('#btnCancel').removeAttr('disabled');
     $('#btnSaveChanges').removeAttr('disabled');
-
+    $('#wajibpajak_image').prop('disabled', false);
     is_readonly = false;
   }
 
@@ -239,17 +252,19 @@
   }
 
   function updateDataMitra(el) {
+    $('#wajibpajak_image').prop('disabled', false);
     var formData = new FormData();
 
     HELPER.fields.map(item => {
       formData.append(item, $('#' + item).val());
     });
 
-    if ($('#wajibpajak_image').val()) {
-      formData.append('wajibpajak_image', $('#wajibpajak_image').prop('files')[0]);
+    if ($('#wajibpajak_image')[0].files.length > 0) {
+      formData.append(
+        'wajibpajak_image',
+        $('#wajibpajak_image')[0].files[0]
+      );
     }
-
-    // console.log($('#wajibpajak_image').val())
 
     HELPER.confirm({
       message: 'Apakah anda yakin ingin mengubah informasi wajib pajak?',

@@ -51,6 +51,10 @@
 			callback: function() {}
 		});
 
+		$('#pegawai_role_access_id').on('change', function() {
+			togglePemdaByRole($(this).val());
+		});
+
 		fv = HELPER.newHandleValidation({
 			el: 'form-user',
 			useregex: true,
@@ -221,9 +225,16 @@
 		$.each(HELPER.fields, function(i, v) {
 			$('[name="' + v + '"]').val('').trigger('change');
 		});
+		$('#wrap-pemda').hide();
+		$('#select_pemda').removeAttr('required').val(null).trigger('change');
 		$("[data-action='cancel']").click()
 		$('#pegawai_foto').css('background-image', 'url(./assets/media/noimage.png)');
 		$("#modal-title").html('Add User')
+		$('#pegawai_password')
+			.attr('required', true)
+		$('#label-password').html('Password')
+		$("#select_pemda").val('').trigger("change")
+		$('#pegawai_id').val('')
 		$("#modalData").modal('show')
 		$('#pegawai_role_access_id').select2({
 			dropdownParent: $('#modalData')
@@ -297,6 +308,9 @@
 					$('#pegawai_foto').css('background-image', 'url(dokumen/user/' + res.pegawai_foto + ')');
 				}
 				$("#pegawai_role_access_id").val(res.pegawai_role_access_id).trigger("change")
+				setTimeout(function() {
+					togglePemdaByRole(res.pegawai_role_access_id)
+				}, 100)
 				$("#select_pemda").val(res.pemda_id).trigger("change")
 				$("#pegawai_alamat").val(res.pegawai_alamat)
 				$("#label-password").html('Password <small class="text-muted">(kosongkan jika tidak diubah)</small>')
@@ -552,5 +566,23 @@
 				}
 			}
 		})
+	}
+
+	function togglePemdaByRole(role_id) {
+		let roleIsPemda = false;
+		const roleData = $('#pegawai_role_access_id').select2('data');
+		if (roleData.length) {
+			roleIsPemda = roleData[0].text.toLowerCase().includes('pemda');
+		}
+		if (roleIsPemda) {
+			$('#wrap-pemda').show();
+			$('#select_pemda').attr('required', true);
+		} else {
+			$('#wrap-pemda').hide();
+			$('#select_pemda')
+				.val(null)
+				.trigger('change')
+				.removeAttr('required');
+		}
 	}
 </script>

@@ -137,6 +137,7 @@ class Mitra extends Base_Controller
         $redirect = 'main/main';
         $firstClick = null;
         $countMenu = 0;
+        $kMenu = '';
         foreach ($data as $k => $vMenu) {
             if (intval($vMenu['menu_hassub']) == 1) {
                 $codelink = explode('-', $vMenu['menu_kode'])[0];
@@ -218,6 +219,7 @@ class Mitra extends Base_Controller
         $redirect = 'mitra/mitra';
         $firstClick = null;
         $countMenu = 0;
+        $kMenu = '';
         foreach ($data as $k => $vMenu) {
             if (intval($vMenu['menu_hassub']) == 1) {
                 $codelink = explode('-', $vMenu['menu_kode'])[0];

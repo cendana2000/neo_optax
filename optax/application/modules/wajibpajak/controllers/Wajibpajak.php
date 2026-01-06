@@ -24,7 +24,7 @@ class Wajibpajak extends Base_Controller
         }
 
         $where['wajibpajak_deleted_at'] = null;
-        // $where['wajibpajak_status != \'1\''] = null;
+        $where['wajibpajak_status <> \'1\''] = null;
 
 
         $this->response(

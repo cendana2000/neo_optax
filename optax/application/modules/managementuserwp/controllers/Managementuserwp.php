@@ -49,86 +49,110 @@ class ManagementUserWp extends Base_Controller
   {
     $data = varPost();
 
-    // $data = [
-    //   "wajibpajak_id" => '',
-    //   "switch_semua_wp" => true,
-    //   "roles" => ["18005664505613f870062170ff916620",
-    //   "f63143cc466006cf36cfa827b822c442",
-    //   "f3143cc466006cf36cfa827b822c1231",
-    //   "f3143cc466006cf36cfa827b822c1232",
-    //   "f3143cc466006cf36cfa827b822c1233",
-    //   "f3143cc466006cf36cfa827b822c1234",
-    //   "f63143cc466006cf36cfa827b822c321",
-    //   "f3143cc466006cf36cfa827b82221231",
-    //   "f3143cc466006cf36cfa827b82221232",
-    //   "f3143cc466006cf36cfa827b82221233",
-    //   "f3143cc466006cf36cfa827b82221234",
-    //   "f63143cc466006cf36cfa827b822c322",
-    //   "f3143cc466006cf36cfa827b8222rti1",
-    //   "f3143cc466006cf36cfa827b8222rti2",
-    //   "f3143cc466006cf36cfa827b8222rti3",
-    //   "f3143cc466006cf36cfa827b8222rti4",
-    //   "f63143cc466006cf36cfa827b822crti",
-    //   "f63143cc466006cf36cfa827b8242121"]
-    // ];
+    if (empty($data['roles']) || !is_array($data['roles'])) {
+      return $this->response([
+        'status'  => false,
+        'message' => 'Role tidak boleh kosong'
+      ], 400);
+    }
 
-    if ($data['switch_semua_wp'] == 'true') {
-      if ($pemda_id = $this->session->userdata('pemda_id')) {
-        $this->db->where('EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pajak_wajibpajak.wajibpajak_id=pajak_menu_role_wp.menu_role_wp_wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')', NULL, FALSE);
+    $this->db->trans_start();
+
+    if ($data['switch_semua_wp'] === 'true') {
+
+      $pemda_id = $this->session->userdata('pemda_id');
+
+      if (!$pemda_id) {
+        $this->db->trans_rollback();
+        return $this->response([
+          'status'  => false,
+          'message' => 'Pemda ID tidak ditemukan di session'
+        ], 400);
       }
+      $sub = $this->db->select('wajibpajak_id')
+        ->from('pajak_wajibpajak')
+        ->where('pemda_id', $pemda_id)
+        ->get()
+        ->result_array();
 
-      $delwprole = $this->db->delete('pajak_menu_role_wp');
-      $listwp = $this->db->select('*')
-        ->where('wajibpajak_deleted_at is null AND wajibpajak_status = \'2\'');
+      $ids = array_column($sub, 'wajibpajak_id');
 
-      if ($pemda_id = $this->session->userdata('pemda_id')) {
-        $this->db->where('pemda_id', $pemda_id);
+      if (!empty($ids)) {
+        $this->db->where_in('menu_role_wp_wajibpajak_id', $ids)
+          ->delete('pajak_menu_role_wp');
       }
-
-      $listwp = $listwp->get('pajak_wajibpajak')->result_array();
+      $this->db->where('menu_role_wp_wajibpajak_id', 'default')
+        ->delete('pajak_menu_role_wp');
+      $listwp = $this->db->select('wajibpajak_id')
+        ->from('pajak_wajibpajak')
+        ->where('wajibpajak_deleted_at IS NULL', null, false)
+        ->where('wajibpajak_status', '2')
+        ->where('pemda_id', $pemda_id)
+        ->get()
+        ->result_array();
       $datarole = [];
-      foreach ($listwp as $klwp => $vlwp) {
-        foreach ($data['roles'] as $kr => $vr) {
-          $itemrole = [
-            "menu_role_wp_id" => gen_uuid('pajak_wajibpajak'),
-            "menu_role_wp_menu" => $vr,
-            "menu_role_wp_wajibpajak_id" => $vlwp['wajibpajak_id']
+      foreach ($listwp as $wp) {
+        foreach ($data['roles'] as $menu_id) {
+          $datarole[] = [
+            'menu_role_wp_id'             => gen_uuid('pajak_menu_role_wp'),
+            'menu_role_wp_menu'           => $menu_id,
+            'menu_role_wp_wajibpajak_id'  => $wp['wajibpajak_id']
           ];
-          array_push($datarole, $itemrole);
         }
       }
 
-      foreach ($data['roles'] as $kr => $vr) {
-        $itemrole = [
-          "menu_role_wp_id" => 'default_' . $kr,
-          "menu_role_wp_menu" => $vr,
-          "menu_role_wp_wajibpajak_id" => 'default'
+      foreach ($data['roles'] as $menu_id) {
+        $datarole[] = [
+          'menu_role_wp_id'             => gen_uuid('pajak_menu_role_wp'),
+          'menu_role_wp_menu'           => $menu_id,
+          'menu_role_wp_wajibpajak_id'  => 'default'
         ];
-        array_push($datarole, $itemrole);
       }
-      $this->db->insert_batch('pajak_menu_role_wp', $datarole);
-    } else {
 
-      $delwprole = $this->db->where('menu_role_wp_wajibpajak_id = \'' . $data['wajibpajak_id'] . '\'')->delete('pajak_menu_role_wp');
-      $datarole = [];
-      foreach ($data['roles'] as $kr => $vr) {
-        $itemrole = [
-          "menu_role_wp_id" => gen_uuid('pajak_wajibpajak'),
-          "menu_role_wp_menu" => $vr,
-          "menu_role_wp_wajibpajak_id" => $data['wajibpajak_id']
-        ];
-        array_push($datarole, $itemrole);
+      if (!empty($datarole)) {
+        $this->db->insert_batch('pajak_menu_role_wp', $datarole);
       }
-      $this->db->insert_batch('pajak_menu_role_wp', $datarole);
+    } else {
+      if (empty($data['wajibpajak_id'])) {
+        $this->db->trans_rollback();
+        return $this->response([
+          'status'  => false,
+          'message' => 'Wajib pajak belum dipilih'
+        ], 400);
+      }
+
+      $this->db->where('menu_role_wp_wajibpajak_id', $data['wajibpajak_id'])
+        ->delete('pajak_menu_role_wp');
+
+      $datarole = [];
+      foreach ($data['roles'] as $menu_id) {
+        $datarole[] = [
+          'menu_role_wp_id'             => gen_uuid('pajak_menu_role_wp'),
+          'menu_role_wp_menu'           => $menu_id,
+          'menu_role_wp_wajibpajak_id'  => $data['wajibpajak_id']
+        ];
+      }
+
+      if (!empty($datarole)) {
+        $this->db->insert_batch('pajak_menu_role_wp', $datarole);
+      }
     }
 
-    $message = "Success save roles";
+    $this->db->trans_complete();
 
-    $this->response(array(
-      'status' => true,
-      'message' => $message
-    ));
+    if ($this->db->trans_status() === FALSE) {
+      return $this->response([
+        'status'  => false,
+        'message' => 'Gagal menyimpan konfigurasi role'
+      ], 500);
+    }
+
+    return $this->response([
+      'status'  => true,
+      'message' => 'Success save roles'
+    ]);
   }
+
 
   public function select_wajibpajak($value = '')
   {

@@ -18,15 +18,7 @@
 			read: BASE_URL + 'toko/read',
 			openToko: BASE_URL + 'toko/openToko',
 			closeToko: BASE_URL + 'toko/closeToko',
-			// store: BASE_URL + 'permohonantoko/store',
-			// update: BASE_URL + 'permohonantoko/update',
-			// destroy: BASE_URL + 'permohonantoko/destroy',
 		}
-
-		// $(".select2").select2({
-		// 	placeholder: "Pilih Status",
-		// 	allowClear: true
-		// });
 
 		loadTable();
 	});
@@ -36,9 +28,9 @@
 		mstatus = {
 			0: '<span class="label label-inline">Deleted</span>',
 			1: '<span class="label label-inline ">Permohonan</span>',
-			2: '<span class="label label-inline label-success">Disetujui</span>',
-			3: '<span class="label label-inline label-danger">Ditolak</span>',
-			4: '<span class="label label-inline label-success">Disetujui</span>',
+			2: '<span class="label label-inline label-success">Aktif</span>',
+			3: '<span class="label label-inline label-danger">Tidak Aktif</span>',
+			4: '<span class="label label-inline label-success">Aktif</span>',
 		}
 		HELPER.initTable({
 			el: "table-toko",
@@ -174,6 +166,17 @@
 			destroyAble: true,
 			responsive: false,
 			columnDefs: [{
+					targets: 0,
+					orderable: false,
+					searchable: false,
+					render: function(data, type, full, meta) {
+						return meta.row + meta.settings._iDisplayStart + 1;
+					}
+				},
+				{
+					defaultContent: "-",
+					targets: "_all"
+				}, {
 					targets: 1,
 					render: function(data, type, full, meta) {
 						return full['user_nama'];
@@ -196,44 +199,15 @@
 					render: function(data, type, full, meta) {
 						status = full['user_status'];
 						if (status == 1) {
-							return '<span class="badge badge-success">Active</span>'
+							return '<span class="badge badge-success">Aktif</span>'
 						}
-						return '<span class="badge badge-danger">Not Active</span>'
+						return '<span class="badge badge-danger">Tidak Aktif</span>'
 					},
 				}
 			],
 		});
 	}
 
-	/* function saveStatus() {
-		Swal.fire({
-          title: "Information",
-          text: "Are you sure you want to save this data?",
-          icon: "info",
-          confirmButtonText: '<i class="fa fa-check"></i> Yes',
-          confirmButtonClass: "btn btn-focus btn-success m-btn m-btn--pill m-btn--air",
-          reverseButtons: true,
-          showCancelButton: true,
-          cancelButtonText: '<i class="fa fa-times"></i> No',
-          cancelButtonClass: "btn btn-focus btn-danger m-btn m-btn--pill m-btn--air",
-        }).then(function (result) {
-          if (result.value) {
-            $.ajax({
-				url 	: BASE_URL+'permohonan/save_status',
-				data 	: {
-					wajibpajak_id : $('wajibpajak_id').val(),
-					wajibpajak_status : $('wajibpajak_status').val(),
-				},
-				type 	: 'post',
-				success : (res)=>{
-					if(res)
-				}
-			})
-          } else {
-            onBack()
-          }
-        });		
-	} */
 	function onEdit2(el) {
 		HELPER.loadData({
 			table: 'table-wajibpajak',
