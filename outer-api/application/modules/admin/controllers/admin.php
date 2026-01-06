@@ -47,13 +47,13 @@ class Admin extends Main_Controller
 
         $data["page_title"]     = "DASHBOARD OAPI ETAX MANAGER - OPTAX";
 
-        $data["main_content"]   = $this->load->view("admin/list", $data, true);
-        $data["javascript"]     = $this->load->view("admin/javascript", $data, true);
+        $data["main_content"]   = $this->load->view("admin/List", $data, true);
+        $data["javascript"]     = $this->load->view("admin/Javascript", $data, true);
 
         $data["side_bar"]       = $this->load->view("layout/sidebar", $data, true);
         $data["navbar"]         = $this->load->view("layout/navbar", $data, true);
         $data["content"]        = $this->load->view("layout/content", $data, true);
-        $this->load->view('admin/html', $data);
+        $this->load->view('admin/Html', $data);
     }
 
     public function get_all_daftar_setting()

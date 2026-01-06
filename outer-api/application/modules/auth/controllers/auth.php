@@ -48,13 +48,13 @@ class Auth extends Main_Controller
         $data["css_plugin"]     = $this->css_plugin;
         $data["js_plugin"]      = $this->js_plugin;
         $data["page_title"]     = "API SYNCRONIZER - LOGIN";
-        $data["main_content"]   = $this->load->view("auth/form_login", $data, true);
-        $data["javascript"]     = $this->load->view("auth/javascript", $data, true);
+        $data["main_content"]   = $this->load->view("auth/Form_login", $data, true);
+        $data["javascript"]     = $this->load->view("auth/Javascript", $data, true);
 
         $data["side_bar"]       = "";
         $data["navbar"]         = "";
         $data["content"]        = $this->load->view("layout/content", $data, true);
-        $this->load->view('auth/html', $data);
+        $this->load->view('auth/Html', $data);
     }
 
     public function login()
