@@ -211,7 +211,7 @@
 <script src="<?php echo base_url(); ?>assets/helper/js.cookie.min.js"></script>
 
 <script>
-    BASE_URL = "<?php echo base_url() ?>index.php/";
+    BASE_URL = "<?php echo base_url() ?>/";
     BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
     BASE_ASSETS = "<?php echo base_url() ?>assets/";
     var base_ws = 'wss://api-fms.pttimah.co.id/api/socket';

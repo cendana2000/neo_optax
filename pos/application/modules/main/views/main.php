@@ -12,7 +12,7 @@
 				localStorage.page_available = Date.now();
 			}
 			if (e.key == "page_available") {
-				window.location.href = "<?= base_url() ?>index.php/block";
+				window.location.href = "<?= base_url() ?>/block";
 			}
 		};
 		window.addEventListener('storage', onLocalStorageEvent, false);
@@ -655,7 +655,7 @@
 
 	<!--end::Page Vendors-->
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('dokumen/') ?>"

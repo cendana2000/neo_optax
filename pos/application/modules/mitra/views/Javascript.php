@@ -1,5 +1,5 @@
 <script>
-    BASE_URL = '<?= base_url('index.php/') ?>';
+    BASE_URL = '<?= base_url('/') ?>';
     $(() =>{
         $('#kt_login_signup').click(()=>{
             $('.header-login, .login-signin-wp').hide();

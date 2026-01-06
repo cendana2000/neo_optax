@@ -270,7 +270,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		var token = $('#token').val();
 		$.ajax({
 			type: "POST",
-			url: BASE_URL + "index.php/Login/doLogin",
+			url: BASE_URL + "/Login/doLogin",
 			data: {
 				username: username,
 				password: password,

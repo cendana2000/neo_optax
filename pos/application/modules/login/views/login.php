@@ -226,7 +226,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script src="<?php echo base_url(); ?>assets/plugins/custom/blockui/jquery.blockui.js"></script>
 	<script src="<?php echo base_url(); ?>assets/plugins/custom/aos/aos.js"></script>
 	<script>
-		BASE_URL = "<?php echo base_url() ?>index.php/";
+		BASE_URL = "<?php echo base_url() ?>/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('Content/get/') ?>";
