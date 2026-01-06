@@ -77,7 +77,6 @@ if (!function_exists('notify_to_stakeholders')) {
         $users  = $CI->db->from('conf_user_login')
             ->join('pajak_pegawai', 'pajak_pegawai.pegawai_id = conf_user_login.user_login_user_id')
             ->where('user_login_datetime_logout IS NULL', NULL, FALSE)
-            ->where('conf_user_login.pemda_id', $CI->session->userdata('pemda_id'))
             ->where_in('pajak_pegawai.pegawai_role_access_id', [
                 '123',                              // superadmin
                 '617c6495a8575cfc82d01df16c57d620', // kpk
