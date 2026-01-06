@@ -9,7 +9,7 @@ class Map extends Base_Controller
         $this->load->model(array(
             'kecamatan/KecamatanModel'      => 'kecamatan',
             'kelurahan/KelurahanModel'      => 'kelurahan',
-            'wajibpajak/WajibPajakModel'    => 'wajib_pajak'
+            'wajibpajak/wajibpajakModel'    => 'wajib_pajak'
         ));
     }
 
