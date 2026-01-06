@@ -4,7 +4,7 @@
 			<div class="card-header">
 			<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">	DATA SUB REALISASI PAJAK</h3>
 				</div>
@@ -105,7 +105,7 @@
 			<div class="card-header">
 			<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">	DETAIL REALISASI PAJAK</h3>
 				</div>
@@ -197,7 +197,7 @@
 			<div class="card-header">
 			<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">	HASIL LAPORAN REALISASI PAJAK</h3>
 				</div>
@@ -233,7 +233,7 @@
 			<div class="card-header">
 			<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">HASIL LAPORAN SUB REALISASI PAJAK</h3>
 				</div>
@@ -269,7 +269,7 @@
 			<div class="card-header card-header-right ribbon ribbon-clip ribbon-left">
 			<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">	HASIL LAPORAN RINCI REALISASI PAJAK</h3>
 				</div>

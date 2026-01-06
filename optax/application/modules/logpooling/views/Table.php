@@ -4,7 +4,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">Log Pooling Desktop Wajib Pajak</h3>
 				</div>
@@ -94,7 +94,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">HASIL LAPORAN TRANSAKSI WAJIB PAJAK</h3>
 				</div>

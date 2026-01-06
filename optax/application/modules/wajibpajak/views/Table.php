@@ -4,7 +4,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">DATA OBJEK PAJAK</h3>
 				</div>
@@ -68,7 +68,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">DETAIL AKUN OBJEK PAJAK</h3>
 				</div>
@@ -187,7 +187,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">AKTIVASI WAJIBPAJAK OAPI</h3>
 				</div>

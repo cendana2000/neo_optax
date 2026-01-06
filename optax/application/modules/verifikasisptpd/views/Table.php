@@ -4,7 +4,7 @@
             <div class="card-header">
                 <div class="card-title">
                     <span class="card-icon">
-                        <i class="fas fa-table text-primary"></i>
+                        <i class="fa fa-table text-primary"></i>
                     </span>
                     <h3 class="card-label">Verifikasi SPTPD</h3>
                 </div>
@@ -196,7 +196,7 @@
             <div class="card-header">
                 <div class="card-title">
                     <span class="card-icon">
-                        <i class="fas fa-table text-primary"></i>
+                        <i class="fa fa-table text-primary"></i>
                     </span>
                     <h3 class="card-label">Kirim SPTPD</h3>
                 </div>
@@ -251,7 +251,7 @@
             <div class="card-header">
                 <div class="card-title">
                     <span class="card-icon">
-                        <i class="fas fa-table text-primary"></i>
+                        <i class="fa fa-table text-primary"></i>
                     </span>
                     <h3 class="card-label">Detail SPTPD</h3>
                 </div>
@@ -338,7 +338,7 @@
             <div class="card-header">
                 <div class="card-title">
                     <span class="card-icon">
-                        <i class="fas fa-table text-primary"></i>
+                        <i class="fa fa-table text-primary"></i>
                     </span>
                     <h3 class="card-label">Detail SPTPD</h3>
                 </div>

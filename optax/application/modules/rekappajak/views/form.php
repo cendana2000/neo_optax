@@ -57,7 +57,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<h5 class="card-label">
-						<i class="fas fa-table text-primary mr-2"></i>
+						<i class="fa fa-table text-primary mr-2"></i>
 						Daftar Transaksi
 					</h5>
 				</div>
@@ -218,7 +218,7 @@
 			<div class="card-header">
 				<div class="card-title">
 					<span class="card-icon">
-						<i class="fas fa-table text-primary"></i>
+						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">LAPORAN RINCIAN REKAP PAJAK</h3>
 				</div>
