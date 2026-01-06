@@ -25,7 +25,7 @@ var FCM = function(){
                   // navigator.serviceWorker.register(BASE_URL_NO_INDEX+'assets/helper/firebase-messaging-sw.js').then(registration => {
                   //     firebase.messaging().useServiceWorker(registration)
                   // })
-                  navigator.serviceWorker.register('firebase-messaging-sw.js', {
+                  navigator.serviceWorker.register(BASE_URL_NO_INDEX + 'firebase-messaging-sw.js', {
                       scope:BASE_URL_NO_INDEX
                   }).then(function(registration) {
                       console.log('Registration successful, scope is:', registration.scope);
