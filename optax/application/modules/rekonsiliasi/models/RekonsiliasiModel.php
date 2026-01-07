@@ -2,7 +2,7 @@
 
 class RekonsiliasiModel extends CI_Model
 {
-    public function paginate($tahun, $limit, $offset, $search)
+    public function paginate($tahun, $limit, $offset, $search, $sort_col, $sort_dir)
     {
         $where  = '';
 
@@ -18,41 +18,41 @@ class RekonsiliasiModel extends CI_Model
                 wp.wajibpajak_npwpd,
                 wp.wajibpajak_nama,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS jan_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS jan_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS januari,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS feb_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS feb_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS februari,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS mar_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS mar_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS maret,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS apr_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS apr_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS april,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS mei_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS mei_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS mei,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS jun_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS jun_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS juni,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS jul_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS jul_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS juli,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS agu_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS agu_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS agustus,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS sep_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS sep_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS september,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS okt_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS okt_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS oktober,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS nov_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS nov_oapi,
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS november,
 
-                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) AS des_penjualan,
-                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS des_oapi
+                COALESCE(SUM(mp.total_pajak) FILTER (WHERE mp.bulan = DATE ?), 0) + 
+                COALESCE(SUM(mo.total_pajak) FILTER (WHERE mo.bulan = DATE ?), 0) AS desember
 
             FROM pajak_wajibpajak wp
                 LEFT JOIN mv_penjualan_bulanan mp ON mp.wajibpajak_id = wp.wajibpajak_id
@@ -60,6 +60,7 @@ class RekonsiliasiModel extends CI_Model
 
             WHERE 1=1 $where
             GROUP BY wp.wajibpajak_id
+            ORDER BY $sort_col $sort_dir
             LIMIT ? OFFSET ?";
 
         $bindings   = array(

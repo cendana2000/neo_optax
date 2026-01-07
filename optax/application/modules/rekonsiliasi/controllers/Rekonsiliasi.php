@@ -20,12 +20,39 @@ class Rekonsiliasi extends Base_Controller
 
     public function index()
     {
+        $post       = varPost();
         $tahun      = varPost('filter_tahun', date('Y'));
         $limit      = varPost('length', 50);
         $offset     = varPost('start', 0);
-        $search     = varPost()['search']['value'];
+        $search     = $post['search']['value'];
 
-        $datarow    = $this->rekonsiliasi->paginate($tahun, $limit, $offset, $search);
+        $columns    = [
+            1    => 'wp.wajibpajak_npwpd',
+            2    => 'wp.wajibpajak_nama',
+            3    => 'januari',
+            6    => 'februari',
+            9    => 'maret',
+            12   => 'april',
+            15   => 'mei',
+            18   => 'juni',
+            21   => 'juli',
+            24   => 'agustus',
+            27   => 'september',
+            30   => 'oktober',
+            33   => 'november',
+            36   => 'desember',
+        ];
+
+        try {
+            $sort_col   = $columns[$post['order'][0]['column']];
+            $sort_dir   = $post['order'][0]['dir'] ?? 'asc';
+        } catch (Exception $_) {
+        }
+
+        $sort_col   ??= 'wp.wajibpajak_npwpd';
+        $sort_dir   ??= 'asc';
+
+        $datarow    = $this->rekonsiliasi->paginate($tahun, $limit, $offset, $search, $sort_col, $sort_dir);
         $this->response($datarow);
     }
 

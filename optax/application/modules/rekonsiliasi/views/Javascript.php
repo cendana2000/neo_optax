@@ -38,25 +38,21 @@
             order: [0, 'asc'],
             columnDefs: [{
                     targets: 1,
-                    orderable: false,
                     render: function(data, type, full, meta) {
                         return full['wajibpajak_npwpd'];
                     },
                 },
                 {
                     targets: 2,
-                    orderable: false,
                     render: function(data, type, full, meta) {
                         return full['wajibpajak_nama'];
                     },
                 },
                 {
                     targets: 3,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jan_penjualan']) + parseInt(full['jan_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['januari']).toLocaleString();
                     },
                 },
                 {
@@ -72,17 +68,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jan_penjualan']) + parseInt(full['jan_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['januari']).toLocaleString();
                     },
                 },
                 {
                     targets: 6,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['feb_penjualan']) + parseInt(full['feb_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['februari']).toLocaleString();
                     },
                 },
                 {
@@ -98,17 +91,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['feb_penjualan']) + parseInt(full['feb_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['februari']).toLocaleString();
                     },
                 },
                 {
                     targets: 9,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['mar_penjualan']) + parseInt(full['mar_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['maret']).toLocaleString();
                     },
                 },
                 {
@@ -124,17 +114,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['mar_penjualan']) + parseInt(full['mar_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['maret']).toLocaleString();
                     },
                 },
                 {
                     targets: 12,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['apr_penjualan']) + parseInt(full['apr_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['april']).toLocaleString();
                     },
                 },
                 {
@@ -150,17 +137,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['apr_penjualan']) + parseInt(full['apr_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['april']).toLocaleString();
                     },
                 },
                 {
                     targets: 15,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['mei_penjualan']) + parseInt(full['mei_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['mei']).toLocaleString();
                     },
                 },
                 {
@@ -176,17 +160,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['mei_penjualan']) + parseInt(full['mei_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['mei']).toLocaleString();
                     },
                 },
                 {
                     targets: 18,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jun_penjualan']) + parseInt(full['jun_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['juni']).toLocaleString();
                     },
                 },
                 {
@@ -202,17 +183,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jun_penjualan']) + parseInt(full['jun_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['juni']).toLocaleString();
                     },
                 },
                 {
                     targets: 21,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jul_penjualan']) + parseInt(full['jul_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['juli']).toLocaleString();
                     },
                 },
                 {
@@ -228,17 +206,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['jul_penjualan']) + parseInt(full['jul_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['juli']).toLocaleString();
                     },
                 },
                 {
                     targets: 24,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['agu_penjualan']) + parseInt(full['agu_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['agustus']).toLocaleString();
                     },
                 },
                 {
@@ -254,17 +229,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['agu_penjualan']) + parseInt(full['agu_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['agustus']).toLocaleString();
                     },
                 },
                 {
                     targets: 27,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['sep_penjualan']) + parseInt(full['sep_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['september']).toLocaleString();
                     },
                 },
                 {
@@ -280,17 +252,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['sep_penjualan']) + parseInt(full['sep_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['september']).toLocaleString();
                     },
                 },
                 {
                     targets: 30,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['okt_penjualan']) + parseInt(full['okt_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['oktober']).toLocaleString();
                     },
                 },
                 {
@@ -306,17 +275,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['okt_penjualan']) + parseInt(full['okt_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['oktober']).toLocaleString();
                     },
                 },
                 {
                     targets: 33,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['nov_penjualan']) + parseInt(full['nov_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['november']).toLocaleString();
                     },
                 },
                 {
@@ -332,17 +298,14 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['nov_penjualan']) + parseInt(full['nov_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['november']).toLocaleString();
                     },
                 },
                 {
                     targets: 36,
-                    orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['des_penjualan']) + parseInt(full['des_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['desember']).toLocaleString();
                     },
                 },
                 {
@@ -358,8 +321,7 @@
                     orderable: false,
                     className: 'text-right',
                     render: function(data, type, full, meta) {
-                        const total = parseInt(full['des_penjualan']) + parseInt(full['des_oapi']);
-                        return total.toLocaleString();
+                        return parseInt(full['desember']).toLocaleString();
                     },
                 },
             ],

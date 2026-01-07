@@ -60,7 +60,7 @@
                             <tr>
                                 <?php for ($i = 1; $i <= 12; $i++): ?>
                                     <th class="text-center">Optax</th>
-                                    <th class="text-center">Pembayaran</th>
+                                    <th class="text-center">Diterima Bank</th>
                                     <th class="text-center">Selisih</th>
                                 <?php endfor ?>
                             </tr>
