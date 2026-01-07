@@ -15,7 +15,7 @@
                         <a class="nav-link active" href="javascript:void(0)" data="all">Semua</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)" data="1">Perlu tindakan</a>
+                        <a class="nav-link" href="javascript:void(0)" data="pending">Perlu tindak lanjut</a>
                     </li>
                 </ul>
 

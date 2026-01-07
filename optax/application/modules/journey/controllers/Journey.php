@@ -14,7 +14,7 @@ class Journey extends Base_Controller
     {
         $post = $this->input->post();
 
-        if ($post['filter_sstatus'] != '') {
+        if ($post['filter_status'] != '') {
             if ($post['filter_status'] != 'all') {
                 $where['journey_status=\'' . $post['filter_status'] . '\'']  = null;
             }

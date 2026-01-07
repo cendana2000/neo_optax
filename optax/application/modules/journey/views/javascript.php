@@ -57,7 +57,7 @@
             'selesai': '<span class="label label-inline label-success">Selesai</span>',
         }
 
-        const is_act_visible = '<?= $this->session->userdata('pegawai_role_access_id') === '123' ?>';
+        const is_superadmin = '<?= $this->session->userdata('pegawai_role_access_id') === '123' ?>';
 
         HELPER.initTable({
             el: 'table-journey',
@@ -101,28 +101,31 @@
                 {
                     targets: 6,
                     orderable: false,
-                    visible: is_act_visible == 1,
                     render: function(data, type, full, meta) {
                         let button = '';
 
                         if (full['journey_status'] == 'pending') {
-                            button += `<a class="dropdown-item" href="#" onclick="onSelesaikan('${full['journey_id']}')">Selesaikan</a>`;
+                            if (is_superadmin) {
+                                button += `<a class="dropdown-item" href="#" onclick="onSelesaikan('${full['journey_id']}')">Selesaikan</a>`;
+                            }
                         } else {
                             button += `<a class="dropdown-item" href="#" onclick="onDetail('${full['journey_id']}')">Detail</a>`;
                         }
 
-                        let btn_aksi = `
-                            <div class="dropdown dropdown-inline mr-4">
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Opsi
-                                </button>
-                                <div class="dropdown-menu">
-                                    ${button}
-                                </div>
-                            </div>
-                        `;
 
-                        return btn_aksi;
+                        if (button != '') {
+                            button = `
+                                <div class="dropdown dropdown-inline mr-4">
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Opsi
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        ${button}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        return button;
                     }
                 }
             ]
