@@ -57,6 +57,8 @@
             'selesai': '<span class="label label-inline label-success">Selesai</span>',
         }
 
+        const is_act_visible = '<?= $this->session->userdata('pegawai_role_access_id') === '123' ?>';
+
         HELPER.initTable({
             el: 'table-journey',
             url: HELPER.api.table,
@@ -99,6 +101,7 @@
                 {
                     targets: 6,
                     orderable: false,
+                    visible: is_act_visible == 1,
                     render: function(data, type, full, meta) {
                         let button = '';
 

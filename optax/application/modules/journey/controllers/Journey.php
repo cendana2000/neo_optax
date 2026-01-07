@@ -67,6 +67,14 @@ class Journey extends Base_Controller
         $data['journey_pegawai_id'] = $this->session->userdata('user_pegawai_id');
 
         $operation                  = $this->Journey->update($data['journey_id'], $data);
+
+        $wp                         = $this->db->get_where('pajak_wajibpajak', ['wajibpajak_id' => $journey['wajibpajak_id']])->row();
+        if ($wp) {
+            $title      = 'Pemeliharaan Alat';
+            $message    = "Perbaikan / Pemeliharaan {$wp->wajibpajak_nama} telah selesai dilakukan";
+            notify_to_pemda($title, $message, $wp->pemda_id);
+        }
+
         $this->response($operation);
     }
 
