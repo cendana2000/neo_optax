@@ -18,7 +18,6 @@ class WajibpajakNoViewModel extends Base_Model
 					array('name' => 'wajibpajak_nama'),
 					array('name' => 'wajibpajak_alamat'),
 					array('name' => 'wajibpajak_status'),
-					array('name' => 'wajibpajak_wp_id'),
 					array('name' => 'wajibpajak_email'),
 					array('name' => 'wajibpajak_telp'),
 					array('name' => 'wajibpajak_password'),

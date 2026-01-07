@@ -146,7 +146,6 @@
 							"wajibpajak_nama",
 							"wajibpajak_alamat",
 							"wajibpajak_status",
-							"wajibpajak_wp_id",
 							"wajibpajak_email",
 							"wajibpajak_telp",
 							"wajibpajak_password",
