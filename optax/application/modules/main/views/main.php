@@ -103,6 +103,335 @@ License: You must have a valid license purchased only from themeforest(the above
 			display: inline-flex !important;
 			margin-right: 10px;
 		}
+
+		/* Image loading tanpa blinking */
+		.pemda-logo {
+			opacity: 0;
+			transition: opacity 0.3s ease;
+			position: relative;
+			z-index: 2;
+		}
+
+		.placeholder-icon {
+			opacity: 0.5;
+			transition: opacity 0.3s ease;
+		}
+
+		.logo-container {
+			min-height: 50px;
+		}
+
+		.pemda-logo.loaded {
+			opacity: 1;
+		}
+
+		/* Hilangkan error border pada image */
+		img {
+			border: none !important;
+			outline: none !important;
+		}
+
+		/* Smooth transition untuk semua */
+		.pemda-card * {
+			transition: all 0.2s ease;
+		}
+
+		/* Hilangkan default image broken icon */
+		.pemda-logo:before {
+			content: none !important;
+		}
+
+		img[src*="noimage.png"] {
+			opacity: 1 !important;
+		}
+
+		/* Override untuk sidebar */
+		#kt_aside {
+			z-index: 1030 !important;
+		}
+
+		.dropdown-modal-custom {
+			z-index: 1080 !important;
+		}
+
+		/* Pastikan dropdown muncul di atas sidebar */
+		#pemda-dropdown {
+			z-index: 1081 !important;
+		}
+
+		/* Style untuk placeholder */
+		.symbol-label {
+			position: relative;
+		}
+
+		.symbol-label i {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1;
+			opacity: 0.5;
+		}
+
+		/* Hilangkan garis putus-putus pada image error */
+		.pemda-logo:-moz-broken,
+		.pemda-logo:broken {
+			opacity: 0;
+		}
+
+		/* Force hide broken image icon in all browsers */
+		.pemda-logo::after {
+			display: none !important;
+			content: none !important;
+		}
+
+		/* Custom styles for Horizontal Pemda Dropdown */
+		#pemda-dropdown {
+			position: relative;
+			z-index: 1050;
+			/* Higher than sidebar */
+		}
+
+		.dropdown-modal-custom {
+			position: fixed !important;
+			left: 250px !important;
+			/* Sesuaikan dengan lebar sidebar */
+			top: 70px !important;
+			/* Sesuaikan dengan tinggi header */
+			transform: none !important;
+			margin-top: 0 !important;
+			z-index: 1060 !important;
+			box-shadow: 0px 10px 30px rgba(82, 63, 105, 0.2) !important;
+			border: 1px solid #e4e6ef !important;
+		}
+
+		/* Jika sidebar collapsed */
+		.menu-header-hidden .dropdown-modal-custom {
+			left: 70px !important;
+		}
+
+		#pemda-dropdown .btn-custom:hover {
+			background-color: #f0f3ff !important;
+			border-color: #3699ff !important;
+		}
+
+		.pemda-card {
+			transition: all 0.3s ease;
+		}
+
+		.pemda-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 5px 15px rgba(54, 153, 255, 0.2) !important;
+		}
+
+		.card-selected {
+			background-color: #f0f3ff !important;
+			box-shadow: 0 0 0 1px #3699ff !important;
+		}
+
+		/* Hapus style untuk card-disabled karena semua aktif */
+
+		/* Scrollbar styling for horizontal list */
+		.pemda-container::-webkit-scrollbar {
+			height: 6px;
+		}
+
+		.pemda-container::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 3px;
+		}
+
+		.pemda-container::-webkit-scrollbar-thumb {
+			background: #c1c1c1;
+			border-radius: 3px;
+		}
+
+		.pemda-container::-webkit-scrollbar-thumb:hover {
+			background: #a1a1a1;
+		}
+
+		/* Loading animation */
+		.pemda-card.loading {
+			position: relative;
+			overflow: hidden;
+		}
+
+		.pemda-card.loading::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(255, 255, 255, 0.7);
+			z-index: 1;
+		}
+
+		.pemda-card.loading::before {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 20px;
+			height: 20px;
+			margin: -10px 0 0 -10px;
+			border: 2px solid #3699ff;
+			border-top-color: transparent;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			z-index: 2;
+		}
+
+
+		/* Override Bootstrap dropdown positioning */
+		.dropdown-menu.show {
+			display: block !important;
+		}
+
+		/* Ensure dropdown appears above sidebar */
+		#kt_header_menu_wrapper {
+			z-index: 1051;
+		}
+
+		.col-lg-2-4 {
+			flex: 0 0 20%;
+			max-width: 20%;
+		}
+
+		/* Container dengan scroll vertikal */
+		.pemda-grid-container {
+			scrollbar-width: thin;
+			scrollbar-color: #3699ff #f1f1f1;
+		}
+
+		.pemda-grid-container::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.pemda-grid-container::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 3px;
+		}
+
+		.pemda-grid-container::-webkit-scrollbar-thumb {
+			background: #3699ff;
+			border-radius: 3px;
+		}
+
+		.pemda-grid-container::-webkit-scrollbar-thumb:hover {
+			background: #2b8df0;
+		}
+
+		@media (max-width: 1200px) {
+			.col-lg-2-4 {
+				flex: 0 0 25%;
+				max-width: 25%;
+			}
+		}
+
+		@media (max-width: 992px) {
+			.dropdown-modal-custom {
+				width: 700px !important;
+			}
+
+			.col-lg-2-4 {
+				flex: 0 0 33.333%;
+				max-width: 33.333%;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.dropdown-modal-custom {
+				width: 500px !important;
+			}
+
+			.col-lg-2-4,
+			.col-md-3 {
+				flex: 0 0 50%;
+				max-width: 50%;
+			}
+
+			.pemda-grid-container {
+				max-height: 300px !important;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.dropdown-modal-custom {
+				width: calc(100vw - 40px) !important;
+				margin-left: 0 !important;
+				left: 20px !important;
+				right: 20px !important;
+			}
+
+			.col-lg-2-4,
+			.col-md-3,
+			.col-sm-4 {
+				flex: 0 0 100%;
+				max-width: 100%;
+			}
+		}
+
+
+		/* Adjust for sidebar width */
+		@media (min-width: 992px) {
+			.dropdown-modal-custom {
+				left: 265px !important;
+			}
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* Responsive */
+		@media (max-width: 991px) {
+			.dropdown-modal-custom {
+				left: 20px !important;
+				right: 20px !important;
+				width: calc(100vw - 40px) !important;
+				top: 60px !important;
+			}
+
+			.pemda-horizontal-item {
+				width: 130px !important;
+			}
+
+			.symbol.symbol-50 {
+				width: 40px;
+				height: 40px;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.dropdown-modal-custom {
+				left: 10px !important;
+				right: 10px !important;
+				width: calc(100vw - 20px) !important;
+			}
+
+			.pemda-horizontal-item {
+				width: 120px !important;
+			}
+
+			#pemda-dropdown .btn-custom {
+				min-width: 150px;
+				padding: 8px 12px;
+			}
+		}
+
+		/* Firefox specific */
+		@-moz-document url-prefix() {
+			.pemda-logo:-moz-loading {
+				visibility: hidden;
+			}
+
+			.pemda-logo:-moz-broken {
+				opacity: 0;
+			}
+		}
 	</style>
 	<link rel="shortcut icon" href="<?= base_url(); ?>/assets/media/icon_title.png" />
 </head>
@@ -209,8 +538,92 @@ License: You must have a valid license purchased only from themeforest(the above
 								<?php if (!check_superadmin()) : ?>
 									<span class="text-dark font-weight-bolder font-size-base d-none d-md-inline mt-7 mr-3 h5 project_header"></span>
 								<?php endif ?>
+
 								<?php if (in_array($this->session->userdata('pegawai_role_access_id'), ['123', '617c6495a8575cfc82d01df16c57d620', '226486229bf5f35ec7c7ad5537f8857c'])): ?>
-									<select class="form-control" id="global_pemda_id"></select>
+									<!--begin::Pemda Button Dropdown-->
+									<div class="dropdown" id="pemda-dropdown">
+										<!--begin::Toggle Button-->
+										<button class="btn btn-custom btn-flex btn-secondary px-4 py-2 d-flex align-items-center"
+											data-toggle="dropdown"
+											data-boundary="viewport"
+											data-reference="parent"
+											aria-haspopup="true"
+											aria-expanded="false"
+											style="min-width: 180px; border-radius: 6px; background: #f7f8fa; border: 1px solid #e4e6ef;">
+											<!--begin::Current Pemda Icon-->
+											<div class="symbol symbol-30 symbol-circle mr-3">
+												<div class="symbol-label bg-light-primary">
+													<i class="fas fa-city text-primary fs-4"></i>
+												</div>
+											</div>
+											<!--end::Current Pemda Icon-->
+
+											<!--begin::Current Pemda Info-->
+											<div class="d-flex flex-column text-left flex-grow-1 overflow-hidden">
+												<span class="font-weight-bolder text-dark font-size-sm">Pemda</span>
+												<span class="text-muted font-size-xs text-truncate" id="selected-pemda-name">
+													Pilih Pemda
+												</span>
+											</div>
+											<!--end::Current Pemda Info-->
+
+											<!--begin::Dropdown Arrow-->
+											<i class="fas fa-chevron-down text-muted ml-2"></i>
+											<!--end::Dropdown Arrow-->
+										</button>
+										<!--end::Toggle Button-->
+
+										<!--begin::Dropdown Modal (Horizontal Layout)-->
+										<!--begin::Dropdown Modal (Grid Layout)-->
+										<div class="dropdown-menu dropdown-menu-right p-0 m-0 dropdown-modal-custom"
+											style="width: 950px; max-width: 90vw; border-radius: 12px; overflow: hidden; margin-left: 10px !important;">
+
+											<!--begin::Modal Header-->
+											<div class="d-flex justify-content-between align-items-center p-5 bg-light-primary">
+												<div>
+													<h3 class="font-weight-bold text-dark mb-0">Pilih Pemda</h3>
+													<span class="text-muted font-size-sm">Pilih pemda yang akan diakses</span>
+												</div>
+												<button type="button" class="btn btn-icon btn-sm btn-light"
+													onclick="$('#pemda-dropdown .dropdown-toggle').dropdown('hide')">
+													<i class="fas fa-times"></i>
+												</button>
+											</div>
+											<!--end::Modal Header-->
+
+											<!--begin::Modal Body-->
+											<div class="p-5">
+												<!--begin::Pemda Grid Container with Scroll-->
+												<div class="pemda-grid-container" id="pemda-grid-container"
+													style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+													<!-- Grid container untuk 5 kolom -->
+													<div class="row" id="pemda-grid">
+														<!-- Item pemda akan diisi di sini -->
+														<div class="col-12 text-center py-10">
+															<div class="spinner spinner-primary"></div>
+															<div class="text-muted mt-2">Memuat data pemda...</div>
+														</div>
+													</div>
+												</div>
+												<!--end::Pemda Grid Container-->
+
+												<!--begin::All Pemda Option-->
+												<div class="d-flex justify-content-center mt-5 pt-3 border-top">
+													<button type="button"
+														class="btn btn-light-primary font-weight-bold px-6 py-3"
+														onclick="selectAllPemda()"
+														style="border-radius: 6px;">
+														<i class="fas fa-globe-americas mr-2"></i>
+														Tampilkan Semua Pemda
+													</button>
+												</div>
+												<!--end::All Pemda Option-->
+											</div>
+											<!--end::Modal Body-->
+										</div>
+										<!--end::Dropdown Modal-->
+									</div>
+									<!--end::Pemda Button Dropdown-->
 								<?php endif ?>
 							</div>
 							<!--end::Header Menu-->
@@ -295,7 +708,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<a href="#" class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary"><?= $this->session->userdata('pegawai_nama') ?></a>
 					<div class="navi mt-2 d-flex">
 						<a href="javascript:void(0)" class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5 menu-link" id="btn-Profile" onclick="HELPER.loadPage(this)" data-menu="profile-Table">Edit Profile</a>
-						<a href="<?= base_url('/login/logout') ?>" class="btn btn-sm btn-light-danger font-weight-bolder py-2 px-5">Sign Out</a>
+						<a href="<?= base_url('index.php/login/logout') ?>" class="btn btn-sm btn-light-danger font-weight-bolder py-2 px-5">Sign Out</a>
 					</div>
 				</div>
 			</div>
@@ -513,7 +926,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script type="text/javascript" src="assets/plugins/custom/jqueryNumber/jquery.number.min.js"></script>
 	<!--end::Page Vendors-->
 	<script>
-		BASE_URL = "<?php echo base_url() ?>/";
+		BASE_URL = "<?php echo base_url() ?>index.php/";
 		BASE_URL_NO_INDEX = "<?php echo base_url() ?>";
 		BASE_ASSETS = "<?php echo base_url() ?>assets/";
 		BASE_CONTENT = "<?= base_url('dokumen/') ?>"
