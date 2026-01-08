@@ -29,9 +29,7 @@ class WajibpajakModel extends Base_Model
 				)
 			),
 			'view' => array(
-				'mode' => array(
-					
-				)
+				'mode' => array()
 			)
 		);
 		parent::__construct($model);
@@ -40,4 +38,4 @@ class WajibpajakModel extends Base_Model
 }
 
 /* End of file JenisanggotaModel.php */
-/* Location: ./application/modules/jenisanggota/models/JenisanggotaModel.php */          
+/* Location: ./application/modules/jenisanggota/models/JenisanggotaModel.php */

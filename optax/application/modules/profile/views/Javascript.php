@@ -4,8 +4,7 @@
 
 	var fv;
 	$(function() {
-		HELPER.fields = [
-		];
+		HELPER.fields = [];
 		HELPER.api = {
 			store: BASE_URL + 'profile/store',
 			update: BASE_URL + 'profile/update',
@@ -101,7 +100,7 @@
 			complete: function(res) {
 				if (res.success) {
 					var data = res.data;
-					if(res.login_access == "pemda"){
+					if (res.login_access == "pemda") {
 						HELPER.fields = [
 							"pegawai_id",
 							"pegawai_nip",
@@ -136,7 +135,7 @@
 						});
 						var lastChange = data.pegawai_last_change_password ? moment(data.pegawai_last_change_password).format('LLL') : "-";
 						$('.detail-last_change_password').text(lastChange);
-					}else if(res.login_access == "wajibpajak"){
+					} else if (res.login_access == "wajibpajak") {
 						HELPER.fields = [
 							"wajibpajak_id",
 							"wajibpajak_npwpd",

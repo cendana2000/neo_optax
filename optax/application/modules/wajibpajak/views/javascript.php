@@ -138,16 +138,11 @@
 				wajibpajak_id: id
 			},
 			callback: function(res) {
-				console.log('Response:', res);
-				console.log('Berkas filename:', res.wajibpajak_berkas);
-
 				BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas
-				console.log('BASE_URL_NO_INDEX:', BASE_URL_NO_INDEX);
 
 				$('#wajibpajak_usaha_nama').val(res.jenis_nama);
 				$('input[name=wajibpajak_nama]').val(res.wajibpajak_nama);
 				const imagePath = BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas;
-				console.log('Full image path:', imagePath);
 				testImageLoad(imagePath, function(success) {
 					if (success) {
 						$('#wajibpajak_berkas_npwp').css({

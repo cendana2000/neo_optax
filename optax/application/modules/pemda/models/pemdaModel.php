@@ -12,17 +12,30 @@ class PemdaModel extends Base_Model
                     array('name' => 'pemda_id'),
                     array('name' => 'pemda_nama'),
                     array('name' => 'pemda_kode'),
+                    array('name' => 'pemda_alamat'),
+                    array('name' => 'pemda_coord'),
+                    array('name' => 'pemda_logo'),
+                    array('name' => 'provinsi_id'),
                     array('name' => 'kabkota_id'),
+                    array('name' => 'pemda_created_at'),
                     array('name' => 'pemda_deleted_at')
                 )
             ),
             'view' => array(
+                'name' => 'v_conf_pemda',
                 'mode' => array(
                     'table' => array(
                         'pemda_id',
                         'pemda_nama',
                         'pemda_kode',
+                        'pemda_alamat',
+                        'pemda_coord',
+                        'pemda_logo',
+                        'provinsi_id',
+                        'provinsi_nama',
                         'kabkota_id',
+                        'kabkota_nama',
+                        'pemda_created_at',
                         'pemda_deleted_at',
                     )
                 )
