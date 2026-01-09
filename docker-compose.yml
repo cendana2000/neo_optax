@@ -72,6 +72,17 @@ services:
     networks:
       - optax-network
 
+  crawler:
+    build:
+      context: .
+      dockerfile: crawler.d/Dockerfile
+    ports: 
+      - 3000:3000
+    volumes:
+      - ./crawler:/home/user/app
+    networks:
+      - optax-network
+
   outer-api:
     build:
       context: .
@@ -83,8 +94,9 @@ services:
       - ./outer-api.d/crontab:/etc/cron.d/outer
     depends_on:
       - db-postgresql
+      - crawler
     networks:
-      - optax-network            
+      - optax-network
 
 networks:
   optax-network:
