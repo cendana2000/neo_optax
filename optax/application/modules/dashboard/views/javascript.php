@@ -200,7 +200,12 @@
 					});
 				} else {
 					$('#table-transaksi-terakhir tbody').append(`
-					<tr><td colspan="5" class="text-center text-muted">Tidak ada transaksi terakhir</td></tr>
+					<tr style="border: transparent !important;height: 32px;"><td></td></tr>
+					<tr style="border: transparent !important;height: 32px;"><td></td></tr>
+					<tr style="border: transparent !important;height: 32px;"><td></td></tr>
+					<tr style="border: transparent !important;height: 32px;"><td></td></tr>
+					<tr><td></td></tr>				
+					<tr><td colspan="6" class="text-center text-muted">Tidak ada transaksi terakhir</td></tr>
 				`);
 				}
 
@@ -840,42 +845,71 @@
 			url: HELPER.api.onlineActivityUser,
 			server: true,
 			data: {
-				page,
+				page
 			},
 			callback: function(res) {
-				// console.log(res);
-				if (res.data) {
-					$('#count-online-user-activity').text(`${res.total} Users`);
-					if (page == 0) {
-						$('#online-user').html('');
-					}
-					$('#load-more-online-activity').remove();
-					res.data.map((item, index) => {
-						var status = 'text-secondary';
-						if (item.status_active == 'Active') status = 'text-success';
-						if (item.status_active == 'Inactive') status = 'text-warning';
-						if (item.status_active == 'Offline') status = 'text-danger';
-						if (item.status_active == 'Close') status = 'text-dark';
-						$('#online-user').append(`
-							<div class="card-user">
-								<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" />
-								<span class="nama">${item.toko_nama}</span>
-
-								<div class="d-flex align-items-center mt-1">
-									<span class="status-dot" style="background:${getColor(status)}"></span>
-									<span class="status-label" style="color:${getColor(status)}">${item.status_active}</span>
+				if (page === 0) {
+					$('#online-user').html('');
+					$('#count-online-user-activity').text('0 Users');
+				}
+				if (!res.data || res.data.length === 0) {
+					if (page === 0) {
+						$('#online-user')
+							.addClass('empty-state')
+							.html(`							
+							<div class="text-center text-gray-500">
+								<img 
+									src="<?= base_url('dokumen/dashboard_rzl/empty-wp.svg'); ?>" 
+									alt="Empty"
+									style="max-width:120px; opacity:.7;"
+									onerror="this.style.display='none'"
+								/>
+								<div class="fw-semibold fs-6 mt-4">
+									Tidak ada data Wajib Pajak
 								</div>
 							</div>
 						`);
-						$('[data-toggle="tooltip"]').tooltip()
-					});
-					if (((page + 1) * res.limit) < res.total) {
-						$('#online-user').append(`<button class="btn btn-secondary" id="load-more-online-activity" onclick="onlineActivityUser(${page + 1})">Load More</button>`)
 					}
+					return;
+				}
+
+				$('#count-online-user-activity').text(`${res.total} Users`);
+
+				$('#load-more-online-activity').remove();
+				$('#online-user').removeClass('empty-state');
+				res.data.forEach((item) => {
+					let statusClass = 'text-secondary';
+					if (item.status_active === 'Active') statusClass = 'text-success';
+					if (item.status_active === 'Inactive') statusClass = 'text-danger';
+
+					$('#online-user').append(`
+					<div class="card-user">
+						<img src="<?= base_url('dokumen/dashboard_rzl/shop.png'); ?>" alt="" />
+						<span class="nama">${item.toko_nama ?? '-'}</span>
+
+						<div class="d-flex align-items-center mt-1">
+							<span class="status-dot" style="background:${getColor(statusClass)}"></span>
+							<span class="status-label" style="color:${getColor(statusClass)}">
+								${item.status_active}
+							</span>
+						</div>
+					</div>
+				`);
+				});
+
+				if (((page + 1) * res.limit) < res.total) {
+					$('#online-user').append(`
+					<button class="btn btn-secondary w-100 mt-4"
+					        id="load-more-online-activity"
+					        onclick="onlineActivityUser(${page + 1})">
+						Load More
+					</button>
+				`);
 				}
 			}
 		});
 	}
+
 
 	function getColor(status) {
 		if (status === 'text-success') return '#17c653';
@@ -918,7 +952,7 @@
 				} else {
 					tbody.append(`
 					<tr>
-						<td colspan="6" class="text-center text-muted">
+						<td colspan="7" class="text-center text-muted">
 							Tidak ada transaksi terakhir
 						</td>
 					</tr>

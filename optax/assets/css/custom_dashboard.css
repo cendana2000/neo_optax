@@ -130,16 +130,24 @@
   display: grid;
   width: 100%;
   grid-template-columns: repeat(1, 1fr);
-  grid-template-rows: 50px !important;
+  grid-template-rows: 50px;
   row-gap: 15px;
   margin-top: 30px;
+}
+
+#online-user.empty-state {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  border: none !important;
 }
 
 .grid-toko {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 50px !important;
+  grid-template-rows: 50px;
   row-gap: 35px;
   margin-top: 30px;
 }
@@ -219,126 +227,125 @@
 }
 
 .grid-user {
-   display: block;
+  display: block;
 }
 
-.card-user, #load-more-online-activity {
-    margin-bottom: 12px;
+.card-user,
+#load-more-online-activity {
+  margin-bottom: 12px;
 }
 
 .card-user {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    border: 1px dashed #ddd;
-    border-radius: 10px;
-    background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px dashed #ddd;
+  border-radius: 10px;
+  background: #fff;
 }
 
 .card-user img {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    margin-right: 15px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 15px;
 }
 
 .card-user .nama {
-    flex-grow: 1;
-    font-weight: 600;
-    color: #181c32;
-    text-transform: uppercase;
+  flex-grow: 1;
+  font-weight: 600;
+  color: #181c32;
+  text-transform: uppercase;
 }
 
 .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
 }
 
 .status-label {
-    font-size: 14px;
-    font-weight: 600;
+  font-size: 14px;
+  font-weight: 600;
 }
-
 
 .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
 }
 
 .status-label {
-    font-weight: 600;
-    font-size: 13px;
+  font-weight: 600;
+  font-size: 13px;
 }
 
 #load-more-online-activity {
-    width: 100%;
-    border-radius: 10px;
-    padding: 10px;
-    background: #e0e0e0;
-    font-weight: 600;
+  width: 100%;
+  border-radius: 10px;
+  padding: 10px;
+  background: #e0e0e0;
+  font-weight: 600;
 }
 
 .hover-scroll-overlay-y {
-    padding-right: 15px !important;
+  padding-right: 15px !important;
 }
 
 .hover-scroll-overlay-y-wrapper {
-    position: relative;
-    overflow-y: auto; /* wajib */
-    padding-right: 10px;
+  position: relative;
+  overflow-y: auto; /* wajib */
+  padding-right: 10px;
 }
 
 .hover-scroll-overlay-y {
-    overflow-y: hidden !important;
+  overflow-y: hidden !important;
 }
 
 .hover-scroll-overlay-y-wrapper {
-    max-height: 100% !important;
-    overflow-y: auto !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
 }
 
 .card-number {
-    font-size: clamp(1.8rem, 2vw, 3.2rem);
-    line-height: 1.1;
-    font-weight: 600;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
+  font-size: clamp(1.8rem, 2vw, 3.2rem);
+  line-height: 1.1;
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .card-number-small {
-    font-size: clamp(1rem, 1.8vw, 1.2rem);
-    font-weight: 600;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-    text-align: right;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  text-align: right;
 }
 
 .number-row {
-    width: 100%;
-    justify-content: space-between;
+  width: 100%;
+  justify-content: space-between;
 }
 
 #toko_baru {
-    display: flex;
-    flex-wrap: wrap;          /* memungkinkan turun ke baris baru */
-    gap: 6px;                 /* jarak antar ikon */
-    max-width: 100%;          /* tidak boleh keluar card */
-    overflow: hidden;         /* cegah overflow */
+  display: flex;
+  flex-wrap: wrap; /* memungkinkan turun ke baris baru */
+  gap: 6px; /* jarak antar ikon */
+  max-width: 100%; /* tidak boleh keluar card */
+  overflow: hidden; /* cegah overflow */
 }
 
 .toko_icon img {
-    width: clamp(40px, 3vw, 55px);   /* responsif, mengecil saat zoom out */
-    height: auto;
+  width: clamp(40px, 3vw, 55px); /* responsif, mengecil saat zoom out */
+  height: auto;
 }
-
 
 @media only screen and (max-width: 768px) {
   ::-webkit-scrollbar {

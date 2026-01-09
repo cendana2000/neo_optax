@@ -111,11 +111,41 @@ class Pemda extends Base_Controller
 
     public function set_pemda($id = null)
     {
-        $this->session->set_userdata('pemda_id', $id);
-        $operation = array('success' => false);
+        if ($id == 0) {
+            $this->session->set_userdata([
+                'pemda_id'   => 0,
+                'pemda_nama' => 'Semua Pemda',
+                'pemda_logo' => null
+            ]);
+            return $this->response(['success' => true]);
+        }
 
-        $this->response($operation);
+        $pemda = $this->db
+            ->select('pemda_id, pemda_nama, pemda_logo')
+            ->from('conf_pemda')
+            ->where('pemda_id', $id)
+            ->where('pemda_deleted_at IS NULL')
+            ->get()
+            ->row_array();
+
+        if (!$pemda) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Pemda tidak ditemukan'
+            ]);
+        }
+        $this->session->set_userdata([
+            'pemda_id'   => $pemda['pemda_id'],
+            'pemda_nama' => $pemda['pemda_nama'],
+            'pemda_logo' => $pemda['pemda_logo']
+        ]);
+
+        return $this->response([
+            'success' => true,
+            'data' => $pemda
+        ]);
     }
+
 
     function read($value = '')
     {

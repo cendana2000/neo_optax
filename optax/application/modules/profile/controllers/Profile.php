@@ -22,32 +22,69 @@ class Profile extends BASE_Controller
 
     public function load()
     {
-        if ($this->session->userdata('login_access') == "pemda") {
-            $data = $this->pegawai->read($this->session->userdata('pegawai_id'));
-            $role = $this->roleaccess->read($data['pegawai_role_access_id']);
+        $loginAccess = $this->session->userdata('login_access');
+        $operation = ['success' => false];
+
+        if (in_array($loginAccess, ['pemda', 'bankjatim', 'kpk', '123'])) {
+
+            $pegawaiId = $this->session->userdata('user_pegawai_id');
+            if (empty($pegawaiId)) {
+                return $this->response([
+                    'success' => false,
+                    'message' => 'Session pegawai tidak ditemukan'
+                ]);
+            }
+            $data = $this->db->select('*')
+                ->from('pajak_pegawai pp')
+                ->where('pp.pegawai_id', $pegawaiId)
+                ->get()
+                ->result_array();
+
+            if (empty($data)) {
+                return $this->response([
+                    'success' => false,
+                    'message' => 'Data pegawai tidak ditemukan'
+                ]);
+            }
+
+            $role = $this->roleaccess->read([
+                'role_access_id' => $data['pegawai_role_access_id']
+            ]);
+
             $operation = [
                 'success' => true,
-                'login_access' => 'pemda',
-                'data'    => $data,
-                'role' => $role,
+                'login_access' => $loginAccess,
+                'data' => $data,
+                'role' => $role
             ];
-        }else if($this->session->userdata('login_access') == "wajibpajak"){
-            $data = $this->wajibpajak->read($this->session->userdata('wajibpajak_id'));
+        } else if ($loginAccess === 'wajibpajak') {
+
+            $data = $this->wajibpajak->read([
+                'wajibpajak_id' => $this->session->userdata('wajibpajak_id')
+            ]);
+
             $operation = [
                 'success' => true,
                 'login_access' => 'wajibpajak',
-                'data' => $data,
+                'data' => $data
             ];
         }
+
         $this->response($operation);
     }
+
 
     public function read()
     {
         $data = varPost();
-        if ($this->session->userdata('login_access') == "pemda") {
-            $operation = $this->pegawai->read($data['id']);
-        }else if($this->session->userdata('login_access') == "wajibpajak"){
+        $loginAccess = $this->session->userdata('login_access');
+        if (in_array($loginAccess, ['pemda', 'bankjatim', 'kpk', '123'])) {
+            $operation = $this->db->select('*')
+                ->from('pajak_pegawai pp')
+                ->where('pp.pegawai_id', $data['id'])
+                ->get()
+                ->row_array();
+        } else if ($this->session->userdata('login_access') == "wajibpajak") {
             $operation = $this->wajibpajak->read($data['id']);
         }
         $this->response($operation);
@@ -63,7 +100,7 @@ class Profile extends BASE_Controller
                 $user_pass = $user['pegawai_password'];
                 $new_pass = $this->password($data['password_new']);
                 $old_pass = $this->password($data['password_old']);
-                if($user_pass == $old_pass){
+                if ($user_pass == $old_pass) {
                     $update = $this->pegawai->update(['pegawai_id' => $pegawai_id], ['pegawai_password' => $new_pass, 'pegawai_last_change_password' => date('Y-m-d H:i:s')]);
                     if ($update['success']) {
                         $operation = [
@@ -76,7 +113,7 @@ class Profile extends BASE_Controller
                             'message' => 'Failed to change password !'
                         ];
                     }
-                }else{
+                } else {
                     $operation = [
                         'success' => false,
                         'message' => 'Wrong Old Password'
@@ -88,15 +125,14 @@ class Profile extends BASE_Controller
                     'message' => 'User not found, please re-login!'
                 ];
             }
-        }
-        else if($this->session->userdata('login_access') == "wajibpajak"){
+        } else if ($this->session->userdata('login_access') == "wajibpajak") {
             if ($this->session->userdata('wajibpajak_id')) {
                 $id = $this->session->userdata('wajibpajak_id');
                 $user = $this->wajibpajak->read($id);
                 $user_pass = $user['wajibpajak_password'];
                 $new_pass = $this->password($data['password_new']);
                 $old_pass = $this->password($data['password_old']);
-                if($user_pass == $old_pass){
+                if ($user_pass == $old_pass) {
                     $update = $this->wajibpajak->update(['wajibpajak_id' => $id], ['wajibpajak_password' => $new_pass, 'wajibpajak_last_change_password' => date('Y-m-d H:i:s')]);
                     if ($update['success']) {
                         $operation = [
@@ -109,7 +145,7 @@ class Profile extends BASE_Controller
                             'message' => 'Failed to change password !'
                         ];
                     }
-                }else{
+                } else {
                     $operation = [
                         'success' => false,
                         'message' => 'Wrong Old Password'
@@ -128,7 +164,7 @@ class Profile extends BASE_Controller
     public function cekEmail()
     {
         $data = varPost();
-        if($this->session->userdata('login_access') == "pemda"){
+        if ($this->session->userdata('login_access') == "pemda") {
             $get = $this->pegawai->select([
                 'fields' => ['pegawai_email', 'pegawai_id'],
                 'filters_static' => [
@@ -144,7 +180,7 @@ class Profile extends BASE_Controller
                 $operation['success'] = false;
                 $operation['id'] = $get['data'][0]['pegawai_id'];
             }
-        }else if($this->session->userdata('login_access') == "wajibpajak"){
+        } else if ($this->session->userdata('login_access') == "wajibpajak") {
             $get = $this->wajibpajak->select([
                 'fields' => ['wajibpajak_email', 'wajibpajak_id'],
                 'filters_static' => [
@@ -167,7 +203,7 @@ class Profile extends BASE_Controller
     public function update()
     {
         $data = varPost();
-        if($this->session->userdata('login_access') == "pemda"){
+        if ($this->session->userdata('login_access') == "pemda" || $this->session->userdata('login_access') == "bankjatim" || $this->session->userdata('login_access') == "kpk" || $this->session->userdata('login_access') == "123") {
             if (!file_exists("./dokumen/user")) {
                 mkdir("./dokumen/user", 0777, true);
                 mkdir("./dokumen/user/thumbs", 0777, true);
@@ -191,12 +227,12 @@ class Profile extends BASE_Controller
                     unlink("./dokumen/user/thumbs/" . $read['pegawai_foto']);
                     $img = $this->upload->data();
                     $data['pegawai_foto'] = $img['file_name'];
-    
+
                     $file = $this->upload->data();
                     $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                     $resize = array();
                     $size   =  array(
-                        array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                        array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                     );
                     foreach ($size as $r) {
                         $resize = array(
@@ -222,7 +258,7 @@ class Profile extends BASE_Controller
             if ($operation['success'] && $operation['record']) {
                 $this->session->set_userdata($operation['record']);
             }
-        }else if($this->session->userdata('login_access') == "wajibpajak"){
+        } else if ($this->session->userdata('login_access') == "wajibpajak") {
             if (!file_exists("./dokumen/user")) {
                 mkdir("./dokumen/user", 0777, true);
                 mkdir("./dokumen/user/thumbs", 0777, true);
@@ -246,12 +282,12 @@ class Profile extends BASE_Controller
                     unlink("./dokumen/user/thumbs/" . $read['wajibpajak_foto']);
                     $img = $this->upload->data();
                     $data['wajibpajak_foto'] = $img['file_name'];
-    
+
                     $file = $this->upload->data();
                     $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                     $resize = array();
                     $size   =  array(
-                        array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                        array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                     );
                     foreach ($size as $r) {
                         $resize = array(

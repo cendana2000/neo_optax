@@ -73,26 +73,26 @@
 											<div class="row">
 												<div class="col-md-12">
 													<input type="hidden" name="profile_id" id="profile_id">
-													<div class="form-group row my-2" style="<?= $this->session->userdata('login_access') == "wajibpajak" ? 'display:none;' : ''?>">
-														<label class="col-4 col-form-label">Permission</label>
+													<div class="form-group row my-2" style="<?= $this->session->userdata('login_access') == "wajibpajak" ? 'display:none;' : '' ?>">
+														<label class="col-4 col-form-label">Role</label>
 														<div class="col-8">
 															<span class="form-control-plaintext font-weight-bolder detail-hak_akses_nama"></span>
 														</div>
 													</div>
 													<div class="form-group row my-2">
-														<label class="col-4 col-form-label">Name </label>
+														<label class="col-4 col-form-label">Nama </label>
 														<div class="col-8">
 															<span class="form-control-plaintext font-weight-bolder detail-nama"></span>
 														</div>
 													</div>
 													<div class="form-group row my-2">
-														<label class="col-4 col-form-label">Address </label>
+														<label class="col-4 col-form-label">Alamat </label>
 														<div class="col-8">
 															<span class="form-control-plaintext font-weight-bolder detail-alamat"></span>
 														</div>
 													</div>
 													<div class="form-group row my-2">
-														<label class="col-4 col-form-label">Phone </label>
+														<label class="col-4 col-form-label">Telepon </label>
 														<div class="col-8">
 															<span class="form-control-plaintext font-weight-bolder detail-telepon"></span>
 														</div>
@@ -106,7 +106,7 @@
 														</div>
 													</div>
 													<div class="form-group row my-2">
-														<label class="col-4 col-form-label pr-0">Last Change Password</label>
+														<label class="col-4 col-form-label pr-0">Terakhir Ubah Password</label>
 														<div class="col-8">
 															<span class="form-control-plaintext font-weight-bolder detail-last_change_password"></span>
 														</div>
@@ -115,68 +115,117 @@
 											</div>
 										</div>
 										<div class="edit-profile" style="display: none;">
+											<?php
+											$is_wp = ($this->session->userdata('login_access') === 'wajibpajak');
+											?>
 											<form action="javascript:save('form-profile')" method="post" id="form-profile" autocomplete="off">
 												<div class="card-body">
 													<div class="row">
 														<div class="col-md-12">
-															<input type="hidden" <?= $this->session->userdata('login_access') == "pemda" ? 'name="pegawai_id" id="pegawai_id"' : 'name="wajibpajak_id" id="wajibpajak_id"'?> >
+															<input type="hidden"
+																name="<?= $is_wp ? 'wajibpajak_id' : 'pegawai_id' ?>"
+																id="<?= $is_wp ? 'wajibpajak_id' : 'pegawai_id' ?>">
 															<div class="form-group row">
-																<label class="col-lg-3 col-form-label text-left" for="<?= $this->session->userdata('login_access') == "pemda" ? 'pegawai_nama' : 'wajibpajak_nama_penanggungjawab'?>">Name</label>
+																<label class="col-lg-3 col-form-label text-left">
+																	Nama
+																</label>
 																<div class="col-lg-9">
-																	<input type="text" <?= $this->session->userdata('login_access') == "pemda" ? 'id="pegawai_nama" name="pegawai_nama"' : 'id="wajibpajak_nama_penanggungjawab" name="wajibpajak_nama_penanggungjawab"' ?> class="form-control pegawai_nama" placeholder="Name" required data-fv-not-empty___message="This field is required" minlength="3" maxlength="150">
+																	<input type="text"
+																		id="<?= $is_wp ? 'wajibpajak_nama_penanggungjawab' : 'pegawai_nama' ?>"
+																		name="<?= $is_wp ? 'wajibpajak_nama_penanggungjawab' : 'pegawai_nama' ?>"
+																		class="form-control"
+																		placeholder="Name"
+																		required minlength="3" maxlength="150">
 																</div>
 															</div>
 															<div class="form-group row">
-																<label class="col-lg-3 col-form-label text-left" for="<?= $this->session->userdata('login_access') == "pemda" ? 'pegawai_alamat' : 'wajibpajak_alamat'?>">Address</label>
+																<label class="col-lg-3 col-form-label text-left">
+																	Alamat
+																</label>
 																<div class="col-lg-9">
-																	<textarea type="textarea" <?= $this->session->userdata('login_access') == "pemda" ? 'id="pegawai_alamat" name="pegawai_alamat"' : 'id="wajibpajak_alamat" name="wajibpajak_alamat"' ?> class="form-control pegawai_alamat" placeholder="Address" required data-fv-not-empty___message="This field is required"></textarea>
+																	<textarea
+																		id="<?= $is_wp ? 'wajibpajak_alamat' : 'pegawai_alamat' ?>"
+																		name="<?= $is_wp ? 'wajibpajak_alamat' : 'pegawai_alamat' ?>"
+																		class="form-control"
+																		placeholder="Address"
+																		required></textarea>
 																</div>
 															</div>
 															<div class="form-group row">
-																<label class="col-lg-3 col-form-label text-left" for="<?= $this->session->userdata('login_access') == "pemda" ? 'pegawai_hp' : 'wajibpajak_telp'?>">Phone</label>
+																<label class="col-lg-3 col-form-label text-left">
+																	Telepon
+																</label>
 																<div class="col-lg-9">
-																	<input type="number" <?= $this->session->userdata('login_access') == "pemda" ? 'id="pegawai_hp" name="pegawai_hp"' : 'id="wajibpajak_telp" name="wajibpajak_telp"' ?>  min="0" class="form-control pegawai_hp" placeholder="Phone" required data-fv-not-empty___message="This field is required">
+																	<input type="number"
+																		id="<?= $is_wp ? 'wajibpajak_telp' : 'pegawai_hp' ?>"
+																		name="<?= $is_wp ? 'wajibpajak_telp' : 'pegawai_hp' ?>"
+																		class="form-control"
+																		placeholder="Phone"
+																		min="0"
+																		required>
 																</div>
 															</div>
 															<div class="form-group row">
-																<label class="col-lg-3 col-form-label text-left" for="<?= $this->session->userdata('login_access') == "pemda" ? 'pegawai_email' : 'wajibpajak_email'?>">Email</label>
+																<label class="col-lg-3 col-form-label text-left">
+																	Email
+																</label>
 																<div class="col-lg-9">
-																	<input type="email" <?= $this->session->userdata('login_access') == "pemda" ? 'id="pegawai_email" name="pegawai_email"' : 'id="wajibpajak_email" name="wajibpajak_email"' ?> class="form-control pegawai_email" placeholder="Email" required data-fv-not-empty___message="This field is required" data-fv-email-address___message=" ">
+																	<input type="email"
+																		id="<?= $is_wp ? 'wajibpajak_email' : 'pegawai_email' ?>"
+																		name="<?= $is_wp ? 'wajibpajak_email' : 'pegawai_email' ?>"
+																		class="form-control"
+																		placeholder="Email"
+																		required>
 																</div>
 															</div>
 															<div class="form-group row">
-																<label class="col-lg-3 col-form-label text-left" for="<?= $this->session->userdata('login_access') == "pemda" ? 'pegawai_foto' : ''?>">Photo</label>
+																<label class="col-lg-3 col-form-label text-left">
+																	Foto
+																</label>
 																<div class="col-lg-9">
-																	<div class="image-input image-input-empty image-input-outline" <?= $this->session->userdata('login_access') == "pemda" ? 'id="pegawai_foto"' : 'id="wajibpajak_foto"' ?> style="background-image: url(./assets/media/noimage.png)">
+																	<div class="image-input image-input-empty image-input-outline"
+																		id="<?= $is_wp ? 'wajibpajak_foto' : 'pegawai_foto' ?>"
+																		style="background-image: url(./assets/media/noimage.png)">
 																		<div class="image-input-wrapper"></div>
-																		<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
+
+																		<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+																			data-action="change">
 																			<i class="fa fa-pen icon-sm text-muted"></i>
-																			<input type="file" <?= $this->session->userdata('login_access') == "pemda" ? 'name="pegawai_foto"' : 'name="wajibpajak_foto"' ?> accept=".png, .jpg, .jpeg" />
-																			<input type="hidden" name="profile_avatar_remove" />
+																			<input type="file"
+																				name="<?= $is_wp ? 'wajibpajak_foto' : 'pegawai_foto' ?>"
+																				accept=".png, .jpg, .jpeg">
+																			<input type="hidden" name="profile_avatar_remove">
 																		</label>
 
-																		<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
+																		<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+																			data-action="cancel">
 																			<i class="ki ki-bold-close icon-xs text-muted"></i>
 																		</span>
 
-																		<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="remove" data-toggle="tooltip" title="Remove avatar">
+																		<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+																			data-action="remove">
 																			<i class="ki ki-bold-close icon-xs text-muted"></i>
 																		</span>
 																	</div>
 																</div>
 															</div>
+
 														</div>
 													</div>
 												</div>
+
 												<div class="card-footer">
 													<div class="row">
 														<div class="col-12 text-right">
-															<button type="button" class="btn btn-sm btn-danger mx-1" onclick="onBack()"> Back</button>
-															<button type="submit" class="btn btn-sm btn-success mx-1"><i class="fas fa-save"></i> Save</button>
+															<button type="button" class="btn btn-sm btn-danger mx-1" onclick="onBack()">Back</button>
+															<button type="submit" class="btn btn-sm btn-success mx-1">
+																<i class="fas fa-save"></i> Save
+															</button>
 														</div>
 													</div>
 												</div>
 											</form>
+
 										</div>
 									</div>
 									<!--end::Body-->

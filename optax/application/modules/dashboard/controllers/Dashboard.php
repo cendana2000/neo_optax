@@ -12,6 +12,7 @@ class Dashboard extends Base_Controller
 		$this->load->model(array(
 			'dashboard/dashboardModel' 				=> 'dashboard',
 			'lastactivitywp/LastactivitywpModel' 	=> 'lastactivitywp',
+			'statusdevice/StatusDeviceModel' 		=> 'statusdevice',
 		));
 	}
 
@@ -834,10 +835,14 @@ class Dashboard extends Base_Controller
 		}
 		$limit = 4;
 		$start = $page * $limit;
-		$opr = $this->lastactivitywp->select([
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where = 'pemda_id=' . $this->db->escape($pemda_id);
+		}
+		$opr = $this->statusdevice->select([
 			'sort_static' => 'tanggal_last_transaksi desc NULLS last',
 			'limit' => $limit,
-			'start' => $start
+			'start' => $start,
+			'filters_static' => $where
 		]);
 		$opr['page'] = $page;
 		$opr['limit'] = $limit;

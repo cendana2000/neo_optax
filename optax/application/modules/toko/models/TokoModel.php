@@ -29,6 +29,7 @@ class TokoModel extends Base_Model
 					array('name' => 'wajibpajak_email',  				'view' => true),
 					array('name' => 'wajibpajak_telp',  				'view' => true),
 					array('name' => 'jenis_nama',  				'view' => true),
+					array('name' => 'pemda_id'),
 				)
 			),
 			'view' => array(
@@ -43,6 +44,7 @@ class TokoModel extends Base_Model
 						'toko_status',
 						'wajibpajak_sektor_nama',
 						'jenis_nama',
+						'pemda_id',
 					)
 				)
 			)

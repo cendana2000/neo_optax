@@ -24,7 +24,12 @@
 					$(element).addClass('loading');
 				},
 				success: function(response) {
-					updateSelectedPemdaDisplay(pemdaId, pemdaName);
+					if (response.success && response.data) {
+						updateSelectedPemdaDisplay(
+							response.data.pemda_id,
+							response.data.pemda_nama
+						);
+					}
 					$('.pemda-card').removeClass('card-selected');
 					$('.pemda-card').css('border', '1px solid #e4e6ef');
 					$(element).find('.pemda-card').addClass('card-selected');
@@ -70,19 +75,32 @@
 	});
 
 	function initializePemdaDropdown() {
-		loadPemdaData();
-		var sessionPemdaId = '<?= $this->session->userdata("pemda_id") ?>';
-		var sessionPemdaName = '<?= $this->session->userdata("pemda_nama") ?>';
+		const pemdaId = '<?= $this->session->userdata("pemda_id") ?>';
+		const pemdaNama = '<?= $this->session->userdata("pemda_nama") ?>';
+		const pemdaLogo = '<?= $this->session->userdata("pemda_logo") ?>';
+		loadPemdaData(function() {
+			if (pemdaId && pemdaId !== '0' && pemdaNama) {
+				$('#selected-pemda-name').text(pemdaNama);
 
-		if (sessionPemdaId && sessionPemdaName) {
-			updateSelectedPemdaDisplay(sessionPemdaId, sessionPemdaName);
-		} else if (sessionPemdaId === '0' || !sessionPemdaId) {
-			$('#selected-pemda-name').text('Semua Pemda');
-			$('#pemda-dropdown .symbol-label').html('<i class="fas fa-globe text-primary fs-4"></i>');
-		}
+				if (pemdaLogo) {
+					$('#pemda-dropdown .symbol-label').html(`
+						<img src="${BASE_URL_NO_INDEX}dokumen/pemda/${pemdaLogo}"
+							style="width:30px;height:30px;object-fit:contain">
+					`);
+				} else {
+					$('#pemda-dropdown .symbol-label').html(
+						'<i class="fas fa-city text-primary fs-4"></i>'
+					);
+				}
+			} else {
+				$('#selected-pemda-name').text('Semua Pemda');
+				$('#pemda-dropdown .symbol-label').html(
+					'<i class="fas fa-globe text-primary fs-4"></i>'
+				);
+			}
+		});
 	}
 
-	// Fungsi load data pemda
 	function loadPemdaData() {
 		$.ajax({
 			url: BASE_URL + 'pemda/select',
@@ -99,13 +117,9 @@
 			success: function(response) {
 				if (response.success && response.data) {
 					renderPemdaHorizontalList(response.data);
-				} else {
-					$('#pemda-horizontal-list').html(`
-                    <div class="text-center py-10 w-100">
-                        <i class="flaticon2-file icon-2x text-muted"></i>
-                        <div class="text-muted mt-2">Tidak ada data pemda</div>
-                    </div>
-                `);
+					if (typeof callback === 'function') {
+						callback();
+					}
 				}
 			},
 			error: function() {
@@ -119,7 +133,6 @@
 		});
 	}
 
-	// Fungsi render horizontal list pemda
 	function renderPemdaHorizontalList(pemdaList) {
 		let html = '';
 
@@ -131,18 +144,14 @@
             </div>
         `;
 		} else {
-			// Filter hanya pemda yang aktif (pemda_deleted_at is null)
 			const activePemda = pemdaList.filter(function(pemda) {
 				return pemda.pemda_deleted_at === null || pemda.pemda_deleted_at === '';
 			});
 
 			activePemda.forEach(function(pemda, index) {
 				const isSelected = pemda.pemda_id === '<?= $this->session->userdata("pemda_id") ?>';
-
-				// Build logo URL yang benar
-				let logoUrl = BASE_URL_NO_INDEX + 'assets/media/noimage.png'; // default 80x80
+				let logoUrl = BASE_URL_NO_INDEX + 'assets/media/noimage.png';
 				if (pemda.pemda_logo) {
-					// Gunakan path yang benar: base_url/dokumen/pemda/{filename}
 					logoUrl = BASE_URL_NO_INDEX + 'dokumen/pemda/' + pemda.pemda_logo;
 				}
 
@@ -158,7 +167,7 @@
                             <!-- Logo container dengan ukuran 80x80 -->
                             <div class="logo-container mb-3" style="width: 80px; height: 80px;">
                                 <div class="position-relative w-100 h-100" 
-                                     style="overflow: hidden; border-radius: 50%; background: #f0f3ff;">
+                                     style="overflow: hidden; background: transparent;">
                                     <!-- Image dengan ukuran 80x80 -->
                                     <img src="${logoUrl}" 
                                          class="pemda-logo h-100 w-100"
@@ -205,8 +214,6 @@
 		}
 
 		$('#pemda-grid').html(html);
-
-		// Preload images untuk menghindari blinking
 		preloadPemdaImages();
 	}
 
@@ -262,7 +269,6 @@
 		});
 	}
 
-
 	function updateSelectedPemdaDisplay(pemdaId, pemdaName) {
 		$('#selected-pemda-name').text(pemdaName);
 		const pemdaItem = $(`.pemda-grid-item[data-pemda-id="${pemdaId}"]`);
@@ -270,27 +276,22 @@
 
 		if (logoElement.length > 0) {
 			const logoUrl = logoElement.attr('src');
-
-			// Buat test image untuk mengecek apakah logo valid
 			const testImage = new Image();
 			testImage.onload = function() {
-				// Logo valid, tampilkan di button (ukuran 30x30 untuk button)
 				$('#pemda-dropdown .symbol-label').html(`
                 <img src="${logoUrl}" 
-                     class="h-100 w-100 rounded-circle" 
+                     class="h-100 w-100" 
                      style="object-fit: cover; width: 30px; height: 30px;"
                      onerror="this.onerror=null; this.src='${BASE_URL_NO_INDEX}assets/media/noimage.png'">
             `);
 			};
 			testImage.onerror = function() {
-				// Logo tidak valid, gunakan icon default
 				$('#pemda-dropdown .symbol-label').html(`
                 <i class="fas fa-city text-primary fs-4"></i>
             `);
 			};
 			testImage.src = logoUrl;
 		} else {
-			// Jika tidak ditemukan logo, gunakan icon default
 			$('#pemda-dropdown .symbol-label').html(`
             <i class="fas fa-city text-primary fs-4"></i>
         `);
@@ -302,7 +303,6 @@
 		$.get(BASE_URL + 'main/getTokoStatus', function(res) {
 			$('#user_active').html('');
 			if (!Array.isArray(res)) return;
-
 			res.map((item, index) => {
 				$('#user_active').append(`
 				<div>
@@ -480,54 +480,4 @@
 		image.onerror = "";
 		image.src = `${BASE_URL_NO_INDEX}assets/media/noimage.png`;
 	}
-
-	function onChangeLog() {
-		$('#list-changelog').empty()
-		html = ''
-		HELPER.ajax({
-			url: BASE_URL + 'main/changeLog',
-			success: function(res) {
-				$.each(res.data, (key, val) => {
-					html_list_change = ''
-					$.each(JSON.parse(val.change_log_change_list), (lkey, lval) => {
-						html_list_change += `<li>${lval}</li>`
-					})
-					html += `
-							<div class="timeline-item">
-								<div class="timeline-badge">
-									<div class="bg-success"></div>
-								</div>
-								<div class="timeline-label">
-									<span class="font-weight-bold">${val.change_log_number}</span>
-									<p class="mb-0"><span class="text-primary font-weight-bold">${val.change_log_name}</span>, <span class="text-muted">${moment(val.change_log_change_date).format('DD-MM-YYYY')}</span></p>
-									<span class="text-muted">${val.change_log_description}</span>
-								</div>
-
-								<div class="timeline-content ml-3">
-									<ul class="pl-3">
-										${html_list_change}
-									</ul>
-								</div>
-							</div>
-					`
-				})
-				$('#list-changelog').append(html);
-				$("#modalChangelog").modal('show')
-			}
-		})
-	}
 </script>
-
-<!-- <script type="module">
-	import {
-		io
-	} from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
-	var socket = io('<?= $_ENV['SOCKET_CONNECT'] ?>'); //Server Sekawan
-	// var socket = io("https://192.168.100.59:3000"); //IP Sena
-
-	socket.on("refreshUserOnline", (arg) => {
-		if (arg) {
-			loadUserActive();
-		}
-	});
-</script> -->

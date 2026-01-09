@@ -99,41 +99,31 @@
 			url: BASE_URL + 'profile/load',
 			complete: function(res) {
 				if (res.success) {
-					var data = res.data;
-					if (res.login_access == "pemda") {
-						HELPER.fields = [
-							"pegawai_id",
-							"pegawai_nip",
-							"pegawai_nama",
-							"pegawai_alamat",
-							"pegawai_hp",
-							"pegawai_jk",
-							"pegawai_jabatan",
-							"pegawai_email",
-							"pegawai_password",
-							"pegawai_status",
-						];
+					var data = Array.isArray(res.data) ? res.data[0] : res.data;
+					if (res.login_access == "pemda" || res.login_access == "bankjatim" || res.login_access == "kpk" || res.login_access == "123") {
 						var userimage = 'assets/media/noimage.png';
 						if (data.pegawai_foto) {
-							userimage = 'dokumen/user/' + data.pegawai_foto
-						};
+							userimage = 'dokumen/user/' + data.pegawai_foto;
+						}
 						$('.show-foto').css('background-image', "url('" + userimage + "')");
-						$('.show-nama').text(data.pegawai_nama)
-						$('.show-hak_akses').text(res.role.role_access_nama)
-						$('.show-region').text(data.region_nama)
-						$('.show-email').text(data.pegawai_email)
-						$('.show-notelp').text(data.pegawai_hp)
-						$('.show-alamat').text(data.pegawai_alamat)
-						$('#profile_id').val(data.pegawai_id)
-						$('.detail-nama').text(HELPER.nullConverter(data.pegawai_nama))
-						$('.detail-alamat').text(HELPER.nullConverter(data.pegawai_alamat))
-						$('.detail-telepon').text(HELPER.nullConverter(data.pegawai_hp))
-						$('.detail-email').text(HELPER.nullConverter(data.pegawai_email))
-						$('.detail-hak_akses_nama').text(HELPER.nullConverter(res.role.role_access_nama))
-						$.each(data, function(i, v) {
-							$('.detail-' + i).text(HELPER.nullConverter(v))
-						});
-						var lastChange = data.pegawai_last_change_password ? moment(data.pegawai_last_change_password).format('LLL') : "-";
+						$('.show-nama').text(data.pegawai_nama);
+						$('.show-hak_akses').text(res.login_access);
+						$('.show-email').text(data.pegawai_email);
+						$('.show-notelp').text(data.pegawai_hp);
+						$('.show-alamat').text(data.pegawai_alamat);
+
+						$('#profile_id').val(data.pegawai_id);
+
+						$('.detail-nama').text(HELPER.nullConverter(data.pegawai_nama));
+						$('.detail-alamat').text(HELPER.nullConverter(data.pegawai_alamat));
+						$('.detail-telepon').text(HELPER.nullConverter(data.pegawai_hp));
+						$('.detail-email').text(HELPER.nullConverter(data.pegawai_email));
+						$('.detail-hak_akses_nama').text(res.login_access);
+
+						var lastChange = data.pegawai_last_change_password ?
+							moment(data.pegawai_last_change_password).format('LLL') :
+							"-";
+
 						$('.detail-last_change_password').text(lastChange);
 					} else if (res.login_access == "wajibpajak") {
 						HELPER.fields = [
@@ -202,24 +192,32 @@
 	}
 
 	function onEdit() {
-
 		HELPER.ajax({
 			url: BASE_URL + 'profile/read',
 			data: {
 				id: $('#profile_id').val()
 			},
 			complete: function(res) {
-				$('.edit-profile').show()
-				$('.detail-profile').hide()
-				$('.btn-edit').hide()
-				HELPER.populateForm($('#form-profile'), res);
+				console.log(res);
+				console.log($('#pegawai_nama').val());
+				console.log($('#pegawai_alamat').val());
+				var data = res;
+				$('.edit-profile').show();
+				$('.detail-profile').hide();
+				$('.btn-edit').hide();
+				HELPER.populateForm($('#form-profile'), data);
+				$('textarea[name="pegawai_alamat"]').val(data.pegawai_alamat);
 
-				if (res.pegawai_foto) {
-					$('#pegawai_foto').css('background-image', "url('dokumen/user/" + res.pegawai_foto + "')");
+				if (data.pegawai_foto) {
+					$('#pegawai_foto').css(
+						'background-image',
+						"url('dokumen/user/" + data.pegawai_foto + "')"
+					);
 				}
 			}
-		})
+		});
 	}
+
 
 	function save(name) {
 		var form = $('#' + name)[0];

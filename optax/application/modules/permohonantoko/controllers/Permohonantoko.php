@@ -63,6 +63,9 @@ class Permohonantoko extends Base_Controller
 	public function index()
 	{
 		// $where['wajibpajak_deleted_at'] = null;
+		if ($pemda_id = $this->session->userdata('pemda_id')) {
+			$where['pemda_id'] = $pemda_id;
+		}
 		$where['toko_status = \'1\' or toko_status = \'\' or toko_status = \'3\''] = null;
 		$this->response(
 			$this->select_dt(varPost(), 'toko', 'table', true, $where)
