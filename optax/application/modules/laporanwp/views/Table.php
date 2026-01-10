@@ -6,7 +6,7 @@
 					<span class="card-icon">
 						<i class="fa fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">LAPORAN WAJIB PAJAK</h3>
+					<h3 class="card-label">LAPORAN OBJEK PAJAK</h3>
 				</div>
 			</div>
 			<div class="card-body table-responsive">
@@ -22,7 +22,7 @@
 							</div>
 						</div>
 						<div class="form-group row" id="singleMode" style="display: none;">
-							<label for="wp_select" class="col-2 col-form-label">Wajib Pajak</label>
+							<label for="wp_select" class="col-2 col-form-label">Objek Pajak</label>
 							<div class="col-10">
 								<select class="form-control" name="wp_select" id="wp_select">
 								</select>
@@ -51,7 +51,7 @@
 					<span class="card-icon">
 						<i class="fa fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">DATA WAJIB PAJAK</h3>
+					<h3 class="card-label">DATA OBJEK PAJAK</h3>
 				</div>
 			</div>
 			<div class="card-body table-responsive">

@@ -113,21 +113,18 @@
 	}
 
 	function getLaporanRekapExcel() {
-		event.preventDefault();
 		HELPER.block();
-		$.ajax({
-			url: BASE_URL + '/laporanwp/spreadsheet_laporan',
-			type: 'post',
-			dataType: 'JSON',
-			success: function(res) {
-				if (res.success) {
-					let fileLocation = BASE_ASSETS + 'laporan/wajibpajak/' + res.file;
-					window.location.href = fileLocation;
-				}
-			},
-			complete: function(res) {
-				HELPER.unblock();
-			}
-		})
+		let form = $('<form>', {
+			action: BASE_URL + '/laporanwp/spreadsheet_laporan',
+			method: 'POST',
+			target: '_blank'
+		});
+		$('body').append(form);
+		form.submit();
+		form.remove();
+
+		setTimeout(() => {
+			HELPER.unblock();
+		}, 1000);
 	}
 </script>

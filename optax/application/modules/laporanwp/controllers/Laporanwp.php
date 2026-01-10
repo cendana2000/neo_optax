@@ -151,7 +151,7 @@ class Laporanwp extends Base_Controller
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4> DAFTAR WAJIB PAJAK</h4><br>
+						<h4> DAFTAR OBJEK PAJAK</h4><br>
 				</td>
 			</tr>
 			<tr>
@@ -162,8 +162,9 @@ class Laporanwp extends Base_Controller
 		<br>
 		<table class="laporan" cellspacing=0 style="width:100%; border-collapse: collapse;">
 			<tr>
+				<th class="t-center">No.</th>
 				<th class="t-center">NPWPD</th>
-				<th class="t-center">WAJIB PAJAK</th>
+				<th class="t-center">OBJEK PAJAK</th>
 				<th class="t-center">PENANGGUNG JAWAB</th>
 				<th class="t-center">EMAIL</th>
 				<th class="t-center">HP/TELP</th>
@@ -172,14 +173,15 @@ class Laporanwp extends Base_Controller
 
 		$where = '';
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where	= ' AND pemda_id='. $this->db->escape($pemda_id);
+			$where	= ' AND pemda_id=' . $this->db->escape($pemda_id);
 		}
 		$wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak 
 		WHERE wajibpajak_status = '2' $where
 		ORDER BY jenis_nama")->result_array();
-
+		$no = 1;
 		foreach ($wajibpajak as $key => $value) {
 			$html .= '<tr>
+					<td>' . $no++ . '</td>
 					<td>' . $value['wajibpajak_npwpd'] . '</td>
 					<td>' . $value['wajibpajak_nama'] . '</td>
 					<td>' . $value['wajibpajak_nama_penanggungjawab'] . '</td>
@@ -196,8 +198,8 @@ class Laporanwp extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Laporan Realisasi Pajak',
-			'title'         => 'Laporan Realisasi Pajak',
+			'file_name'     => 'Laporan Objek Pajak',
+			'title'         => 'Laporan Objek Pajak',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -214,12 +216,17 @@ class Laporanwp extends Base_Controller
 		}
 
 		$data_wp = $this->db->get_where('v_pajak_wajib_pajak', $data)->row_array();
-
-		if (empty($data_wp['wajibpajak_berkas'])) {
-			$data_wp['wajibpajak_berkas'] = base_url() . "/assets/berkasnpwp/images/no_image.png";
+		$filename = $data_wp['wajibpajak_berkas'];
+		if (empty($filename)) {
+			$image_path = FCPATH . 'assets/media/berkasnpwpd/noimage.png';
 		} else {
-			$data_wp['wajibpajak_berkas'] = base_url() . $data_wp['wajibpajak_berkas'];
+			$image_path = FCPATH . 'assets/media/berkasnpwpd/' . $filename;
 		}
+
+		if (!file_exists($image_path)) {
+			$image_path = FCPATH . 'assets/media/berkasnpwpd/noimage.png';
+		}
+
 
 		$html = '<style>
 			*, table, p, li{
@@ -307,7 +314,7 @@ class Laporanwp extends Base_Controller
 		</style>';
 
 		$html .= '
-		<h3>Data Detail Wajib Pajak</h3>
+		<h3>Data Detail Objek Pajak</h3>
 		<hr	>
 		<table  cellpadding="10">
 			<tr>
@@ -343,13 +350,13 @@ class Laporanwp extends Base_Controller
 			<tr>
 				<td style="width: 25%!important;">Email Perusahaan</td>
 				<td style="width:5%!importnat">:</td>
-				<td>' . $data_wp['wajibpajak_telp'] . '</td>
+				<td>' . $data_wp['wajibpajak_email'] . '</td>
 			</tr>
 			<tr>
 				<td style="width: 25%!important;">Berkas NPWPD	</td>
 				<td style="width:5%!importnat">:</td>
 				<td>
-					<img style="width:250px" src="' . $data_wp['wajibpajak_berkas'] . '" alt="' . base_url() . "/assets/berkasnpwp/images/no_image.png" . '">
+					<img src="' . $image_path . '" width="250">
 				</td>
 			</tr>
 		</table>
@@ -359,8 +366,8 @@ class Laporanwp extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'Laporan Realisasi Pajak',
-			'title'         => 'Laporan Realisasi Pajak',
+			'file_name'     => 'Laporan Objek Pajak',
+			'title'         => 'Laporan Objek Pajak',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -406,7 +413,7 @@ class Laporanwp extends Base_Controller
 				],
 			];
 			$sheet->mergeCells('A1:G1');
-			$sheet->setCellValue('A1', 'DAFTAR WAJIB PAJAK');
+			$sheet->setCellValue('A1', 'DAFTAR OBJEK PAJAK');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'G') as $columnID) {
@@ -440,7 +447,7 @@ class Laporanwp extends Base_Controller
 			$sheet->getStyle('A2:G2')->applyFromArray($styleArray);
 			$sheet->setCellValue('A2', 'NO');
 			$sheet->setCellValue('B2', 'NPWPD');
-			$sheet->setCellValue('C2', 'WAJIB PAJAK');
+			$sheet->setCellValue('C2', 'OBJEK PAJAK');
 			$sheet->setCellValue('D2', 'PENANGGUNG JAWAB');
 			$sheet->setCellValue('E2', 'EMAIL');
 			$sheet->setCellValue('F2', 'HP/TELP');
@@ -457,7 +464,7 @@ class Laporanwp extends Base_Controller
 
 			$where = '';
 			if ($pemda_id = $this->session->userdata('pemda_id')) {
-				$where	= ' AND pemda_id='. $this->db->escape($pemda_id);
+				$where	= ' AND pemda_id=' . $this->db->escape($pemda_id);
 			}
 			$ops = $wajibpajak = $this->db->query("SELECT * FROM v_pajak_wajib_pajak 
 			WHERE wajibpajak_status = '2' $where
@@ -478,23 +485,21 @@ class Laporanwp extends Base_Controller
 				$sheet->setCellValue('F' . $no, $value['wajibpajak_telp']);
 				$sheet->setCellValue('G' . $no, $value['jenis_nama']);
 			}
-			$sheet->getStyle('A7:G' . $no)->applyFromArray($styleArray);
+			$sheet->getStyle('A3:G' . $no)->applyFromArray($styleArray);
 
 			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'laporanwajibpajak-' . date('d-m-y_H:i:s') . '.xlsx';
-			if (!file_exists(FCPATH . 'assets/laporan/wajibpajak/')) {
-				mkdir(FCPATH . 'assets/laporan/wajibpajak/', 0777, true);
-			}
-			$file = FCPATH . 'assets/laporan/wajibpajak/' . $filename;
-			$writer->save($file);
+			$filename = 'Laporan objek pajak - ' . date('d-m-y_H:i:s') . '.xlsx';
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Cache-Control: max-age=0');
+			header('Pragma: public');
 
-			$this->response([
-				'success' => true,
-				'file' => $filename
-			]);
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+			$writer->save('php://output');
+			exit;
 		} catch (\Throwable $th) {
 			print_r('<pre>');
 			print_r($th);

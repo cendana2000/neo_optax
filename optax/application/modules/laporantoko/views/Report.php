@@ -6,7 +6,7 @@
 					<span class="card-icon">
 						<i class="fa fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">LAPORAN TEMPAT USAHA</h3>
+					<h3 class="card-label">LAPORAN AKUN POS</h3>
 				</div>
 			</div>
 			<div class="card-body table-responsive">
@@ -22,7 +22,7 @@
 							</div>
 						</div>
 						<div class="form-group row" id="singleMode" style="display: none;">
-							<label for="toko_select" class="col-2 col-form-label">Tempat Usaha</label>
+							<label for="toko_select" class="col-2 col-form-label">Akun POS</label>
 							<div class="col-10">
 								<select class="form-control" name="toko_select" id="toko_select">
 								</select>
@@ -51,7 +51,7 @@
 					<span class="card-icon">
 						<i class="fa fa-table text-primary"></i>
 					</span>
-					<h3 class="card-label">DATA WAJIB PAJAK</h3>
+					<h3 class="card-label">DATA AKUN POS</h3>
 				</div>
 
 			</div>

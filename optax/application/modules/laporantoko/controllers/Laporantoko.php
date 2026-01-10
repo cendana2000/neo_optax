@@ -58,8 +58,8 @@ class Laporantoko extends Base_Controller
 				<th class="t-center">NAMA PENANGGUNGJAWAB</th>
 				<th class="t-center">NO TELEPON</th>
 				<th class="t-center">EMAIL</th>
-				<th class="t-center">KODE USAHA</th>
-				<th class="t-center">TANGGAL PERMOHONAN</th>
+				<th class="t-center">CODE STORE</th>
+				<th class="t-center">TANGGAL PENDAFTARAN</th>
 			</tr>';
 	}
 
@@ -162,7 +162,7 @@ class Laporantoko extends Base_Controller
 			</tr>
 			<tr>
 				<td colspan="2" class="kop">
-						<h4> DAFTAR TEMPAT USAHA</h4><br>
+						<h4> DAFTAR AKUN POS</h4><br>
 				</td>
 			</tr>
 			<tr>
@@ -174,17 +174,17 @@ class Laporantoko extends Base_Controller
 		<table class="laporan" cellspacing=0 style="width:100%; border-collapse: collapse;">
 			<tr>
 				<th class="t-center">NO</th>
-				<th class="t-center">NAMA PERUSAHAAN</th>
+				<th class="t-center">NAMA TEMPAT USAHA</th>
 				<th class="t-center">NPWPD</th>
-				<th class="t-center">SEKTOR USAHA</th>
+				<th class="t-center">JENIS PAJAK</th>
 				<th class="t-center">ALAMAT</th>
-				<th class="t-center">NAMA PENANGGUNGJAWAB</th>
+				<th class="t-center">NAMA PIC</th>
 				<th class="t-center">NO TELEPON</th>
 				<th class="t-center">EMAIL</th>
-				<th class="t-center">KODE USAHA</th>
-				<th class="t-center">TANGGAL PERMOHONAN</th>
+				<th class="t-center">CODE STORE</th>
+				<th class="t-center">TANGGAL PENDAFTARAN</th>
 			</tr>';
-		
+
 		$where = '';
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where .= 'WHERE pemda_id=' . $this->db->escape($pemda_id);
@@ -222,8 +222,8 @@ class Laporantoko extends Base_Controller
 			'data'          => $html,
 			'json'          => true,
 			'paper_size'    => 'A4',
-			'file_name'     => 'LaporanRekapTempatUsaha',
-			'title'         => 'Laporan Rekap Tempat Usaha',
+			'file_name'     => 'Laporan Rekap Akun POS',
+			'title'         => 'Laporan Rekap Akun POS',
 			'stylesheet'    => './assets/laporan/print.css',
 			'margin'        => '10 5 10 5',
 			// 'font_face'     => 'cour',
@@ -240,10 +240,15 @@ class Laporantoko extends Base_Controller
 			'toko_id' => $data['toko_id'],
 		]);
 
-		if (empty($data_tk['toko_logo'])) {
-			$data_tk['toko_logo'] = base_url() . "/assets/berkasnpwp/images/no_image.png";
+		$filename = $data_tk['toko_logo'];
+		if (empty($filename)) {
+			$image_path = FCPATH . "assets/media/berkasnpwpd/noimage.png";
 		} else {
-			$data_tk['toko_logo'] = base_url() . $data_tk['toko_logo'];
+			$image_path = FCPATH . $data_tk['toko_logo'];
+		}
+
+		if (!file_exists($image_path)) {
+			$image_path = FCPATH . 'assets/media/berkasnpwpd/noimage.png';
 		}
 
 		$html = '<style>
@@ -379,7 +384,7 @@ class Laporantoko extends Base_Controller
 				<td style="width: 25%!important;">Logo Toko</td>
 				<td style="width:5%!importnat">:</td>
 				<td>
-					<img style="width:250px" src="' . $data_tk['toko_logo'] . '" alt="' . base_url() . "/assets/berkasnpwp/images/no_image.png" . '">
+					<img src="' . $image_path . '" width="250">
 				</td>
 			</tr>
 		</table>
@@ -437,7 +442,7 @@ class Laporantoko extends Base_Controller
 				],
 			];
 			$sheet->mergeCells('A1:J1');
-			$sheet->setCellValue('A1', 'DAFTAR TEMPAT USAHA');
+			$sheet->setCellValue('A1', 'DAFTAR AKUN POS');
 			$sheet->getStyle('A1')->applyFromArray($styleArray);
 
 			foreach (range('A', 'J') as $columnID) {
@@ -471,7 +476,7 @@ class Laporantoko extends Base_Controller
 			$sheet->getStyle('A2:J2')->applyFromArray($styleArray);
 			$sheet->setCellValue('A2', 'NO');
 			$sheet->setCellValue('B2', 'NPWPD');
-			$sheet->setCellValue('C2', 'Nama WP');
+			$sheet->setCellValue('C2', 'NAMA TEMPAT USAHA');
 			$sheet->setCellValue('D2', 'SEKTOR USAHA');
 			$sheet->setCellValue('E2', 'ALAMAT');
 			$sheet->setCellValue('F2', 'NAMA PENANGGUNGJAWAB');
@@ -504,7 +509,7 @@ class Laporantoko extends Base_Controller
 				$no += 1;
 				$sheet->setCellValue('A' . $no, $key + 1);
 				$sheet->setCellValue('B' . $no, $value['wajibpajak_npwpd']);
-				$sheet->setCellValue('C' . $no, $value['realisasitoko_nama_parent_nama']);
+				$sheet->setCellValue('C' . $no, $value['wajibpajak_nama']);
 				$sheet->setCellValue('D' . $no, $value['jenis_nama']);
 				$sheet->setCellValue('E' . $no, $value['wajibpajak_alamat']);
 				$sheet->setCellValue('F' . $no, $value['wajibpajak_nama_penanggungjawab']);
@@ -513,23 +518,21 @@ class Laporantoko extends Base_Controller
 				$sheet->setCellValue('I' . $no, $value['toko_kode']);
 				$sheet->setCellValue('J' . $no, $value['toko_registered_at']);
 			}
-			$sheet->getStyle('A7:J' . $no)->applyFromArray($styleArray);
+			$sheet->getStyle('A3:J' . $no)->applyFromArray($styleArray);
 
 			// Write a new .xlsx file
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
 			// Save the new .xlsx file
-			$filename = 'laporantempatusaha-' . date('d-m-y_H:i:s') . '.xlsx';
-			if (!file_exists(FCPATH . 'assets/laporan/tempat_usaha/')) {
-				mkdir(FCPATH . 'assets/laporan/tempat_usaha/', 0777, true);
-			}
-			$file = FCPATH . 'assets/laporan/tempat_usaha/' . $filename;
-			$writer->save($file);
+			$filename = 'Laporan akun POS - ' . date('d-m-y_H:i:s') . '.xlsx';
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Cache-Control: max-age=0');
+			header('Pragma: public');
 
-			$this->response([
-				'success' => true,
-				'file' => $filename
-			]);
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+			$writer->save('php://output');
+			exit;
 		} catch (\Throwable $th) {
 			print_r('<pre>');
 			print_r($th);

@@ -188,7 +188,7 @@ class Dashboard extends Base_Controller
 					SELECT SUM(pr.realisasi_pajak)
 					FROM pajak_realisasi pr
 					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_nama
+					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_id
 					WHERE 
 						(pj.jenis_parent = (
 							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
@@ -203,7 +203,7 @@ class Dashboard extends Base_Controller
 					SELECT SUM(lpw.penjualan_total_grand / 11)
 					FROM pos_penjualan lpw
 					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = lpw.wajibpajak_id 
-					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_nama
+					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_id
 					WHERE 
 						(pj.jenis_parent = (
 							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
@@ -232,7 +232,7 @@ class Dashboard extends Base_Controller
 					SELECT SUM(pr.realisasi_pajak)
 					FROM pajak_realisasi pr
 					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_nama
+					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_id
 					WHERE 
 						(pj.jenis_parent = (
 							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
@@ -247,7 +247,7 @@ class Dashboard extends Base_Controller
 					SELECT SUM(lpw.penjualan_total_grand / 11)
 					FROM pos_penjualan lpw
 					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = lpw.wajibpajak_id 
-					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_nama
+					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_id
 					WHERE 
 						(pj.jenis_parent = (
 							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
@@ -302,7 +302,7 @@ class Dashboard extends Base_Controller
 						)
 					from
 						pajak_wajibpajak pw
-						left join pajak_jenis pj on pj.jenis_id = pw.wajibpajak_sektor_nama
+						left join pajak_jenis pj on pj.jenis_id = pw.wajibpajak_sektor_id
 					where 
 						pw.wajibpajak_status = '2'
 						and pw.wajibpajak_deleted_at is null
@@ -835,15 +835,19 @@ class Dashboard extends Base_Controller
 		}
 		$limit = 4;
 		$start = $page * $limit;
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'pemda_id=' . $this->db->escape($pemda_id);
-		}
-		$opr = $this->statusdevice->select([
+		$pemda_id = $this->session->userdata('pemda_id');
+		$params = [
 			'sort_static' => 'tanggal_last_transaksi desc NULLS last',
-			'limit' => $limit,
-			'start' => $start,
-			'filters_static' => $where
-		]);
+			'limit'       => $limit,
+			'start'       => $start,
+		];
+		if (empty($pemda_id)) {
+			$params['without_global_scope'] = true;
+		} else {
+			$params['filters_static'] =
+				'v_status_device.pemda_id = ' . $this->db->escape($pemda_id);
+		}
+		$opr = $this->statusdevice->select($params);
 		$opr['page'] = $page;
 		$opr['limit'] = $limit;
 		$this->response(

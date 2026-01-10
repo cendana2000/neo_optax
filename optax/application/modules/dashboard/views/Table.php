@@ -341,16 +341,13 @@
 						</span>
 						<h3 class="card-label">DETAIL TRANSAKSI TERAKHIR</h3>
 					</div>
-
 					<button
-						type="button"
-						class="btn btn-light btn-sm"
-						onclick="backToDashboard()">
-						<i class="fas fa-arrow-left me-1"></i> Kembali
+						type="button" class="btn btn-light btn-sm text-dark" onclick="backToDashboard()" aria-expanded="false" id="btnBack">
+						<i class="fas fa-arrow-left me-1" style="color:#000 !important"></i> Kembali
 					</button>
 				</div>
 
-				<div class="card-body table-responsive">
+				<div class=" card-body table-responsive">
 					<table class="table align-middle table-row-dashed fs-6 gy-3"
 						id="table-transaksi-terakhir-detail">
 						<thead>
