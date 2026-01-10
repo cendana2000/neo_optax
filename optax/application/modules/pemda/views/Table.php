@@ -190,4 +190,4 @@
 </div>
 
 <?php $this->load->view('form'); ?>
-<?php $this->load->view('javascript'); ?>
+<?php $this->load->view('Javascript'); ?>

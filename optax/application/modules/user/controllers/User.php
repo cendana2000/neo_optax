@@ -147,9 +147,8 @@ class User extends Base_Controller
         $data['pegawai_last_change_password'] = date('Y-m-d H:i:s');
         $data['pegawai_created_at']        = date("Y-m-d H:i:s");
         $data['pegawai_created_by']        = $this->session->userdata('user_pegawai_id');
-        $data['pemda_id']                  = $post['select_pemda'];
+        $data['pemda_id']                  = NULL;
 
-        $final_pemda_id = null;
         if ($this->is_role_pemda($post['pegawai_role_access_id'])) {
             if (empty($post['select_pemda'])) {
                 $this->response([
@@ -158,7 +157,7 @@ class User extends Base_Controller
                 ]);
                 return;
             }
-            $final_pemda_id = (int) $post['select_pemda'];
+            $data['pemda_id'] = (int) $post['select_pemda'];
         }
 
         if (!file_exists("./dokumen/user")) {
@@ -168,9 +167,9 @@ class User extends Base_Controller
         $filess = $_FILES['pegawai_foto']['name'];
         $config['upload_path'] = "./dokumen/user";
         $config['file_name'] = gen_uuid($this->pegawai->get_table());
+        $config['allowed_types'] = 'jpg|JPG|jpeg|JPEG|png|PNG';
 
         if ($filess) {
-            $config['allowed_types'] = 'jpg|JPG|jpeg|JPEG|png|PNG';
 
             $this->upload->initialize($config);
             $_FILES['upload_field_name']['name']        = $_FILES['pegawai_foto']['name'];
@@ -211,17 +210,6 @@ class User extends Base_Controller
             }
         }
         $operation = $this->pegawai->insert($id, $data);
-        if ($final_pemda_id !== null) {
-            $this->db->where('pegawai_id', $id)
-                ->update('pajak_pegawai', [
-                    'pemda_id' => $final_pemda_id
-                ]);
-        } else {
-            $this->db->where('pegawai_id', $id)
-                ->update('pajak_pegawai', [
-                    'pemda_id' => null
-                ]);
-        }
         $this->response($operation);
     }
 
@@ -246,7 +234,17 @@ class User extends Base_Controller
         $data['pegawai_last_change_password'] = date('Y-m-d H:i:s');
         $data['pegawai_created_at']        = date("Y-m-d H:i:s");
         $data['pegawai_created_by']        = $this->session->userdata('user_pegawai_id');
-        $data['pemda_id']                  = $post['select_pemda'];
+        $data['pemda_id']                  = NULL;
+        if ($this->is_role_pemda($post['pegawai_role_access_id'])) {
+            if (empty($post['select_pemda'])) {
+                $this->response([
+                    'success' => false,
+                    'message' => 'Pemda wajib dipilih untuk role Pemda'
+                ]);
+                return;
+            }
+            $data['pemda_id'] = (int) $post['select_pemda'];
+        }
         if (!empty($post['pegawai_password'])) {
             $post['pegawai_password'] = md5(md5($post['pegawai_password']));
         } else {
@@ -304,11 +302,6 @@ class User extends Base_Controller
             }
         }
         $operation = $this->pegawai->update($data['pegawai_id'], $data);
-        $this->db->where('pegawai_id', $post['pegawai_id'])
-            ->update('pajak_pegawai', [
-                'pemda_id' => $post['select_pemda']
-            ]);
-
         $this->response($operation);
     }
 
