@@ -104,258 +104,31 @@ class Dashboard extends Base_Controller
 			}
 		}
 
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE pr.realisasi_wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')';
+		// TOTAL PAJAK PERJENIS
+		foreach (['RESTORAN', 'HOTEL', 'PARKIR', 'HIBURAN'] as $jenis) {
+			$result = $this->dashboard->get_total_pajak_by_jenis("PAJAK $jenis", $rawbegin, $rawend);
+			$data["total_pajak_" . strtolower($jenis)]     = $result['total_pajak'];
+			$data["total_sub_total_" . strtolower($jenis)] = $result['total_sub_total'];
 		}
 
-		$where2 = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where2 = 'AND EXISTS(SELECT 1 FROM pajak_wajibpajak WHERE lpw.wajibpajak_id=pajak_wajibpajak.wajibpajak_id AND pemda_id=' . $this->db->escape($pemda_id) . ')';
+		// Total Transaksi & Total Pajak All
+		$total_pajak = $this->dashboard->get_total_pajak_masuk($rawbegin, $rawend);
+		$data['total_pajak_masuk'] = $total_pajak['total_pajak_masuk'];
+		$data['total_transaksi']  = $total_pajak['total_transaksi'];
+
+		// TOTAL WP PERJENIS
+		foreach (['RESTORAN', 'HOTEL', 'PARKIR', 'HIBURAN'] as $jenis) {
+			$result = $this->dashboard->get_total_wp_by_jenis("PAJAK $jenis");
+			$data["total_wp_" . strtolower($jenis)] = (int) $result['total_wp'];
 		}
 
-		$query_total = $this->db->query("
-			SELECT 
-				COALESCE((
-					SELECT SUM(pr.realisasi_pajak)
-					FROM pajak_realisasi pr
-					WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
-					AND pr.realisasi_deleted_at IS NULL
-					$where
-				), 0)
-				+
-				COALESCE((
-					SELECT SUM(lpw.penjualan_total_grand / 11)
-					FROM pos_penjualan lpw
-					WHERE lpw.penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
-					AND lpw.penjualan_deleted_at IS NULL
-					$where2
-				), 0)
-				AS total_pajak_masuk
-		")->row_array();
-		$data['total_pajak_masuk'] = $query_total['total_pajak_masuk'];
-
-		// $opchartnominal = $this->db->query("SELECT DISTINCT SUM(realisasi_pajak) AS total_pajak_masuk, realisasi_tanggal::date
-		// FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		// GROUP BY realisasi_tanggal::date")->result_array();
-		// foreach ($opchartnominal as $key => $val) {
-		// 	$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
-		// 	$data['chart_nominal_pajak'][$opdate] = (object) array('total_pajak_masuk' => $val['total_pajak_masuk'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
-		// }
-
-		// $opchartupload = $this->db->query("SELECT DISTINCT COUNT(realisasi_wajibpajak_npwpd) AS total_upload, realisasi_tanggal::date 
-		// FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL
-		// GROUP BY realisasi_tanggal::date")->result_array();
-		// foreach ($opchartupload as $key => $val) {
-		// 	$opdate = array_search(date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'), $categories);
-		// 	$data['chart_upload_pajak'][$opdate] = (object) array('total_upload' => $val['total_upload'], 'realisasi_tanggal' => date_format(new DateTime($val['realisasi_tanggal']), 'd M Y'));
-		// }
-
-		// TOTAL ALL
-		// $query_total = $this->db->query("
-		// 	SELECT 
-		// 		COALESCE((
-		// 			SELECT SUM(pr.realisasi_pajak)
-		// 			FROM pajak_realisasi pr
-		// 			WHERE pr.realisasi_tanggal::date BETWEEN '$rawbegin' AND '$rawend'
-		// 			AND pr.realisasi_deleted_at IS NULL
-		// 		), 0)
-		// 		+
-		// 		COALESCE((
-		// 			SELECT SUM(lpw.log_penjualan_wp_total / 11)
-		// 			FROM log_penjualan_wp lpw
-		// 			WHERE lpw.log_penjualan_wp_penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
-		// 			AND lpw.log_penjualan_deleted_at IS NULL
-		// 		), 0)
-		// 	AS total_pajak_masuk
-		// ")->row_array();
-		// $data['total_pajak_masuk'] = $query_total['total_pajak_masuk'];
-
-		// TOTAL RESTO
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-
-		$where2 = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where2 = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
-		}
-
-		$query_resto = $this->db->query("
-			SELECT
-				COALESCE((
-					SELECT SUM(pr.realisasi_pajak)
-					FROM pajak_realisasi pr
-					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_id
-					WHERE 
-						(pj.jenis_parent = (
-							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
-						))
-						AND pr.realisasi_tanggal BETWEEN '$rawbegin' AND '$rawend'
-						AND pr.realisasi_deleted_at IS NULL						
-						AND pw.wajibpajak_deleted_at IS NULL
-						$where
-				), 0)
-				+
-				COALESCE((
-					SELECT SUM(lpw.penjualan_total_grand / 11)
-					FROM pos_penjualan lpw
-					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = lpw.wajibpajak_id 
-					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_id
-					WHERE 
-						(pj.jenis_parent = (
-							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK RESTORAN'
-						))
-						AND lpw.penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
-						AND lpw.penjualan_deleted_at IS NULL
-						AND pw2.wajibpajak_deleted_at IS NULL
-						$where2
-				), 0)
-			AS total_pajak_resto;
-		")->row_array();
-		$data['total_pajak_resto'] = $query_resto['total_pajak_resto'];
-
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-
-		$where2 = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where2 = 'AND pw2.pemda_id=' . $this->db->escape($pemda_id);
-		}
-		$query_hotel = $this->db->query("
-			SELECT
-				COALESCE((
-					SELECT SUM(pr.realisasi_pajak)
-					FROM pajak_realisasi pr
-					JOIN pajak_wajibpajak pw ON pw.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd
-					JOIN pajak_jenis pj ON pj.jenis_id = pw.wajibpajak_sektor_id
-					WHERE 
-						(pj.jenis_parent = (
-							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
-						))
-						AND pr.realisasi_tanggal BETWEEN '$rawbegin' AND '$rawend'
-						AND pr.realisasi_deleted_at IS NULL
-						AND pw.wajibpajak_deleted_at IS NULL
-						$where
-				), 0)
-				+
-				COALESCE((
-					SELECT SUM(lpw.penjualan_total_grand / 11)
-					FROM pos_penjualan lpw
-					LEFT JOIN pajak_wajibpajak pw2 ON pw2.wajibpajak_id = lpw.wajibpajak_id 
-					LEFT JOIN pajak_jenis pj ON pj.jenis_id = pw2.wajibpajak_sektor_id
-					WHERE 
-						(pj.jenis_parent = (
-							SELECT jenis_id FROM pajak_jenis WHERE jenis_nama = 'PAJAK HOTEL'
-						))
-						AND lpw.penjualan_tanggal BETWEEN '$rawbegin' AND '$rawend'
-						AND lpw.penjualan_deleted_at IS NULL
-						AND pw2.wajibpajak_deleted_at IS NULL
-						$where2
-				), 0)
-			AS total_pajak_hotel;
-		")->row_array();
-		$data['total_pajak_hotel'] = $query_hotel['total_pajak_hotel'];
-		// Query Old
-		// $data['total_pajak_masuk'] = $this->db->query("SELECT SUM(realisasi_pajak) AS total_pajak_masuk FROM pajak_realisasi WHERE realisasi_tanggal::date BETWEEN '" . $rawbegin . "' and '" . $rawend . "' AND realisasi_deleted_at IS NULL")->row_array()['total_pajak_masuk'];
-
-		$data['total_pajak_masuk_pertahun'] = $this->db->query("SELECT SUM(realisasi_pajak) AS total_pajak_masuk FROM pajak_realisasi WHERE to_char(realisasi_tanggal, 'YYYY') = '" . $rawtahun . "' AND realisasi_deleted_at IS NULL")->row_array()['total_pajak_masuk'];
-		$data['target_pajak_tahun'] = $rawtahun;
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-		$sql['total_realisasi_wajib_pajak_query'] = "SELECT COUNT(distinct(pr.realisasi_wajibpajak_npwpd)) AS total_realisasi_wajib_pajak 
-			FROM pajak_realisasi pr
-			JOIN pajak_wajibpajak pw ON pr.realisasi_wajibpajak_npwpd = pw.wajibpajak_npwpd
-			WHERE realisasi_tanggal::date BETWEEN '$rawbegin' and '$rawend' 
-			AND realisasi_deleted_at IS null
-			and pw.wajibpajak_status = '2'
-			$where
-		";
-		$data['total_realisasi_wajib_pajak'] = $this->db->query($sql['total_realisasi_wajib_pajak_query'])->row_array()['total_realisasi_wajib_pajak'];
-
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-		//tambahan query wp resto
-		$sql = "SELECT
-				count(x.wajibpajak_npwpd) as total_resto
-			from
-				(
-					select
-						pw.wajibpajak_npwpd,
-						pw.wajibpajak_sektor_nama,
-						pj.jenis_parent,
-						(
-							select
-								pj2.jenis_nama
-							from
-								pajak_jenis pj2
-							where
-								pj2.jenis_id = pj.jenis_parent
-						)
-					from
-						pajak_wajibpajak pw
-						left join pajak_jenis pj on pj.jenis_id = pw.wajibpajak_sektor_id
-					where 
-						pw.wajibpajak_status = '2'
-						and pw.wajibpajak_deleted_at is null
-						$where
-				) x
-			where
-				x.jenis_nama = 'PAJAK RESTORAN'
-		";
-		$data['total_wp_resto'] = $this->db->query($sql)->row_array()['total_resto'];
-
-		//tambahan query wp hotel
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-		$sql = "SELECT
-				count(x.wajibpajak_npwpd) as total_hotel
-			from
-				(
-					select
-						pw.wajibpajak_npwpd,
-						pw.wajibpajak_sektor_nama,
-						pj.jenis_parent,
-						(
-							select
-								pj2.jenis_nama
-							from
-								pajak_jenis pj2
-							where
-								pj2.jenis_id = pj.jenis_parent
-						)
-					from
-						pajak_wajibpajak pw
-						left join pajak_jenis pj on pj.jenis_id = pw.wajibpajak_sektor_id
-					where 
-						pw.wajibpajak_status = '2'
-						and pw.wajibpajak_deleted_at is null
-						$where
-				) x
-			where
-				x.jenis_nama = 'PAJAK HOTEL'
-		";
-		$data['total_wp_hotel'] = $this->db->query($sql)->row_array()['total_hotel'];
-
+		// TOTAL WP ALL
 		$where = '';
 		if ($pemda_id = $this->session->userdata('pemda_id')) {
 			$where = 'AND pemda_id=' . $this->db->escape($pemda_id);
 		}
-
 		$sql = "SELECT
 				COUNT(pw.wajibpajak_npwpd) AS total
-			--	pw.wajibpajak_npwpd,
-			--	pw.wajibpajak_nama 
 			from
 				pajak_wajibpajak pw
 			WHERE
@@ -365,35 +138,9 @@ class Dashboard extends Base_Controller
 		";
 		$data['total_wajib_pajak'] = $this->db->query($sql)->row_array()['total'];
 
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pw.pemda_id=' . $this->db->escape($pemda_id);
-		}
-
-		$data['sektor_usaha'] = $this->db->query("SELECT pjparent.jenis_nama as jenis_nama, COUNT(wajibpajak_sektor_nama) as total 
-		FROM pajak_jenis pjdetail
-		JOIN pajak_wajibpajak pw 
-			ON pw.wajibpajak_sektor_nama = jenis_id and pw.wajibpajak_deleted_at IS null and pw.wajibpajak_status = '2'
-		left join pajak_jenis pjparent 
-			on pjdetail.jenis_parent = pjparent.jenis_id and pjparent.jenis_tipe = 'parent'
-		where pjdetail.jenis_tipe = 'detail' $where
-		GROUP BY pjparent.jenis_nama
-		")->result_array();
-
-		$data['target_pajak'] = $this->db->query("SELECT SUM(target_nominal) AS target_pajak FROM pajak_target WHERE target_tahun = '" . $rawtahun . "' AND target_deleted_at IS NULL")->row_array()['target_pajak'];
-
-		$where = '';
-		if ($pemda_id = $this->session->userdata('pemda_id')) {
-			$where = 'AND pemda_id=' . $this->db->escape($pemda_id);
-		}
-
-		$data['toko_baru'] = $this->db->query("SELECT wajibpajak_nama_penanggungjawab, wajibpajak_nama FROM pajak_wajibpajak
-		WHERE wajibpajak_status = '2' $where
-		ORDER BY wajibpajak_created_at DESC
-		LIMIT 6")->result_array();
-
-		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir();
-		$data['transaksi_terakhir_all'] = $this->dashboard->getTransaksiTerakhirAll();
+		// TRANSAKSI TERAKHIR
+		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir(10);
+		$data['transaksi_terakhir_all'] = $this->dashboard->getTransaksiTerakhir(50);
 
 		$tahun 			= (int) date('Y');
 		$awal_tahun 	= "$tahun-01-01";

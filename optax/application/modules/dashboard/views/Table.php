@@ -108,7 +108,7 @@
 										<div
 											class="d-flex fs-6 fw-semibold align-items-center number-row">
 											<div
-												class="bullet w-8px h-6px rounded-2 bg-success me-3"></div>
+												class="bullet w-8px h-6px rounded-2 bg-danger me-3"></div>
 											<div class="text-gray-500 flex-grow-1 me-4">
 												Restoran
 											</div>
@@ -119,7 +119,7 @@
 										<div
 											class="d-flex fs-6 fw-semibold align-items-center my-3 number-row">
 											<div
-												class="bullet w-8px h-6px rounded-2 bg-warning me-3"></div>
+												class="bullet w-8px h-6px rounded-2 bg-primary me-3"></div>
 											<div class="text-gray-500 flex-grow-1 me-4">
 												Hotel
 											</div>
@@ -130,13 +130,24 @@
 										<div
 											class="d-flex fs-6 fw-semibold align-items-center">
 											<div
+												class="bullet w-8px h-6px rounded-2 bg-info me-3"></div>
+											<div class="text-gray-500 flex-grow-1 me-4">
+												Parkir
+											</div>
+											<div class="fw-bolder text-gray-700 text-xxl-end">
+												<span id="total_transaksi_parkir" class="card-number-small">0</span>
+											</div>
+										</div>
+										<div
+											class="d-flex fs-6 fw-semibold align-items-center my-3">
+											<div
 												class="bullet w-8px h-6px rounded-2 me-3"
 												style="background-color: #e4e6ef"></div>
 											<div class="text-gray-500 flex-grow-1 me-4">
-												Lainnya
+												Hiburan
 											</div>
 											<div class="fw-bolder text-gray-700 text-xxl-end">
-												0
+												<span id="total_transaksi_hiburan" class="card-number-small">0</span>
 											</div>
 										</div>
 									</div>
@@ -174,10 +185,18 @@
 									</div>
 									<div class="separator separator-dashed my-3"></div>
 									<div class="d-flex flex-stack">
-										<div class="text-gray-700 fw-semibold fs-6 me-2">Lainnya</div>
+										<div class="text-gray-700 fw-semibold fs-6 me-2">Parkir</div>
 										<div class="d-flex align-items-senter">
 											<i class="ki-duotone ki-arrow-up-right fs-2 text-success me-2"><span class="path1"></span><span class="path2"></span></i>
-											<span class="text-gray-900 fw-bolder fs-6">0</span>
+											<span id="total_wp_parkir" class="text-gray-900 fw-bolder fs-6">0</span>
+										</div>
+									</div>
+									<div class="separator separator-dashed my-3"></div>
+									<div class="d-flex flex-stack">
+										<div class="text-gray-700 fw-semibold fs-6 me-2">Hiburan</div>
+										<div class="d-flex align-items-senter">
+											<i class="ki-duotone ki-arrow-up-right fs-2 text-success me-2"><span class="path1"></span><span class="path2"></span></i>
+											<span id="total_wp_hiburan" class="text-gray-900 fw-bolder fs-6">0</span>
 										</div>
 									</div>
 								</div>
@@ -227,13 +246,24 @@
 										<div
 											class="d-flex fs-6 fw-semibold align-items-center">
 											<div
+												class="bullet w-8px h-6px rounded-2 bg-info me-3"></div>
+											<div class="text-gray-500 flex-grow-1 me-4">
+												Parkir
+											</div>
+											<div class="fw-bolder text-gray-700 text-xxl-end">
+												<span id="total_pajak_parkir" class="card-number-small">0</span>
+											</div>
+										</div>
+										<div
+											class="d-flex fs-6 fw-semibold align-items-center  my-3">
+											<div
 												class="bullet w-8px h-6px rounded-2 me-3"
 												style="background-color: #e4e6ef"></div>
 											<div class="text-gray-500 flex-grow-1 me-4">
-												Lainnya
+												Hiburan
 											</div>
 											<div class="fw-bolder text-gray-700 text-xxl-end">
-												0
+												<span id="total_pajak_hiburan" class="card-number-small">0</span>
 											</div>
 										</div>
 									</div>

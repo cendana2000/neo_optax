@@ -505,6 +505,9 @@ class Rekappajak extends Base_Controller
 		$sheet->setCellValue('A5', 'PIC');
 		$sheet->setCellValue('C5', $wp->wajibpajak_nama_penanggungjawab);
 
+		$sheet->setCellValue('A6', 'Periode');
+		$sheet->setCellValue('C6', $periode);
+
 		$header = 7;
 		$cols = [
 			'A' => 'No',

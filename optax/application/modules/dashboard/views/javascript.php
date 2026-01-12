@@ -126,15 +126,21 @@
 			dataType: 'json',
 			success: function(res) {
 				$('#total_pajak_masuk').text($.number(res.total_pajak_masuk));
-				$('#total_pajak_resto').text($.number(res.total_pajak_resto));
+				$('#total_pajak_resto').text($.number(res.total_pajak_restoran));
 				$('#total_pajak_hotel').text($.number(res.total_pajak_hotel));
+				$('#total_pajak_parkir').text($.number(res.total_pajak_parkir));
+				$('#total_pajak_hiburan').text($.number(res.total_pajak_hiburan));
 				$('#total_transaksi').text($.number(res.total_pajak_masuk * 10));
-				$('#total_transaksi_resto').text($.number(res.total_pajak_resto * 10));
-				$('#total_transaksi_hotel').text($.number(res.total_pajak_hotel * 10));
+				$('#total_transaksi_resto').text($.number(res.total_sub_total_restoran));
+				$('#total_transaksi_hotel').text($.number(res.total_sub_total_hotel));
+				$('#total_transaksi_parkir').text($.number(res.total_sub_total_parkir));
+				$('#total_transaksi_hiburan').text($.number(res.total_sub_total_hiburan));
 				$('#total_realisasi_wajib_pajak').text(res.total_realisasi_wajib_pajak);
 				$('#total_wajib_pajak').text(res.total_wajib_pajak);
-				$('#total_wp_resto').text(res.total_wp_resto);
+				$('#total_wp_resto').text(res.total_wp_restoran);
 				$('#total_wp_hotel').text(res.total_wp_hotel);
+				$('#total_wp_parkir').text(res.total_wp_parkir);
+				$('#total_wp_hiburan').text(res.total_wp_hiburan);
 				$('#target_pajak').text($.number(res.target_pajak));
 				$('#pajak_belum_bayar').text($.number(res.target_pajak - res.total_pajak_masuk_pertahun));
 				$('#target_pajak_tahun').text(res.target_pajak_tahun);
