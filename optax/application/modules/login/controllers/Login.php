@@ -119,7 +119,7 @@ class Login extends BASE_Controller
         if (!empty($wp)) {
             if ($wp['wajibpajak_status'] > 1) {
                 $jenis = $this->db->get_where('pajak_jenis', [
-                    'jenis_kode' => $wp['wajibpajak_sektor_nama']
+                    'jenis_kode' => $wp['wajibpajak_sektor_id']
                 ])->row_array();
                 $wp['jenis_tarif'] = $jenis['jenis_tarif'];
                 $wp['login_status'] = true;

@@ -22,14 +22,14 @@ class TokoLastActivityModel extends Base_Model
 					array('name' => 'toko_status'),
 					array('name' => 'wajibpajak_nama',          'view' => true),
 					array('name' => 'wajibpajak_npwpd',         'view' => true),
-					array('name' => 'wajibpajak_sektor_nama',   'view' => true),
+					array('name' => 'wajibpajak_sektor_id',   'view' => true),
 					array('name' => 'wajibpajak_nama_penanggungjawab',	'view' => true),
 					array('name' => 'wajibpajak_sektor_nama',         	'view' => true),
 					array('name' => 'wajibpajak_alamat',   				'view' => true),
 					array('name' => 'wajibpajak_email',  				'view' => true),
 					array('name' => 'wajibpajak_telp',  				'view' => true),
 					array('name' => 'jenis_nama',  				'view' => true),
-					array('name' => 'status_active',  				'view' => true),	
+					array('name' => 'status_active',  				'view' => true),
 				)
 			),
 			'view' => array(

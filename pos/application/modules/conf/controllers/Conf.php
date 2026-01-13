@@ -27,7 +27,13 @@ class Conf extends Base_Controller
 			],
 			'sort_static' => 'conf_id asc'
 		]);
-
+		if (empty($get['data'])) {
+			$this->response([
+				'success' => false,
+				'message' => 'Menu config tidak bisa dibuka. Data konfigurasi tidak ditemukan.'
+			]);
+			return;
+		}
 		$data = group_by_array($get['data'], 'conf_group');
 		$operation = [
 			'success' => true,

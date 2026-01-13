@@ -6,7 +6,7 @@
 			'toko_nama',
 			'wajibpajak_nama',
 			'wajibpajak_npwpd',
-			'wajibpajak_sektor_nama',
+			'wajibpajak_sektor_id',
 			'wajibpajak_alamat',
 			'wajibpajak_penanggungjawab_nama',
 			'wajibpajak_telp',
@@ -22,8 +22,8 @@
 		}
 
 		$("#toko_status").select2({
-				placeholder: "Pilih Status",
-				allowClear: true
+			placeholder: "Pilih Status",
+			allowClear: true
 		});
 
 		loadTable();
@@ -108,8 +108,8 @@
 			},
 			callback: function(res) {
 				HELPER.fields.map(item => {
-          $('#' + item).val(res[item]).trigger('change');
-        });
+					$('#' + item).val(res[item]).trigger('change');
+				});
 				$('#logo_toko').attr('src', `${BASE_URL_NO_INDEX + res.toko_logo}`);
 				HELPER.toggleForm({
 					tohide: 'table_data',

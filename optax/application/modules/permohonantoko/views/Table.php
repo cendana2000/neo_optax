@@ -106,8 +106,8 @@
 						<label class="col-xl-2 col-lg-2 col-form-label">Status Verifikasi</label>
 						<div class="col-lg-9 col-xl-6">
 							<select class="form-control select2" name="toko_status" id="toko_status" placeholder="pilih">
-								<option value="2"> Disetujui </option>
-								<option value="3"> Tidak Disetujui </option>
+								<option value="2"> Aktif </option>
+								<option value="3"> Tidak Aktif </option>
 							</select>
 							<!-- <button type="button" class="btn btn-light-primary font-weight-bold btn-sm">Setup login verification</button> -->
 							<p class="form-text text-muted pt-2">Silahkan pilih status verifikasi untuk mengizinkan/menolak user(wajib pajak) akses ke aplikasi eToko.

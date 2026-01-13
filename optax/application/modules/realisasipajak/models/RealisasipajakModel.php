@@ -90,7 +90,7 @@ class RealisasipajakModel extends Base_Model
 							log_penjualan_wp lpw
 							left join pajak_toko pt2 on pt2.toko_kode = lpw.log_penjualan_code_store
 							left join pajak_wajibpajak pw3 on pw3.wajibpajak_npwpd = pt2.toko_wajibpajak_npwpd 
-							left join pajak_jenis pj on pj.jenis_kode = pw3.wajibpajak_sektor_nama 
+							left join pajak_jenis pj on pj.jenis_kode = pw3.wajibpajak_sektor_id 
 						where
 							EXTRACT(YEAR FROM lpw.log_penjualan_wp_penjualan_tanggal) = $tahun AND 
 							EXTRACT(MONTH FROM lpw.log_penjualan_wp_penjualan_tanggal) = $bulan AND
@@ -121,7 +121,7 @@ class RealisasipajakModel extends Base_Model
 							from
 								pajak_realisasi pr
 								left join pajak_wajibpajak pw2 on pw2.wajibpajak_npwpd = pr.realisasi_wajibpajak_npwpd 
-								left join pajak_jenis pj on pj.jenis_kode = pw2.wajibpajak_sektor_nama 
+								left join pajak_jenis pj on pj.jenis_kode = pw2.wajibpajak_sektor_id 
 							where
 								EXTRACT(year FROM pr.realisasi_tanggal) = $tahun AND 
 								EXTRACT( MONTH FROM pr.realisasi_tanggal) = $bulan AND

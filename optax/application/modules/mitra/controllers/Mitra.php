@@ -384,7 +384,8 @@ class Mitra extends Base_Controller
         $check_sektor_usaha = $this->db->query("SELECT jenis_id, jenis_nama FROM pajak_jenis WHERE jenis_kode = '$jenis_kode'")->row_array();
 
         if (count($check_sektor_usaha) > 0) {
-            $data['wajibpajak_sektor_nama'] = $check_sektor_usaha['jenis_id'];
+            $data['wajibpajak_sektor_id'] = $check_sektor_usaha['jenis_id'];
+            $data['wajibpajak_sektor_nama'] = $check_sektor_usaha['jenis_nama'];
         } else {
             echo json_encode(array(
                 'success' => false,
@@ -418,7 +419,7 @@ class Mitra extends Base_Controller
                     'data'          => [
                         'to_email'          => strtolower($data['wajibpajak_email']),
                         'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
-                        'wajibpajak'        => $data['wajibpajak_nama'],
+                        'wajibpajak'        => strtoupper($data['wajibpajak_nama']),
                         'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
                         'base_url'          => base_url(),
                     ]

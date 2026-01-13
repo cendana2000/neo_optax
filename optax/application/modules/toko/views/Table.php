@@ -101,16 +101,10 @@
 												<input class="form-control" type="text" id="wajibpajak_npwpd" name="wajibpajak_npwpd" autocomplete="off" style="background: ghostwhite;" />
 											</div>
 										</div>
-										<div class="col-xl-6" style="display: none;">
-											<div class="form-group">
-												<label class="text-dark">Sektor Usaha</label>
-												<input class="form-control" type="text" id="wajibpajak_sektor_nama" name="wajibpajak_sektor_nama" id="wajibpajak_sektor_nama" autocomplete="off" readonly="" style="background: ghostwhite;" />
-											</div>
-										</div>
 										<div class="col-xl-6">
 											<div class="form-group">
 												<label class="text-dark">Sektor Usaha</label>
-												<input class="form-control" type="text" id="jenis_nama" name="jenis_nama" id="jenis_nama" autocomplete="off" readonly="" style="background: ghostwhite;" />
+												<input class="form-control" type="text" id="wajibpajak_sektor_nama" name="wajibpajak_sektor_nama" id="wajibpajak_sektor_nama" autocomplete="off" readonly="" style="background: ghostwhite;" />
 											</div>
 										</div>
 									</div>

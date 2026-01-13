@@ -59,90 +59,90 @@ License: You must have a valid license purchased only from themeforest(the above
 					<!--begin::Aside Top-->
 					<!--begin::Aside header-->
 					<div class="d-flex flex-column-auto flex-column px-10 ">
-            <!--begin::Form-->
-            <form class="form" novalidate="novalidate" name="kt_login_signup_form" id="kt_login_signup_form">
-              <input type="hidden" name="wajibpajak_id" id="wajibpajak_id" value="<?= $wajibpajak_id ?>"/>
-              <!--begin::Title-->
-              <div class="pb-8 pt-10 ">
-                <h3 class="font-weight-bolder text-dark font-size-h4 font-size-h1-lg">Daftar Akun</h3>
-                <p class="text-muted font-weight-bold font-size-h4">Lengkapi form berikut sebagai pengajuan pendaftaran akun</p>
-              </div>
-              <!--end::Title-->
-              <!--begin::Form group-->
-              <div class="row">
-                <div class="col-xl-6">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">NPWPD</label>
-                    <input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" readonly="" value="<?= $wajibpajak_npwpd ?>"/>
-                  </div>
-                </div>
-                <div class="col-xl-6">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Sektor Usaha</label>
-                    <input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_sektor_nama" autocomplete="off" readonly="" value="<?= $wajibpajak_sektor_nama ?>"/>
-                  </div>
-                </div>
-                <div class="col-xl-6" style="display: none;">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Kode Jenis Usaha</label>
-                    <input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="jenis_kode" autocomplete="off" readonly="" value="<?= $wajibpajak_sektor_nama ?>"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-12">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Nama Perusahaan</label>
-                    <input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nama" autocomplete="off" readonly="" value="<?= $wajibpajak_nama ?>"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-12">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Alamat</label>
-                    <input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_alamat" autocomplete="off" readonly="" value="<?= $wajibpajak_alamat ?>"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-12">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Nama Penangung Jawab</label>
-                    <input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nama_penanggungjawab" autocomplete="off" value="<?= $wajibpajak_nama_penanggungjawab ?>"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-12">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">No Telp Perusahaan</label>
-                    <input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_telp" autocomplete="off" value="<?= $wajibpajak_telp ?>"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-6">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Email Perusahaan</label>
-                    <input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" onchange="checkEmail()" name="wajibpajak_email" id="wajibpajak_email" autocomplete="off" value="<?= $wajibpajak_email ?>"/>
-                  </div>
-                </div>
-                <div class="col-xl-6">
-                  <div class="form-group">
-                    <label class="font-size-h6 font-weight-bolder text-dark">Password</label>
-                    <input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="password" name="wajibpajak_password" autocomplete="off" />
-                  </div>
-                </div>
-              </div>
-              <!--begin::Form group-->
-              <div class="form-group d-flex flex-wrap pb-lg-0 pb-3">
-                <button type="button" id="kt_login_signup_mitra" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-4" onclick="doRevisi()">Submit</button>
-                <button type="button" id="kt_login_signup_cancel" class="btn btn-light-primary font-weight-bolder font-size-h6 px-8 py-4 my-3" onclick="cancelSignup()">Cancel</button>
-              </div>
-              <!--end::Form group-->
-            </form>
-            <!--end::Form-->
+						<!--begin::Form-->
+						<form class="form" novalidate="novalidate" name="kt_login_signup_form" id="kt_login_signup_form">
+							<input type="hidden" name="wajibpajak_id" id="wajibpajak_id" value="<?= $wajibpajak_id ?>" />
+							<!--begin::Title-->
+							<div class="pb-8 pt-10 ">
+								<h3 class="font-weight-bolder text-dark font-size-h4 font-size-h1-lg">Daftar Akun</h3>
+								<p class="text-muted font-weight-bold font-size-h4">Lengkapi form berikut sebagai pengajuan pendaftaran akun</p>
+							</div>
+							<!--end::Title-->
+							<!--begin::Form group-->
+							<div class="row">
+								<div class="col-xl-6">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">NPWPD</label>
+										<input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_npwpd" id="wajibpajak_npwpd" autocomplete="off" readonly="" value="<?= $wajibpajak_npwpd ?>" />
+									</div>
+								</div>
+								<div class="col-xl-6">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Sektor Usaha</label>
+										<input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_sektor_id" autocomplete="off" readonly="" value="<?= $wajibpajak_sektor_id ?>" />
+									</div>
+								</div>
+								<div class="col-xl-6" style="display: none;">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Kode Jenis Usaha</label>
+										<input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="jenis_kode" autocomplete="off" readonly="" value="<?= $wajibpajak_sektor_id ?>" />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-12">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Nama Perusahaan</label>
+										<input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nama" autocomplete="off" readonly="" value="<?= $wajibpajak_nama ?>" />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-12">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Alamat</label>
+										<input class="form-control form-control-solid h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_alamat" autocomplete="off" readonly="" value="<?= $wajibpajak_alamat ?>" />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-12">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Nama Penangung Jawab</label>
+										<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nama_penanggungjawab" autocomplete="off" value="<?= $wajibpajak_nama_penanggungjawab ?>" />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-12">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">No Telp Perusahaan</label>
+										<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_telp" autocomplete="off" value="<?= $wajibpajak_telp ?>" />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-6">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Email Perusahaan</label>
+										<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" onchange="checkEmail()" name="wajibpajak_email" id="wajibpajak_email" autocomplete="off" value="<?= $wajibpajak_email ?>" />
+									</div>
+								</div>
+								<div class="col-xl-6">
+									<div class="form-group">
+										<label class="font-size-h6 font-weight-bolder text-dark">Password</label>
+										<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="password" name="wajibpajak_password" autocomplete="off" />
+									</div>
+								</div>
+							</div>
+							<!--begin::Form group-->
+							<div class="form-group d-flex flex-wrap pb-lg-0 pb-3">
+								<button type="button" id="kt_login_signup_mitra" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-4" onclick="doRevisi()">Submit</button>
+								<button type="button" id="kt_login_signup_cancel" class="btn btn-light-primary font-weight-bolder font-size-h6 px-8 py-4 my-3" onclick="cancelSignup()">Cancel</button>
+							</div>
+							<!--end::Form group-->
+						</form>
+						<!--end::Form-->
 					</div>
 					<!--end::Aside Top-->
 				</div>

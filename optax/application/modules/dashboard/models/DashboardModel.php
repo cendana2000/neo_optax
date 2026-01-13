@@ -230,7 +230,7 @@ class DashboardModel extends Base_Model
 				LEFT JOIN pajak_wajibpajak pw
 					ON pw.wajibpajak_id = pp.wajibpajak_id
 				LEFT JOIN pajak_jenis pj
-					ON pj.jenis_kode = pw.wajibpajak_sektor_nama
+					ON pj.jenis_kode = pw.wajibpajak_sektor_id
 				LEFT JOIN conf_pemda cp
 					ON pw.pemda_id = cp.pemda_id
 				WHERE

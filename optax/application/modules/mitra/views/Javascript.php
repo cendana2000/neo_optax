@@ -25,7 +25,7 @@
             'pemda_id',
             'wajibpajak_nik',
             'wajibpajak_npwpd',
-            'wajibpajak_sektor_nama',
+            'wajibpajak_sektor_id',
             'jenis_kode',
             'wajibpajak_nama',
             'wajibpajak_alamat',
@@ -40,7 +40,7 @@
             'wajibpajak_nik',
             'wajibpajak_pemda_id',
             'wajibpajak_npwpd',
-            'wajibpajak_sektor_nama',
+            'wajibpajak_sektor_id',
             'wajibpajak_nama',
             'wajibpajak_alamat',
             'wajibpajak_nama_penanggungjawab',
@@ -191,13 +191,13 @@
                     return;
                 }
                 if (res.NPWPD) {
-                    $('[name=wajibpajak_sektor_nama]').val(res.JENIS_USAHA);
+                    $('[name=wajibpajak_sektor_id]').val(res.JENIS_USAHA);
                     $('[name=wajibpajak_nama]').val(res.NAMA_WP);
                     $('[name=wajibpajak_alamat]').val(res.ALAMAT_WP);
                     $('[name=jenis_kode]').val(res.ID_JENIS);
                 } else {
                     $('#wajibpajak_npwpd').val('');
-                    $('[name=wajibpajak_sektor_nama]').val('');
+                    $('[name=wajibpajak_sektor_id]').val('');
                     $('[name=wajibpajak_nama]').val('');
                     $('[name=wajibpajak_alamat]').val('');
                     swal.fire('Informasi', res.message || 'NPWPD tidak ditemukan', 'warning');
@@ -208,7 +208,7 @@
             },
             error: function() {
                 $('#wajibpajak_npwpd').val('');
-                $('[name=wajibpajak_sektor_nama]').val('');
+                $('[name=wajibpajak_sektor_id]').val('');
                 $('[name=wajibpajak_nama]').val('');
                 $('[name=wajibpajak_alamat]').val('');
                 HELPER.showMessage({

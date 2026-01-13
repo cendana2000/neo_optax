@@ -113,24 +113,33 @@ class Kategori extends Base_Controller
 
 	public function select_tree($parent = '#', $company = null)
 	{
-		if (isset($_GET['id'])) {
-			$parent = $_GET['id'];
+		if ($this->input->get('id')) {
+			$parent = $this->input->get('id', true);
 		}
-		$query = $this->db->query("SELECT kategori_barang_id as id, kategori_barang_parent as parent,  CONCAT(kategori_barang_kode, ' . ',UPPER(kategori_barang_nama)) as text, kategori_barang_tipe as children FROM pos_kategori WHERE kategori_barang_parent = '$parent' AND kategori_barang_aktif = '1' ORDER BY kategori_barang_kode ASC;");
-		$result = $query->result_array();
+		$this->db->select("
+			kategori_barang_id AS id,
+			kategori_barang_parent AS parent,
+			CONCAT(kategori_barang_kode, ' . ', UPPER(kategori_barang_nama)) AS text,
+			kategori_barang_tipe AS children
+		");
+		$this->db->from('pos_kategori');
+		$this->db->where('kategori_barang_parent', $parent);
+		$this->db->where('kategori_barang_aktif', '1');
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
+		$this->db->order_by('kategori_barang_kode', 'ASC');
+		$result = $this->db->get()->result_array();
 		foreach ($result as &$record) {
-			if ($record['children'] == 'parent') {
-				$record['children'] = true;
-			} else {
-				$record['children'] = false;
-			}
+			$record['children'] = ($record['children'] === 'parent');
 		}
-		if (isset($_GET['id'])) {
+		if ($this->input->get('id')) {
 			$this->response($result);
 		} else {
 			return $result;
 		}
 	}
+
 
 	public function select_mobile()
 	{
@@ -153,6 +162,9 @@ class Kategori extends Base_Controller
 
 	public function go_tree($value = '')
 	{
+		if ($wp_id = $this->session->userdata('wajibpajak_id')) {
+			$this->db->where('wajibpajak_id', $wp_id);
+		}
 		$kelompokbarang = $this->kelompokbarang->select(array(
 			'filters_static' => array(
 				'kategori_barang_aktif' => '1'

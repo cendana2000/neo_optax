@@ -21,7 +21,7 @@ class Login extends BASE_Controller
     public function index()
     {
         $id = $this->session->userdata('user_id');
-        if($this->session->userdata('jenis_wp') === 'PARKIR'){
+        if ($this->session->userdata('jenis_wp') === 'PARKIR') {
             return $this->pageParkir();
         }
         if ($id == "") {
@@ -31,7 +31,8 @@ class Login extends BASE_Controller
         }
     }
 
-    public function pageParkir(){
+    public function pageParkir()
+    {
         $ch = curl_init();
         $userses = $this->session->userdata();
 
@@ -45,7 +46,7 @@ class Login extends BASE_Controller
         );
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
+
         $postData = array(
             'email' => $userses['email'],
             'password' => $userses['password_raw']
@@ -55,8 +56,8 @@ class Login extends BASE_Controller
 
         $response = curl_exec($ch);
 
-        
-        if(curl_errno($ch)) {
+
+        if (curl_errno($ch)) {
             echo 'cURL error: ' . curl_error($ch);
         }
         // print_r('<pre>');print_r($response);print_r('</pre>');exit;
@@ -94,7 +95,7 @@ class Login extends BASE_Controller
         $data = varPost();
 
         $toko = $this->dbmp->query("SELECT pt.*, jenis_tarif, wajibpajak_email, history_wp_id, history_user_id FROM history_login hl JOIN  pajak_toko pt ON pt.toko_wajibpajak_id = hl.history_wp_id 
-            JOIN pajak_wajibpajak pw ON pw.wajibpajak_id = hl.history_wp_id JOIN pajak_jenis ON pw.wajibpajak_sektor_nama::text = pajak_jenis.jenis_id::text WHERE history_wp_id = '" . $data['history_wp_id'] . "' AND history_user_id = '" . $data['history_user_id'] . "' AND history_is_online = 1")->row_array();
+            JOIN pajak_wajibpajak pw ON pw.wajibpajak_id = hl.history_wp_id JOIN pajak_jenis ON pw.wajibpajak_sektor_id::text = pajak_jenis.jenis_id::text WHERE history_wp_id = '" . $data['history_wp_id'] . "' AND history_user_id = '" . $data['history_user_id'] . "' AND history_is_online = 1")->row_array();
         if (count($toko) > 0) {
             //login as wp
             $user['session_db'] = $_ENV['PREFIX_DBPOS'] . $toko['toko_kode'];
@@ -180,15 +181,15 @@ class Login extends BASE_Controller
                 $user_where['user_password'] = $this->password($data['password']);
             }
 
-            if($getJenis['jenis_nama'] == 'PAJAK PARKIR' && empty($getJenisParent['jenis_nama'])){
+            if ($getJenis['jenis_nama'] == 'PAJAK PARKIR' && empty($getJenisParent['jenis_nama'])) {
                 $userParkir = $this->dbses->get_where('pengguna', [
                     'email' => strtolower($data['email'])
                 ])->row_array();
                 $sandi = $userParkir['sandi'];
-                $sandi = str_replace('$t=3','$m=4096',$sandi);
-                $sandi = str_replace(",m=4096",",t=3",$sandi);
-                if(!empty($user)){
-                    if(password_verify($data['password'], $sandi)){
+                $sandi = str_replace('$t=3', '$m=4096', $sandi);
+                $sandi = str_replace(",m=4096", ",t=3", $sandi);
+                if (!empty($user)) {
+                    if (password_verify($data['password'], $sandi)) {
                         $userParkir['login_status'] = true;
                         $userParkir['jenis_wp'] = 'PARKIR';
                         $userParkir['session_db'] = $_ENV['PREFIX_DBPOS'] . $toko['toko_kode'];
@@ -205,13 +206,13 @@ class Login extends BASE_Controller
                             'message' => 'Berhasil login',
                             'user' => $userParkir,
                         ]);
-                    }else{
+                    } else {
                         return $this->response(array(
                             'success' => false,
                             'message' => 'User not found. Please check your email and password.',
                         ));
                     }
-                }else{
+                } else {
                     return $this->response(array(
                         'success' => false,
                         'message' => 'User not found. Please check your email and password.',

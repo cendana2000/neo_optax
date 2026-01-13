@@ -100,7 +100,7 @@ class Permohonantoko extends Base_Controller
 		}
 		$dataWP = $this->db->get_where('pajak_wajibpajak', ['wajibpajak_id' => $checkToko['toko_wajibpajak_id']])->row_array();
 		$getJenis = $this->db->get_where('pajak_jenis', [
-			'jenis_kode' => $dataWP['wajibpajak_sektor_nama']
+			'jenis_kode' => $dataWP['wajibpajak_sektor_id']
 		])->row_array();
 		$getJenisParent = $this->db->get_where('pajak_jenis', [
 			'jenis_id' => $getJenis['jenis_parent']
@@ -155,23 +155,6 @@ class Permohonantoko extends Base_Controller
 				$update_toko = $this->toko->update($data['toko_id'], $data);
 
 				if ($update_toko['success'] && $data['toko_status'] == '2') {
-					// $dbname = $_ENV['PREFIX_DBPOS'] . $update_toko['record']['toko_kode'];
-					// Terminate session db pos_reference
-					// $this->db->query("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
-					// WHERE pg_stat_activity.datname = '" . $dbReference . "' AND pid <> pg_backend_pid();");
-
-					// $checkDbExists = $this->db->query("SELECT 1 FROM pg_database WHERE datname = '$dbname'")->row_array();
-					// if ($checkDbExists) {
-					// 	return $this->response([
-					// 		'success' => false,
-					// 		'message' => 'Database POS sudah ada, silakan hapus dulu atau gunakan nama lain.',
-					// 	]);
-					// }
-
-					// Create database from template pos_reference
-					// $this->db->query("CREATE DATABASE $dbname TEMPLATE " . $dbReference . "");
-					// sleep(2);
-					// $this->db->query("ALTER DATABASE $dbname OWNER TO " . $_ENV['DB_USER'] . ";");
 
 					// ========================== DML ==============================
 
@@ -182,22 +165,6 @@ class Permohonantoko extends Base_Controller
 						'wajibpajak_email' => strtolower($data['wajibpajak_email'])
 					])->row_array();
 
-					// // // insert account
-					// $config['hostname'] = $_ENV['DB_HOST'];
-					// $config['port'] 	= $_ENV['DB_PORT'];
-					// $config['username'] = $_ENV['DB_USER'];
-					// $config['password'] = $_ENV['DB_PASS'];
-					// $config['database'] = $dbname;
-					// $config['dbdriver'] = 'postgre';
-					// $config['dbprefix'] = '';
-					// $config['pconnect'] = FALSE;
-					// $config['db_debug'] = TRUE;
-					// $config['cache_on'] = FALSE;
-					// $config['cachedir'] = '';
-					// $config['char_set'] = 'utf8';
-					// $config['dbcollat'] = 'utf8_general_ci';
-					// $this->db = $this->load->database($config, true);
-
 					if ($isParkir) {
 						$this->db->query("INSERT INTO pengguna (peran_pengguna_id,nama_pengguna,sandi,email,telepon,alamat,status,created_at,updated_at) VALUES (uuidv7(), '{$account_wp['wajibpajak_nama_penanggungjawab']}', '{$account_wp['wajibpajak_password_argon2id']}', '{$account_wp['wajibpajak_email']}', '{$account_wp['wajibpajak_telp']}', '{$account_wp['wajibpajak_alamat']}', true, '" . date('Y-m-d H:i:s') . "', '" . date('Y-m-d H:i:s') . "')");
 						$this->db->query("INSERT INTO toko (npwpd, pemilik, store_code) VALUES ('{$account_wp['wajibpajak_npwpd']}', '{$account_wp['wajibpajak_nama_penanggungjawab']}','{$update_toko['record']['toko_kode']}')");
@@ -206,30 +173,39 @@ class Permohonantoko extends Base_Controller
 						])->row_array();
 						$this->db->query("INSERT INTO pengaturan_app_toko (public_toko_id, header_store_name, address_store) VALUES ('{$tokoparkir['id']}', '{$account_wp['wajibpajak_nama']}', '{$account_wp['wajibpajak_alamat']}')");
 					} else {
-						$this->db->query("INSERT INTO pos_user (user_id, user_role_access_id, user_project_id, user_nama, user_alamat, user_telepon, user_email, user_password, user_status, user_foto, user_last_change_password, user_is_registered, user_token_registrasi, user_created_at, user_updated_at, user_deleted_at) VALUES(replace(uuidv7()::text, '-', ''), '123', NULL, '" . $account_wp['wajibpajak_nama_penanggungjawab'] . "', '" . $account_wp['wajibpajak_alamat'] . "', '" . $account_wp['wajibpajak_telp'] . "', '" . $account_wp['wajibpajak_email'] . "', '" . $account_wp['wajibpajak_password'] . "', 1, '1d09cd5f9b1c8795a5443ab262334e06.png', NULL, 1, NULL, '" . date('Y-m-d H:i:s') . "', NULL, NULL);
+						$this->db->query("INSERT INTO pos_user (user_id, user_role_access_id, user_project_id, user_nama, user_alamat, user_telepon, user_email, user_password, user_status, user_foto, user_last_change_password, user_is_registered, user_token_registrasi, user_created_at, user_updated_at, user_deleted_at, wajibpajak_id, user_code_store, user_jenis_parent_name) 
+						VALUES(replace(uuidv7()::text, '-', ''), '123', NULL, '" . $account_wp['wajibpajak_nama_penanggungjawab'] . "', '" . $account_wp['wajibpajak_alamat'] . "', '" . $account_wp['wajibpajak_telp'] . "', '" . $account_wp['wajibpajak_email'] . "', '" . $account_wp['wajibpajak_password'] . "', 1, '1d09cd5f9b1c8795a5443ab262334e06.png', NULL, 1, NULL, '" . date('Y-m-d H:i:s') . "', NULL, NULL,'" .  $account_wp['wajibpajak_id'] . "', '" . $update_toko['record']['toko_kode'] . "','" . $getJenisParent['jenis_nama'] . "');
 						");
+
+						// ========================== INSERT DEFAULT POS CONFIG ==============================
+						$default_configs = [
+							['conf_code' => 'struk_is_logo', 'conf_title' => 'Show Logo', 'conf_group' => 'struk_header'],
+							['conf_code' => 'struk_header', 'conf_title' => 'Title Header', 'conf_group' => 'struk_header'],
+							['conf_code' => 'struk_is_title_show', 'conf_title' => 'Nama Toko', 'conf_group' => 'struk_header'],
+							['conf_code' => 'struk_is_antrian', 'conf_title' => 'Antrian', 'conf_group' => 'struk_header'],
+							['conf_code' => 'struk_logo', 'conf_title' => 'Logo', 'conf_group' => 'struk_header'],
+							['conf_code' => 'struk_footer', 'conf_title' => 'Title Footer', 'conf_group' => 'struk_footer'],
+							['conf_code' => 'struk_ig', 'conf_title' => 'Instagram', 'conf_group' => 'struk_footer'],
+							['conf_code' => 'struk_fb', 'conf_title' => 'Facebook', 'conf_group' => 'struk_footer'],
+							['conf_code' => 'struk_wa', 'conf_title' => 'Whatsapp', 'conf_group' => 'struk_footer'],
+							['conf_code' => 'struk_tw', 'conf_title' => 'Twitter', 'conf_group' => 'struk_footer'],
+							['conf_code' => 'struk_yt', 'conf_title' => 'Youtube', 'conf_group' => 'struk_footer'],
+						];
+
+						foreach ($default_configs as $config) {
+							$this->db->set('conf_id', "replace(uuidv7()::text, '-', '')", false);
+							$this->db->set('conf_code', $config['conf_code']);
+							$this->db->set('conf_title', $config['conf_title']);
+							$this->db->set('conf_value', null);
+							$this->db->set('conf_info', null);
+							$this->db->set('conf_group', $config['conf_group']);
+							$this->db->set('conf_type', 'text');
+							$this->db->set('conf_active', 1);
+							$this->db->set('wajibpajak_id', $account_wp['wajibpajak_id']);
+							$this->db->insert('pos_config');
+						}
 					}
-
-					// Insert ke database pajak_app_prod setelah selesai create di database toko
-					$pos_user_id = md5(uniqid(rand(), true));
-					$this->db->query("INSERT INTO pos_user (pos_user_id, pos_user_name, pos_user_email, pos_user_password, pos_user_password_argon2id, pos_user_code_store, pos_user_status, pos_user_photo, pos_user_last_change_password, pos_user_role_access_id, pos_user_jenis_parent_name, pos_user_created_at, pos_user_address, pos_user_phone) VALUES (
-						'{$pos_user_id}',
-						'{$account_wp['wajibpajak_nama_penanggungjawab']}', 
-						'{$account_wp['wajibpajak_email']}', 
-						'{$account_wp['wajibpajak_password']}', 
-						'{$account_wp['wajibpajak_password_argon2id']}', 
-						'{$update_toko['record']['toko_kode']}', 
-						TRUE, 
-						'1d09cd5f9b1c8795a5443ab262334e06.png', 
-						NULL, 
-						'123', 
-						'{$getJenisParent['jenis_nama']}',
-						'" . date('Y-m-d H:i:s') . "', 
-						'{$account_wp['wajibpajak_alamat']}', 
-						'{$account_wp['wajibpajak_telp']}'
-					)");
 				}
-
 				$operation = $update_toko;
 				if ($operation['success'] == true) {
 					$dataSendEmail = [
@@ -298,7 +274,7 @@ class Permohonantoko extends Base_Controller
 			]);
 		} else {
 			$getJenis = $this->db->get_where('pajak_jenis', [
-				'jenis_kode' => $dataWP['wajibpajak_sektor_nama']
+				'jenis_kode' => $dataWP['wajibpajak_sektor_id']
 			])->row_array();
 			$getJenisParent = $this->db->get_where('pajak_jenis', [
 				'jenis_id' => $getJenis['jenis_parent']

@@ -129,9 +129,6 @@
                             <input id="wajibpajak_coord" name="wajibpajak_coord" type="text" class="is_edit form-control form-control-lg form-control-solid" readonly="true">
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <div id="map"></div>
-                    </div>
                 </div>
                 <div class="col-lg-4 col-md-12 order-lg-2 order-1">
                     <h5 class="font-weight-bold mb-6">Berkas NPWPD</h5>
@@ -150,6 +147,9 @@
                     </div>
                     <span class="form-text text-muted">Allowed file types: png, jpg, jpeg.</span>
                 </div>
+            </div>
+            <div class="form-group row">
+                <div id="map"></div>
             </div>
         </div>
         <!--end::Body-->

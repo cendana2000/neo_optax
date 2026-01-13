@@ -40,7 +40,7 @@ class Wajibpajak extends Base_Controller
     public function doSignup()
     {
         $data = varPost();
-        $jenis_kode = $data['wajibpajak_sektor_nama'];
+        $jenis_kode = $data['wajibpajak_sektor_id'];
         $wp_sektor_nama = $data['wajibpajak_sektor_nama'];
         // print_r('<pre>');print_r($data);print_r('</pre>');exit;
         if (empty($data['pemda_id'])) {
@@ -93,7 +93,8 @@ class Wajibpajak extends Base_Controller
         $check_sektor_usaha = $this->db->query("SELECT jenis_id, jenis_nama FROM pajak_jenis WHERE jenis_kode = '$jenis_kode'")->row_array();
 
         if (count($check_sektor_usaha) > 0) {
-            $data['wajibpajak_sektor_nama'] = $check_sektor_usaha['jenis_id'];
+            $data['wajibpajak_sektor_id'] = $check_sektor_usaha['jenis_id'];
+            $data['wajibpajak_sektor_nama'] = $check_sektor_usaha['jenis_nama'];
         } else {
             echo json_encode(array(
                 'success' => false,
@@ -132,6 +133,7 @@ class Wajibpajak extends Base_Controller
                 } else {
                     $password = $data['wajibpajak_password'];
                     $data['wajibpajak_status'] = 1;
+                    $data['wajibpajak_nama'] = strtoupper($data['wajibpajak_nama']);
                     $data['wajibpajak_password'] = $this->password($password);
                     $data['wajibpajak_password_argon2id'] = genPasswordArgon2id($password);
                     $data['wajibpajak_created_at'] = date("Y-m-d H:i:s");
@@ -146,7 +148,7 @@ class Wajibpajak extends Base_Controller
                             'data'          => [
                                 'to_email'          => strtolower($data['wajibpajak_email']),
                                 'link'              => base_url() . '/mitralogin/EmailVerification?id=' . $operation['record']['wajibpajak_id'],
-                                'wajibpajak'        => $data['wajibpajak_nama'],
+                                'wajibpajak'        => strtoupper($data['wajibpajak_nama']),
                                 'penanggungjawab'   => $data['wajibpajak_penanggungjawab'],
                                 'base_url'          => base_url(),
                                 'emailfrom'         => $this->config->item('app_email'),

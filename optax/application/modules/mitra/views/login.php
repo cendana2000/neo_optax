@@ -253,7 +253,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="col-xl-6">
 											<div class="form-group">
 												<label class="font-size-h6 font-weight-bolder text-dark">Jenis Usaha</label>
-												<select class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" name="wajibpajak_sektor_nama">
+												<select class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" name="wajibpajak_sektor_id">
 													<option value="">-- Pilih Jenis Usaha --</option>
 													<?php if (!empty($jenis_pajak)): ?>
 														<?php foreach ($jenis_pajak as $row): ?>
@@ -275,7 +275,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<div class="row">
 										<div class="col-xl-12">
 											<div class="form-group">
-												<label class="font-size-h6 font-weight-bolder text-dark">Nama Perusahaan</label>
+												<label class="font-size-h6 font-weight-bolder text-dark">Nama Tempat Usaha</label>
 												<input class="form-control h-auto py-3 px-4 rounded-lg font-size-h6" type="text" name="wajibpajak_nama" autocomplete="off" />
 											</div>
 										</div>

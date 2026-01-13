@@ -142,6 +142,16 @@ class Dashboard extends Base_Controller
 		$data['transaksi_terakhir'] = $this->dashboard->getTransaksiTerakhir(10);
 		$data['transaksi_terakhir_all'] = $this->dashboard->getTransaksiTerakhir(50);
 
+		$query_toko = $this->db
+			->select('wajibpajak_nama_penanggungjawab, wajibpajak_nama')
+			->from('pajak_wajibpajak')
+			->where('wajibpajak_status', '2')
+			->order_by('wajibpajak_created_at', 'DESC')
+			->limit(6)
+			->get()
+			->result_array();
+		$data['toko_baru'] = $query_toko;
+
 		$tahun 			= (int) date('Y');
 		$awal_tahun 	= "$tahun-01-01";
 		$akhir_tahun 	= ($tahun + 1) . "-01-01";

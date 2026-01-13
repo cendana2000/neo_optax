@@ -82,16 +82,10 @@
                             <input class="form-control is_edit form-control-lg form-control-solid" id="wajibpajak_nama" name="wajibpajak_nama" type="text" readonly="true">
                         </div>
                     </div>
-                    <div class="form-group row" style="display: none;">
-                        <label class="col-xl-3 col-lg-3 col-form-label">Sektor Usaha</label>
-                        <div class="col-lg-9">
-                            <input class="form-control is_edit form-control-lg form-control-solid" id="wajibpajak_sektor_nama" name="wajibpajak_sektor_nama" type="text" disabled="true">
-                        </div>
-                    </div>
                     <div class="form-group row">
                         <label class="col-xl-3 col-lg-3 col-form-label">Sektor Usaha</label>
                         <div class="col-lg-9">
-                            <input class="form-control is_edit form-control-lg form-control-solid" id="jenis_nama" name="jenis_nama" type="text" disabled="true">
+                            <input class="form-control is_edit form-control-lg form-control-solid" id="wajibpajak_sektor_nama" name="wajibpajak_sektor_nama" type="text" disabled="true">
                         </div>
                     </div>
                     <div class="form-group row">

@@ -106,7 +106,6 @@ class ManagementUser extends Base_Controller
   {
     $data = varPost();
     $role_id = $data['role_id'];
-    // $role_id = '123';
     $query = "SELECT *, (SELECT distinct pos_menu_role.menu_role_id FROM pos_menu_role 
     WHERE pos_menu_role.menu_role_menu = pos_menu.menu_id 
     AND pos_menu_role.menu_role_role_access = '" . $role_id . "'  AND pos_menu.menu_level = '3') AS menu_selected 
@@ -114,30 +113,21 @@ class ManagementUser extends Base_Controller
     WHERE pos_menu.menu_isaktif = '1' or pos_menu.menu_isaktif = '2'
     ORDER BY pos_menu.menu_order";
     $menu['data'] = $this->db->query($query)->result_array();
-
-    // print_r('<pre>');print_r($this->db->last_query());print_r('</pre>');exit;
-
-    // print_r($menu['data']);
-    // exit();
     $menu_list = array();
     foreach ($menu['data'] as $key => $value) {
       $parent = ($value['menu_parent'] == null) ? '#' : $value['menu_parent'];
       $state = false;
-      // if ($init == 'tidak') {
       $state = (is_null($value['menu_selected']) ? false : true);
-      // }
       array_push($menu_list, array(
         'id' => $value['menu_id'],
         'parent' => $parent,
         'text' => $value['menu_title'],
-        // 'icon' => $value['menu_icon'],
         'state' => array(
           "selected" => $state,
           "opened" => false
         )
       ));
     }
-    // print_r('<pre>');print_r($menu_list);print_r('</pre>');exit;
     $this->response(array('menu' => $menu_list));
   }
 

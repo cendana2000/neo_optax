@@ -48,7 +48,7 @@ class RekapTransaksi extends Base_Controller
 
 		$opr['sumtotal'] = $get_total;
 		$opr['tarif'] = (int)$this->db->select("jenis_tarif")
-			->where("jenis_id", $user["wajibpajak_sektor_nama"])
+			->where("jenis_id", $user["wajibpajak_sektor_id"])
 			->get('pajak_jenis')
 			->row()
 			->jenis_tarif;
