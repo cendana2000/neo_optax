@@ -17,7 +17,6 @@
 			update: BASE_URL + 'managementuser/update',
 			read: BASE_URL + 'managementuser/read',
 			destroy: BASE_URL + 'managementuser/destroy',
-			getmenu: BASE_URL + 'managementuser/get_menu',
 			getmenuv2: BASE_URL + 'managementuser/get_menu_v2',
 			getmenuMobile: BASE_URL + 'managementuser/get_menu_mobile',
 		}
@@ -118,7 +117,6 @@
 				if (suc) {
 					HELPER.ajax({
 						url: HELPER.api.destroy,
-						// url: BASE_URL + 'managementuser/softDelete',
 						data: {
 							id
 						},

@@ -68,6 +68,7 @@ class User extends Base_Controller
 
         $this->response($operation);
     }
+
     public function store()
     {
         $data = varPost();
@@ -76,22 +77,34 @@ class User extends Base_Controller
             $this->db->where('wajibpajak_id', $wp_id);
         }
         $arPegawai = $this->db->get_where('pos_pegawai', ['pegawai_id' => $data['user_nama']])->row_array();
+        $jenisPajak = $this->session->userdata('jenis_wp');
+        switch ($jenisPajak) {
+            case 'RESTO':
+                $posUser['jenis_wp'] = 'PAJAK RESTORAN';
+                break;
+            case 'HOTEL':
+                $posUser['jenis_wp'] = 'PAJAK HOTEL';
+                break;
+            case 'HIBURAN':
+                $posUser['jenis_wp'] = 'PAJAK HIBURAN';
+                break;
+            default:
+                $posUser['jenis_wp'] = 'DEFAULT';
+                break;
+        }
 
         $data['user_nama'] = $arPegawai['pegawai_nama'];
         $data['user_telepon'] = $arPegawai['pegawai_hp'];
         $data['user_alamat'] = $arPegawai['pegawai_alamat'];
-
         $data['user_status']            = 1;
         $data['user_is_registered']     = 1;
         if ($this->session->userdata('hak_akses_is_super') != 1) {
             $data['user_project_id'] = $this->session->userdata('user_project_id');
         }
-        $data['user_created_at']        = date("Y-m-d H:i:s");
-        $data['user_updated_at']        = date("Y-m-d H:i:s");
-        $data['user_last_change_password'] = date('Y-m-d H:i:s');
-        $data['user_password'] = $this->password($data['user_password']);
-
-        // $data['user_password'] = $this->password($this->config->item('password_default'));
+        $data['user_created_at']             = date("Y-m-d H:i:s");
+        $data['user_password']               = $this->password($data['user_password']);
+        $data['user_code_store']             = $this->session->userdata('toko_kode');
+        $data['user_jenis_parent_name']      = $posUser['jenis_wp'];
 
         if (!file_exists("./dokumen/user")) {
             mkdir("./dokumen/user", 0777, true);
@@ -120,7 +133,7 @@ class User extends Base_Controller
                 $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                 $resize = array();
                 $size   =  array(
-                    array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                    array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                 );
                 foreach ($size as $r) {
                     $resize = array(
@@ -182,7 +195,7 @@ class User extends Base_Controller
                     $file_resize_name = $config['upload_path'] . '/' . $file['file_name'];
                     $resize = array();
                     $size   =  array(
-                        array('name' => 'thumbs/', 'width' => auto, 'height' => 80,  'quality' => '100%'),
+                        array('name' => 'thumbs/', 'width' => 'auto', 'height' => 80,  'quality' => '100%'),
                     );
                     foreach ($size as $r) {
                         $resize = array(

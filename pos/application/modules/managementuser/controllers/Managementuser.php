@@ -69,67 +69,80 @@ class ManagementUser extends Base_Controller
     $this->response($operation);
   }
 
-  public function softDelete()
-  {
-    $data = varPost();
-    $data['role_access_deleted_at'] = date('Y-m-d H:i:s');
-    $data['role_access_deleted_by'] = $this->session->userdata['user_id'];
-    $operation = $this->roleaccess->update(varPost('id', varExist($data, $this->roleaccess->get_primary(true))), $data);
-    $this->response($operation);
-  }
-
-  public function get_menu()
-  {
-    $data = varPost();
-    $role_id = $data['role_id'];
-    $operation = $this->db->query("SELECT menu_id as id, 
-    COALESCE(menu_parent, '#') as parent, 
-    menu_title as text, menu_icon as icon, 
-    pmr.menu_role_role_access as role_id
-    FROM pos_menu 
-    LEFT JOIN pos_menu_role pmr 
-    on menu_id = pmr.menu_role_menu 
-    and pmr.menu_role_role_access = '$role_id'
-    ORDER BY menu_order asc")->result_array();
-
-    foreach ($operation as $key => $value) {
-      $statecon = (isset($operation[$key]['role_id']) && $operation[$key]['role_id'] != null) ? true : false;
-      $operation[$key]['state'] = (object)[
-        "selected" => $statecon,
-        "opened" => $statecon,
-      ];
-    }
-    $this->response(array("menu" => $operation));
-  }
-
   public function get_menu_v2()
   {
-    $data = varPost();
+    $wp_id   = $this->session->userdata('wajibpajak_id');
+    $data    = varPost();
     $role_id = $data['role_id'];
-    $query = "SELECT *, (SELECT distinct pos_menu_role.menu_role_id FROM pos_menu_role 
-    WHERE pos_menu_role.menu_role_menu = pos_menu.menu_id 
-    AND pos_menu_role.menu_role_role_access = '" . $role_id . "'  AND pos_menu.menu_level = '3') AS menu_selected 
-    FROM pos_menu 
-    WHERE pos_menu.menu_isaktif = '1' or pos_menu.menu_isaktif = '2'
-    ORDER BY pos_menu.menu_order";
-    $menu['data'] = $this->db->query($query)->result_array();
-    $menu_list = array();
-    foreach ($menu['data'] as $key => $value) {
-      $parent = ($value['menu_parent'] == null) ? '#' : $value['menu_parent'];
-      $state = false;
-      $state = (is_null($value['menu_selected']) ? false : true);
-      array_push($menu_list, array(
-        'id' => $value['menu_id'],
-        'parent' => $parent,
-        'text' => $value['menu_title'],
-        'state' => array(
-          "selected" => $state,
-          "opened" => false
-        )
-      ));
+    $subquery = $this->db
+      ->select('pmr.menu_role_id')
+      ->distinct()
+      ->from('pos_menu_role pmr')
+      ->where('pmr.menu_role_menu = pos_menu.menu_id', null, false)
+      ->where('pmr.menu_role_role_access', $role_id)
+      ->where('pmr.wajibpajak_id', $wp_id)
+      ->get_compiled_select();
+    $this->db
+      ->select("pos_menu.*, ($subquery) AS menu_selected", false)
+      ->from('pos_menu')
+      ->group_start()
+      ->where('pos_menu.menu_isaktif', '1')
+      ->or_where('pos_menu.menu_isaktif', '2')
+      ->group_end()
+      ->order_by('pos_menu.menu_order', 'ASC');
+
+    $menu_data = $this->db->get()->result_array();
+    $menu_list = [];
+
+    foreach ($menu_data as $value) {
+      $menu_list[] = [
+        'id'     => $value['menu_id'],
+        'parent' => empty($value['menu_parent']) ? '#' : $value['menu_parent'],
+        'text'   => $value['menu_title'],
+        'state'  => [
+          'selected' => !is_null($value['menu_selected']),
+          'opened'  => false
+        ]
+      ];
     }
-    $this->response(array('menu' => $menu_list));
+
+    $this->response(['menu' => $menu_list]);
   }
+
+  public function store_menu_role()
+  {
+    $data  = varPost();
+    $wp_id = $this->session->userdata('wajibpajak_id');
+
+    if (!$wp_id) {
+      return $this->response([
+        'status'  => false,
+        'message' => 'Wajib pajak tidak ditemukan'
+      ]);
+    }
+    $this->db->where('menu_role_role_access', $data['role_access_id']);
+    $this->db->where('wajibpajak_id', $wp_id);
+    $this->db->delete('pos_menu_role');
+    $operation = false;
+    if (!empty($data['roles']) && is_array($data['roles'])) {
+      $data_batch = [];
+      foreach ($data['roles'] as $menu_id) {
+        $data_batch[] = [
+          'menu_role_id'           => uniqid("", true),
+          'menu_role_menu'         => $menu_id,
+          'menu_role_role_access'  => $data['role_access_id'],
+          'wajibpajak_id'          => $wp_id
+        ];
+      }
+
+      $operation = $this->db->insert_batch('pos_menu_role', $data_batch);
+    }
+    $this->response([
+      'status'  => (bool) $operation,
+      'message' => $operation ? 'Role berhasil disimpan' : 'Role kosong'
+    ]);
+  }
+
 
   public function get_menu_mobile()
   {
@@ -153,31 +166,6 @@ class ManagementUser extends Base_Controller
       ];
     }
     $this->response(array("menu" => $operation));
-  }
-
-  public function store_menu_role()
-  {
-    $data = varPost();
-
-    $opdel = $this->db->query("DELETE FROM pos_menu_role WHERE menu_role_role_access = '" . $data['role_access_id'] . "'");
-
-    $message = "Role empty";
-    if (isset($data['roles'])) {
-      if (count($data['roles']) > 0) {
-        $data_batch = array();
-        foreach ($data['roles'] as $key => $val) {
-          array_push($data_batch, array(
-            "menu_role_id" => uniqid("", true),
-            "menu_role_menu" => $val,
-            "menu_role_role_access" => $data['role_access_id'],
-          ));
-        }
-        // print_r($data_batch);die();
-        $operation = $this->db->insert_batch('pos_menu_role', $data_batch);
-      }
-    }
-
-    $this->response($operation);
   }
 
   public function store_menu_role_mobile()

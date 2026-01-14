@@ -173,6 +173,8 @@ class Permohonantoko extends Base_Controller
 						])->row_array();
 						$this->db->query("INSERT INTO pengaturan_app_toko (public_toko_id, header_store_name, address_store) VALUES ('{$tokoparkir['id']}', '{$account_wp['wajibpajak_nama']}', '{$account_wp['wajibpajak_alamat']}')");
 					} else {
+						$this->db->trans_begin();
+
 						$this->db->query("INSERT INTO pos_user (user_id, user_role_access_id, user_project_id, user_nama, user_alamat, user_telepon, user_email, user_password, user_status, user_foto, user_last_change_password, user_is_registered, user_token_registrasi, user_created_at, user_updated_at, user_deleted_at, wajibpajak_id, user_code_store, user_jenis_parent_name) 
 						VALUES(replace(uuidv7()::text, '-', ''), '123', NULL, '" . $account_wp['wajibpajak_nama_penanggungjawab'] . "', '" . $account_wp['wajibpajak_alamat'] . "', '" . $account_wp['wajibpajak_telp'] . "', '" . $account_wp['wajibpajak_email'] . "', '" . $account_wp['wajibpajak_password'] . "', 1, '1d09cd5f9b1c8795a5443ab262334e06.png', NULL, 1, NULL, '" . date('Y-m-d H:i:s') . "', NULL, NULL,'" .  $account_wp['wajibpajak_id'] . "', '" . $update_toko['record']['toko_kode'] . "','" . $getJenisParent['jenis_nama'] . "');
 						");
@@ -191,7 +193,6 @@ class Permohonantoko extends Base_Controller
 							['conf_code' => 'struk_tw', 'conf_title' => 'Twitter', 'conf_group' => 'struk_footer'],
 							['conf_code' => 'struk_yt', 'conf_title' => 'Youtube', 'conf_group' => 'struk_footer'],
 						];
-
 						foreach ($default_configs as $config) {
 							$this->db->set('conf_id', "replace(uuidv7()::text, '-', '')", false);
 							$this->db->set('conf_code', $config['conf_code']);
@@ -203,6 +204,62 @@ class Permohonantoko extends Base_Controller
 							$this->db->set('conf_active', 1);
 							$this->db->set('wajibpajak_id', $account_wp['wajibpajak_id']);
 							$this->db->insert('pos_config');
+						}
+
+						// ========================== INSERT DEFAULT POS MENU ROLE ==============================
+						$menu_roles = [
+							'f63143cc466006cf36cfa827b822c442',
+							'f63143cc466006cf36cfa827b822c123',
+							'f63143cc466006cf36cfa827b822c124',
+							'f63143cc466006cf36cfa827b822c125',
+							'f63143cc466006cf36cfa827b822c126',
+							'f63143cc466006cf36cfa827b822c127',
+							'f63143cc466006cf36cfa827b822c128',
+							'f63143cc466006cf36cfa827b822c129',
+							'4d4dd4c5d919e444d39d69a7a11db8d7',
+							'4d4dd4c5d919e444d39d69a7a11dbmja',
+							'4d4dd4c5d919e444d39d69a7a11dbctm',
+							'f63143cc466006cf36cfa827b822c321',
+							'f63143cc466006cf36cfa827b8222121',
+							'f63143cc466006cf36cfa827b8222221',
+							'f63143cc466006cf36cfa827b8223221',
+							'f63143cc466006cf36cfa827b822c322',
+							'15f07295c9e43a29764a91dfaaa025c9',
+							'e28988f0f0f5f1f59ab7b0ee9bf809ea',
+							'e925f95c0e46a1408151262a00ab6b9a',
+							'abc5f95c0e46a1408151262a00ab001',
+							'f63143cc466006cf36cfa827b822c332',
+							'f63143cc466006cf36cfa827b8242121',
+							'f63143cc466006cf36cfa827b8242221',
+							'f63143cc466006cf36cfa827b8243221',
+							'f63143cc466006cf36cfa827b822c432',
+							'3ecc31824dab3a1b8eede166acddf805',
+							'90f0c0052cabd5ab1b47a38236b2a34e',
+							'e1e72f74c86831337fe4784ed86073a7',
+							'b5a5a02b1385c26eb5106c61b00e9480',
+							'a451',
+							'a4520',
+							'a452',
+							'a453',
+							'a459',
+							'a454',
+							'a455',
+							'a457',
+							'a458'
+						];
+						foreach ($menu_roles as $menu_id) {
+							$this->db->set('menu_role_id', "replace(uuidv7()::text, '-', '')", false);
+							$this->db->set('menu_role_menu', $menu_id);
+							$this->db->set('menu_role_role_access', '123');
+							$this->db->set('wajibpajak_id', $account_wp['wajibpajak_id']);
+							$this->db->insert('pos_menu_role');
+						}
+
+						if ($this->db->trans_status() === FALSE) {
+							$this->db->trans_rollback();
+						} else {
+							$this->db->trans_commit();
+							$update_toko['notif'] = 'Successfully insert to pos_user, pos_conf and pos_menu_role';
 						}
 					}
 				}

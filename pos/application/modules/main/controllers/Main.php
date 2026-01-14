@@ -30,13 +30,30 @@ class Main extends Base_Controller
 
     public function getPage()
     {
-        // echo strtolower(str_replace('-', '/', varPost('menu')));exit;
+        $wp_id = $this->session->userdata('wajibpajak_id');
+        if (empty($wp_id)) {
+            return $this->response([
+                'islogin' => false,
+                'message' => 'Session wajib pajak tidak valid'
+            ]);
+        }
         $menu = explode('-', varPost('menu'));
-        $view = $this->load->view(strtolower($menu[0]) . '/' . $menu[1], null, true);
-        $operation['view'] = base64_encode($view);
-        $operation['islogin'] = $this->User->islogin();
+        if (count($menu) < 2) {
+            return $this->response([
+                'islogin' => true,
+                'message' => 'Menu tidak valid'
+            ]);
+        }
+        $view_path = strtolower($menu[0]) . '/' . $menu[1];
+        $view = $this->load->view($view_path, null, true);
+        $operation = [
+            'view'     => base64_encode($view),
+            'islogin'  => $this->User->islogin()
+        ];
+
         $this->response($operation);
     }
+
 
     public function detailProject()
     {

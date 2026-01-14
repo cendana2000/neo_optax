@@ -25,6 +25,9 @@ class UserModel extends Base_Model
 					array('name' => 'user_created_at'),
 					array('name' => 'user_updated_at'),
 					array('name' => 'user_deleted_at'),
+					array('name' => 'user_code_store'),
+					array('name' => 'user_jenis_parent_name'),
+					array('name' => 'wajibpajak_id'),
 				)
 			),
 			'view' => array(
@@ -46,6 +49,9 @@ class UserModel extends Base_Model
 						'user_created_at',
 						'user_updated_at',
 						'user_deleted_at',
+						'user_code_store',
+						'user_jenis_parent_name',
+						'wajibpajak_id',
 					)
 				)
 			)

@@ -24,6 +24,7 @@ class RoleAccessModel extends Base_Model
 					array('name' => 'menu_main', 'view' => true),
 					array('name' => 'menu_description', 'view' => true),
 					array('name' => 'user_id', 'view' => true),
+					array('name' => 'wajibpajak_id', 'view' => true),
 				)
 			),
 			'view' => array(
@@ -45,6 +46,7 @@ class RoleAccessModel extends Base_Model
 						'menu_main',
 						'menu_description',
 						'user_id',
+						'wajibpajak_id',
 					)
 				)
 			)

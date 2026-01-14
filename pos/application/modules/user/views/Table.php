@@ -7,9 +7,8 @@
 				</div>
 				<div class="card-toolbar">
 					<div class="btn-group" id="dropdown-div">
-                        <button class="btn btn-primary btn-sm m-3 radius-5" onclick="onCreate()" data-roleable="true" data-role="User-Create"><i class="fa fa-plus"></i>Create New</button>
-						<button class="btn btn-warning btn-sm m-3 radius-5" onclick="onRefresh()"><i class="flaticon-refresh"></i>Refresh</button>
-                    </div>
+						<button class="btn btn-light-primary btn-sm m-3 radius-5" onclick="onCreate()"><i class="fa fa-plus"></i>Create New</button>
+					</div>
 				</div>
 			</div>
 			<div class="card-body table-responsive">
@@ -17,8 +16,8 @@
 					<thead>
 						<tr>
 							<th>No</th>
-							<th>Name</th>
-							<th>Phone</th>
+							<th>Nama</th>
+							<th>Telepon</th>
 							<th>Email</th>
 							<th>Status</th>
 							<th>Action</th>
