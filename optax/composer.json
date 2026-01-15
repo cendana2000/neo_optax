@@ -23,7 +23,8 @@
 		"google/apiclient": "^2.15.0",
 		"php-amqplib/rabbitmq-bundle": "^2.11",
 		"videlalvaro/php-amqplib": "^3.2",
-		"hidehalo/nanoid-php": "^1.1"
+		"hidehalo/nanoid-php": "^1.1",
+		"setasign/fpdf": "^1.8"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"

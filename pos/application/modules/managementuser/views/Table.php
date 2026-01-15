@@ -39,9 +39,6 @@
 					</span>
 					<h3 class="card-label">KONFIGURASI</h3>
 				</div>
-				<div class="card-toolbar">
-					<button type="button" class="btn btn-success btn-elevate btn-sm" onclick="showFormInsert()"><i class="la la-plus"></i>Tambah Hak Akses</button>
-				</div>
 			</div>
 			<div class="card-body table-responsive">
 				<form class="kt-form" action="javascript:save_role_menu()" name="form-tree" id="form-tree">

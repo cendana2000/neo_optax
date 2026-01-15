@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+use FPDF;
+
 class Rekappajak extends Base_Controller
 {
 
@@ -560,175 +562,76 @@ class Rekappajak extends Base_Controller
 	public function pdf_rekap()
 	{
 		$post = varPost();
+		$mode = $post['mode'] ?? 'preview';
+
 		$where = [];
 
-		$html = '<style>
-			*, table, p, li{
-				line-height:1.6;
-				font-size:11px;
-			}
-			.kop{
-				text-align: center;
-				display:block;
-				margin:0 auto;
-			}
-			.kop h1{
-				font-size: 10px;
-			}
-
-			.left{
-				padding:2px;
-			}
-
-			.right{
-
-				text-align:right;
-				padding: 2px;
-			}
-			.t-center{
-				vertical-align:middle!important;
-				text-align:center;
-				background-color : #5a8ed1;
-			}
-
-			.divider{
-				border-right: 1px solid black;
-			}
-
-			.laporan td {
-				border: 1px solid black;
-				border-collapse: collapse;
-				padding:0px 10px;
-			}
-
-			.ttd{
-				border: 1px solid black;
-				border-collapse: collapse;
-				padding : 0px 3px;
-				text-align:center;
-				vertical-align:top;
-			}
-
-			.ttd td {
-				border : 0px 1px solid black;
-				border-collapse: collapse;
-				padding:0px 3px;
-				height:40px;
-			}
-
-			.ttd .top{
-				text-align:center;
-				vertical-align:top;
-				border-right : 1px solid black;
-				border-collapse: collapse;
-			}
-
-			.ttd .bottom{
-				text-align:center;
-				vertical-align:bottom;
-				border-right : 1px solid black;
-				border-collapse: collapse;
-			}
-
-			.laporan .total {
-				border-top: 1px solid black;
-				border-bottom: 1px solid black;
-				border-collapse: collapse;
-				padding: 0px 10px;
-			}	
-
-			table{
-				border-collapse: collapse;
-				width:100%;
-			}
-			.laporan th {
-				border: 1px solid black;
-				border-collapse: collapse;
-			}
-		</style>';
-
-
-		$html .= '<table style="width:100%;">
-			<tr>
-				<td class="left">
-					<p>OPTAX</p>
-				</td>
-				<td class="right" ><p>' . (date("d/m/Y")) . '</p></td>
-			</tr>
-			<tr>
-				<td colspan="2" class="kop">
-						<h4>REKAP PAJAK</h4><br>
-				</td>
-			</tr>
-		</table>		
-		<br>
-		<table class="laporan" cellspacing=0 style="width:100%; border-collapse: collapse;">
-			<tr>
-				<th class="t-center">No</th>
-				<th class="t-center">NPWPD</th>
-				<th class="t-center">Nama WP</th>
-				<th class="t-center">Jenis Pajak</th>
-				<th class="t-center">Kecamatan</th>
-				<th class="t-center">Transaksi Terakhir</th>
-				<th class="t-center">Jenis Device</th>
-			</tr>';
 		$pemdaId = (int) $this->session->userdata('pemda_id');
 		if ($pemdaId > 0) {
 			$where['pemda_id'] = $pemdaId;
 		}
-
 		if (!empty($post['kecamatan'])) {
 			$where['kecamatan_id'] = $post['kecamatan'];
 		}
-
 		if (!empty($post['jenis_pajak'])) {
 			$where['jenis_nama'] = $post['jenis_pajak'];
 		}
-
 		if (!empty($post['jenis_device'])) {
 			$where['jenis_device'] = $post['jenis_device'];
 		}
+
 		$data = $this->db
 			->where($where)
 			->order_by('tanggal_last_transaksi', 'DESC')
 			->get('v_rekap_pajak')
 			->result_array();
-		$no = $total = $tbl_no = 1;
-
-		foreach ($data as $key => $value) {
-			$html .= '<tr>
-					<td>' . $tbl_no . '</td>
-					<td>' . $value['npwpd'] . '</td>
-					<td>' . $value['nama_wp'] . '</td>
-					<td>' . $value['jenis_nama'] . '</td>
-					<td>' . $value['kecamatan_nama'] . '</td>
-					<td>' . $value['tanggal_last_transaksi'] . '</td>
-					<td>' . $value['jenis_device'] . '</td>					
-				</tr>';
-			$tbl_no++;
-			$no++;
+		$pdf = new \FPDF('L', 'mm', 'A4');
+		$pdf->AddPage();
+		$pdf->SetFont('Arial', 'B', 14);
+		$pdf->Cell(0, 10, 'REKAP PAJAK', 0, 1, 'C');
+		$pdf->Ln(3);
+		$pdf->SetFont('Arial', '', 10);
+		$pdf->Cell(0, 6, 'Tanggal Cetak: ' . date('d/m/Y'), 0, 1, 'R');
+		$pdf->Ln(3);
+		$pdf->SetFont('Arial', 'B', 9);
+		$pdf->Cell(10, 8, 'No', 1, 0, 'C');
+		$pdf->Cell(30, 8, 'NPWPD', 1, 0, 'C');
+		$pdf->Cell(70, 8, 'Nama WP', 1, 0, 'C');
+		$pdf->Cell(35, 8, 'Jenis Pajak', 1, 0, 'C');
+		$pdf->Cell(45, 8, 'Kecamatan', 1, 0, 'C');
+		$pdf->Cell(45, 8, 'Transaksi Terakhir', 1, 0, 'C');
+		$pdf->Cell(30, 8, 'Jenis Device', 1, 1, 'C');
+		$pdf->SetFont('Arial', '', 9);
+		$no = 1;
+		foreach ($data as $row) {
+			$pdf->Cell(10, 7, $no++, 1);
+			$pdf->Cell(30, 7, $row['npwpd'], 1);
+			$pdf->Cell(70, 7, $row['nama_wp'], 1);
+			$pdf->Cell(35, 7, $row['jenis_nama'], 1);
+			$pdf->Cell(45, 7, $row['kecamatan_nama'], 1);
+			$pdf->Cell(45, 7, $row['tanggal_last_transaksi'], 1);
+			$pdf->Cell(30, 7, $row['jenis_device'], 1);
+			$pdf->Ln();
 		}
+		if ($mode === 'preview') {
+			$pdfString = $pdf->Output('', 'S');
 
-		$html .= '</table>';
-
-		createPdf(array(
-			'data'          => $html,
-			'json'          => true,
-			'paper_size'    => 'A4',
-			'file_name'     => 'Rekap Pajak',
-			'title'         => 'Rekap Pajak',
-			'stylesheet'    => './assets/laporan/print.css',
-			'margin'        => '10 5 10 5',
-			// 'font_face'     => 'cour',
-			'font_size'     => '10',
-		));
+			echo json_encode([
+				'status' => true,
+				'record' => 'data:application/pdf;base64,' . base64_encode($pdfString)
+			]);
+			return;
+		}
+		$pdf->Output('Rekap_Pajak.pdf', 'D');
 	}
+
 
 	public function pdf_rincirekap()
 	{
 		$wajibpajak_id = varPost('wajibpajak_id');
 		$sumber_data   = varPost('sumber_data');
 		$periode       = varPost('periode');
+		$mode          = varPost('mode');
 
 		if (!$wajibpajak_id || !$sumber_data) {
 			show_error('Parameter tidak lengkap', 400);
@@ -799,61 +702,62 @@ class Rekappajak extends Base_Controller
 			$total_total    += $r['trx_total'];
 		}
 
-		$html = '<h3 style="text-align:center">RINCIAN REKAP PAJAK</h3>
-		<table width="100%" cellpadding="4">
-			<tr><td width="20%">NPWPD</td><td>: ' . $wp->wajibpajak_npwpd . '</td></tr>
-			<tr><td>Nama Toko</td><td>: ' . $wp->toko_nama . '</td></tr>
-			<tr><td>PIC</td><td>: ' . $wp->wajibpajak_nama_penanggungjawab . '</td></tr>
-			<tr><td>Periode</td><td>: ' . $periode . '</td></tr>
-		</table><br>';
-
-		$html .= '<table border="1" width="100%" cellpadding="4" cellspacing="0">
-        <tr style="background:#eee">
-            <th>No</th>
-            <th>Tanggal</th>
-            <th>Waktu</th>
-            <th>Kode</th>
-            <th>Subtotal</th>
-            <th>Jasa</th>
-            <th>Diskon</th>
-            <th>Pajak</th>
-            <th>Total</th>
-        </tr>';
-
+		$pdf = new \FPDF('P', 'mm', 'A4');
+		$pdf->AddPage();
+		$pdf->SetFont('Arial', 'B', 14);
+		$pdf->Cell(0, 10, 'RINCIAN REKAP PAJAK', 0, 1, 'C');
+		$pdf->Ln(3);
+		$pdf->SetFont('Arial', '', 10);
+		$pdf->Cell(40, 6, 'NPWPD', 0, 0);
+		$pdf->Cell(80, 6, ': ' . $wp->wajibpajak_npwpd, 0, 1);
+		$pdf->Cell(40, 6, 'Nama Toko', 0, 0);
+		$pdf->Cell(80, 6, ': ' . $wp->toko_nama, 0, 1);
+		$pdf->Cell(40, 6, 'PIC', 0, 0);
+		$pdf->Cell(80, 6, ': ' . $wp->wajibpajak_nama_penanggungjawab, 0, 1);
+		$pdf->Cell(40, 6, 'Periode', 0, 0);
+		$pdf->Cell(80, 6, ': ' . $periode, 0, 1);
+		$pdf->Ln(4);
+		$pdf->SetFont('Arial', 'B', 9);
+		$pdf->Cell(8, 7, 'No', 1);
+		$pdf->Cell(22, 7, 'Tanggal', 1);
+		$pdf->Cell(18, 7, 'Waktu', 1);
+		$pdf->Cell(30, 7, 'Kode', 1);
+		$pdf->Cell(25, 7, 'Subtotal', 1, 0, 'R');
+		$pdf->Cell(20, 7, 'Jasa', 1, 0, 'R');
+		$pdf->Cell(20, 7, 'Diskon', 1, 0, 'R');
+		$pdf->Cell(20, 7, 'Pajak', 1, 0, 'R');
+		$pdf->Cell(25, 7, 'Total', 1, 1, 'R');
+		$pdf->SetFont('Arial', '', 9);
 		foreach ($rows as $i => $r) {
 			$pajak = $r['trx_subtotal'] / 10;
-			$html .= '<tr>
-				<td align="center">' . ($i + 1) . '</td>
-				<td>' . date('d-m-Y', strtotime($r['trx_tgl'])) . '</td>
-				<td>' . date('H:i', strtotime($r['trx_time'])) . '</td>
-				<td>' . $r['trx_kode'] . '</td>
-				<td align="right">' . number_format($r['trx_subtotal']) . '</td>
-				<td align="right">' . number_format($r['trx_jasa']) . '</td>
-				<td align="right">' . number_format($r['trx_diskon']) . '</td>
-				<td align="right">' . number_format($pajak) . '</td>
-				<td align="right">' . number_format($r['trx_total']) . '</td>
-			</tr>';
+
+			$pdf->Cell(8, 6, $i + 1, 1);
+			$pdf->Cell(22, 6, date('d-m-Y', strtotime($r['trx_tgl'])), 1);
+			$pdf->Cell(18, 6, date('H:i', strtotime($r['trx_time'])), 1);
+			$pdf->Cell(30, 6, $r['trx_kode'], 1);
+			$pdf->Cell(25, 6, number_format($r['trx_subtotal']), 1, 0, 'R');
+			$pdf->Cell(20, 6, number_format($r['trx_jasa']), 1, 0, 'R');
+			$pdf->Cell(20, 6, number_format($r['trx_diskon']), 1, 0, 'R');
+			$pdf->Cell(20, 6, number_format($pajak), 1, 0, 'R');
+			$pdf->Cell(25, 6, number_format($r['trx_total']), 1, 1, 'R');
 		}
-
-		$html .= '<tr style="font-weight:bold">
-			<td colspan="4" align="center">TOTAL</td>
-			<td align="right">' . number_format($total_subtotal) . '</td>
-			<td align="right">' . number_format($total_jasa) . '</td>
-			<td align="right">' . number_format($total_diskon) . '</td>
-			<td align="right">' . number_format($total_pajak) . '</td>
-			<td align="right">' . number_format($total_total) . '</td>
-		</tr>
-		</table>';
-
-		createPdf([
-			'data'       => $html,
-			'json'       => true,
-			'paper_size' => 'A4',
-			'file_name'  => 'Rincian Rekap Pajak',
-			'title'      => 'Rincian Rekap Pajak',
-			'margin'     => '10 10 10 10',
-			'font_size'  => '10'
-		]);
+		$pdf->SetFont('Arial', 'B', 9);
+		$pdf->Cell(78, 7, 'TOTAL', 1);
+		$pdf->Cell(25, 7, number_format($total_subtotal), 1, 0, 'R');
+		$pdf->Cell(20, 7, number_format($total_jasa), 1, 0, 'R');
+		$pdf->Cell(20, 7, number_format($total_diskon), 1, 0, 'R');
+		$pdf->Cell(20, 7, number_format($total_pajak), 1, 0, 'R');
+		$pdf->Cell(25, 7, number_format($total_total), 1, 1, 'R');
+		if ($mode === 'preview') {
+			$pdfString = $pdf->Output('', 'S');
+			echo json_encode([
+				'status' => true,
+				'record' => 'data:application/pdf;base64,' . base64_encode($pdfString)
+			]);
+			return;
+		}
+		$filename = 'rincirekap_' . time() . '.pdf';
+		$pdf->Output($filename, 'D');
 	}
 }
 

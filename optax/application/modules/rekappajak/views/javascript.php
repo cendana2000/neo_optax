@@ -498,17 +498,19 @@
 		HELPER.block();
 		$.ajax({
 			url: BASE_URL + 'rekappajak/pdf_rekap',
-			data: {
-				kecamatan: $('#select_kecamatan').val(),
-				jenisPajak: $('#filter_jenis_pajak').val(),
-				jenisDevice: $('#filter_jenis_device').val(),
-			},
 			type: 'post',
 			dataType: 'json',
+			data: {
+				kecamatan: $('#select_kecamatan').val(),
+				jenis_pajak: $('#filter_jenis_pajak').val(),
+				jenis_device: $('#filter_jenis_device').val(),
+				mode: 'preview'
+			},
 			success: function(res) {
-				let htmlobject = $('#pdf-laporan').html();
 				$("#pdf-laporan object").remove();
-				$("#pdf-laporan").append(htmlobject);
+				$("#pdf-laporan").append(
+					'<object type="application/pdf" width="100%" height="600"></object>'
+				);
 				$("#pdf-laporan object").attr("data", res.record);
 				HELPER.toggleForm({
 					tohide: 'table_data',
@@ -516,8 +518,9 @@
 				});
 				HELPER.unblock();
 			}
-		})
+		});
 	}
+
 
 	function getPdfRinciRekap() {
 		HELPER.block();
@@ -528,13 +531,15 @@
 			data: {
 				wajibpajak_id: window.current_wp_id,
 				sumber_data: window.current_sumber_data,
-				periode: $('#periode').val()
+				periode: $('#periode').val(),
+				mode: 'preview'
 			},
 			success: function(res) {
 				$("#subpdf-laporan object").remove();
-				$("#subpdf-laporan").append('<object type="application/pdf" width="100%" height="600"></object>');
+				$("#subpdf-laporan").append(
+					'<object type="application/pdf" width="100%" height="600"></object>'
+				);
 				$("#subpdf-laporan object").attr("data", res.record);
-
 				HELPER.toggleForm({
 					tohide: 'form_data',
 					toshow: 'subreport_data_pdf'
@@ -543,7 +548,6 @@
 			}
 		});
 	}
-
 
 	function loadKecamatan() {
 		$.ajax({

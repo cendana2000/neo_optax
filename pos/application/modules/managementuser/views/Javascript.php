@@ -44,26 +44,11 @@
 					visible: true,
 					render: function(data, type, full, meta) {
 						let btn_aksi = "";
-						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-primary btn-icon mx-1" title="Edit" onclick="onEdit(this)">
+						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-primary btn-icon mx-1" onclick="showConfig('${full['role_access_id']}')"">
 							<span class="svg-icon svg-icon-md">
 								<i class="fa fa-pen"></i>
 							</span>
 						</a>`;
-						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-danger btn-icon mx-1" onclick="onDelete('${full['role_access_id']}')"">
-							<span class="svg-icon svg-icon-md">
-								<i class="fa fa-trash"></i>
-							</span>
-						</a>`;
-						btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-success btn-icon mx-1" onclick="showConfig('${full['role_access_id']}')"">
-							<span class="svg-icon svg-icon-md">
-								<i class="fas fa-desktop"></i>
-							</span>
-						</a>`;
-						// btn_aksi += `<a href="javascript:;" class="btn btn-sm btn-info btn-icon mx-1" onclick="showConfigMobile('${full['role_access_id']}')"">
-						// 	<span class="svg-icon svg-icon-md">
-						// 		<i class="fas fa-mobile"></i>
-						// 	</span>
-						// </a>`;
 						return btn_aksi;
 					},
 				},
