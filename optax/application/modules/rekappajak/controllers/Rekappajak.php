@@ -184,7 +184,7 @@ class Rekappajak extends Base_Controller
 				$where["EXISTS(
 					SELECT 1 
 					FROM pajak_wajibpajak 
-					WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id 
+					WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan_pooling.wajibpajak_id 
 					AND pemda_id = {$pemda_id}
 				)"] = null;
 			}

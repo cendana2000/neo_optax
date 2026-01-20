@@ -1122,8 +1122,8 @@ class Transaksipenjualan extends Base_Controller
 		$title 		= 'Transaksi Baru';
 		$message 	= "Transaksi baru oleh {$nama} pada {$waktu} dengan nomor {$nomor}";
 
-		notify_to_pemda($title, $message);
-		notify_to_stakeholders($title, $message);
+		// notify_to_pemda($title, $message);
+		// notify_to_stakeholders($title, $message);
 
 		$this->output->set_content_type('application/json');
 		$this->response($operation);
