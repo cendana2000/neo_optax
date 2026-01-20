@@ -190,7 +190,7 @@
 				let mobileConfig = res.data.mobile_interval_ping || [];
 				let pingConf = mobileConfig.find(c => c.conf_code === "mobile_interval_ping");
 
-				let intervalMinute = pingConf ? parseInt(pingConf.conf_value) : 10;
+				let intervalMinute = pingConf ? parseInt(pingConf.conf_value) : 3;
 				let intervalMs = intervalMinute * 60 * 1000;
 
 				// console.log("Ping interval setiap", intervalMinute, "menit");

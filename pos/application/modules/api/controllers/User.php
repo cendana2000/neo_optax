@@ -226,43 +226,39 @@ class User extends Base_Controller
       $id       = varPost('pos_user_id');
       $today    = date('Y-m-d');
 
-      if ($wp_id = $this->session->userdata('wajibpajak_id')) {
-        $this->db->where('wajibpajak_id', $wp_id);
-      }
       $user = $this->db->where('user_id', $id)->get('pos_user')->row();
 
       if (!$user) {
         throw new Exception('User Tidak Ditemukan');
       }
 
-      if (!empty($user->pos_user_email)) {
-        $wajibpajak = $this->db
-          ->where('wajibpajak_email', $user->pos_user_email)
-          ->get('pajak_wajibpajak')
-          ->row();
-
-        if ($wajibpajak) {
-          $this->db->where('wajibpajak_email', $user->pos_user_email);
-          $this->db->update(
-            'pajak_wajibpajak',
-            ['mobile_last_active' => date('Y-m-d H:i:s')]
-          );
-        }
+      if (!empty($user->user_code_store)) {
+        $this->updateMobileLastActive($user->user_code_store);
       }
 
       $hour     = date('G');
       $record   = $this->db
-        ->where('log_user_id', $id)
+        ->where('log_user_code_store', $user->user_code_store)
         ->get($this->Log->get_table())
         ->row();
-
+      $record_data = $this->db
+        ->select('*')
+        ->from('pos_user')
+        ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_id = pos_user.wajibpajak_id', 'left')
+        ->where('user_id', $id)
+        ->get()
+        ->row();
       if ($record) {
         $isNewDay = ($record->log_tanggal != $today);
         $updateData = [
+          'log_user_id'      => $id,
+          'log_user_name'    => $user->user_nama,
           'log_tanggal'      => $today,
           'log_device_id'    => $this->input->post('device_id'),
           'log_device_model' => $this->input->post('model'),
           'log_last_active'  => date('Y-m-d H:i:s'),
+          'log_wajibpajak_nama'  => $record_data->wajibpajak_nama,
+          'log_wajibpajak_npwpd' => $record_data->wajibpajak_npwpd
         ];
 
         if ($isNewDay) {
@@ -278,27 +274,18 @@ class User extends Base_Controller
           ->where('log_id', $record->log_id)
           ->update('log_mobile', $updateData);
       } else {
-        $record = $this->db
-          ->select('*')
-          ->from('pos_user')
-          ->join('pajak_toko', 'pajak_toko.toko_kode = pos_user.pos_user_code_store', 'left')
-          ->join('pajak_wajibpajak', 'pajak_wajibpajak.wajibpajak_id = pajak_toko.toko_wajibpajak_id', 'left')
-          ->where('pos_user_id', $id)
-          ->get()
-          ->row();
-
         $data                         = array();
         $data['log_tanggal']          = $today;
         $data['log_user_id']          = $id;
-        $data['log_user_code_store']  = $user->pos_user_code_store;
-        $data['log_user_name']        = $user->pos_user_name;
+        $data['log_user_code_store']  = $user->user_code_store;
+        $data['log_user_name']        = $user->user_nama;
         $data['log_device_id']        = $this->input->post('device_id');
         $data['log_device_model']     = $this->input->post('model');
         $data['log_last_active']      = date('Y-m-d H:i:s');
         $data['log_created_at']       = date('Y-m-d H:i:s');
         $data["log_jam_$hour"]        = 1;
-        $data['log_wajibpajak_nama']  = $record->wajibpajak_nama ?? '';
-        $data['log_wajibpajak_npwpd'] = $record->wajibpajak_npwpd ?? '';
+        $data['log_wajibpajak_nama']  = $record_data->wajibpajak_nama ?? '';
+        $data['log_wajibpajak_npwpd'] = $record_data->wajibpajak_npwpd ?? '';
         $this->Log->insert(gen_uuid($this->Log->get_table()), $data);
       }
 
@@ -309,6 +296,25 @@ class User extends Base_Controller
       $datarow['message'] = $th->getMessage();
     } finally {
       $this->response($datarow);
+    }
+  }
+
+  private function updateMobileLastActive($codeStore)
+  {
+    $sql = "
+        UPDATE pajak_wajibpajak pw
+        SET
+            mobile_last_active = timezone('Asia/Jakarta', now()),
+            web_last_active = NULL
+        FROM pajak_toko pt
+        WHERE pw.wajibpajak_id = pt.toko_wajibpajak_id
+        AND LOWER(pt.toko_kode) = LOWER(?)
+    ";
+
+    $this->db->query($sql, [$codeStore]);
+
+    if ($this->db->affected_rows() === 0) {
+      throw new Exception('Toko tidak ditemukan');
     }
   }
 }

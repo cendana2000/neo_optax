@@ -77,14 +77,14 @@ class LoginV2 extends BASE_Controller
 		}
 
 		if (in_array($posUser['user_jenis_parent_name'], $posAppType) && $this->password($data['password']) == $posUser['user_password']) {
-			$this->updateWebLastActive($data['email']);
+			$this->updateWebLastActive($posUser['user_code_store']);
 
 			$this->logWebActivity(
 				$posUser['user_id'],
 				$posUser['user_code_store'],
 				$posUser['user_nama'],
 				$toko['toko_nama'] ?? '',
-				$toko['wajibpajak_npwpd'] ?? ''
+				$toko['toko_wajibpajak_npwpd']
 			);
 
 			if ($getJenisParent['jenis_nama'] == 'PAJAK RESTORAN') {
@@ -130,22 +130,25 @@ class LoginV2 extends BASE_Controller
 		));
 	}
 
-	public function updateWebLastActive($email)
+	private function updateWebLastActive($codeStore)
 	{
-		$wajibpajak = $this->db
-			->where('wajibpajak_email', strtolower($email))
-			->get('pajak_wajibpajak')
-			->row_array();
+		$sql = "
+            UPDATE pajak_wajibpajak pw
+            SET
+                web_last_active = timezone('Asia/Jakarta', now()),
+                mobile_last_active = NULL
+            FROM pajak_toko pt
+            WHERE pw.wajibpajak_id = pt.toko_wajibpajak_id
+            AND LOWER(pt.toko_kode) = LOWER(?)
+        ";
 
-		if ($wajibpajak) {
-			$result = $this->db
-				->where('wajibpajak_email', strtolower($email))
-				->update('pajak_wajibpajak', ['web_last_active' => date('Y-m-d H:i:s')]);
-		} else {
+		$this->db->query($sql, [$codeStore]);
+
+		if ($this->db->affected_rows() === 0) {
 			$this->response([
 				'success' => false,
-				'message' => 'Email Tidak Ada'
-			]);
+				'message' => 'Toko tidak ditemukan'
+			], 404);
 		}
 	}
 
@@ -167,17 +170,21 @@ class LoginV2 extends BASE_Controller
 		$deviceId = 'web_' . md5($userId . session_id());
 
 		$record = $this->db
-			->where('log_user_id', $userId)
+			->where('log_user_code_store', $userCodeStore)
 			->get('log_mobile')
 			->row();
 
 		if ($record) {
 			$isNewDay = ($record->log_tanggal != $today);
 			$updateData = [
+				'log_user_id'      => $userId,
+				'log_user_name'    => $userName,
 				'log_tanggal'      => $today,
 				'log_device_id'    => $deviceId,
 				'log_device_model' => $browser,
 				'log_last_active'  => date('Y-m-d H:i:s'),
+				'log_wajibpajak_nama'  => $wajibpajakNama,
+				'log_wajibpajak_npwpd' => $wajibpajakNpwpd
 			];
 
 			if ($isNewDay) {
