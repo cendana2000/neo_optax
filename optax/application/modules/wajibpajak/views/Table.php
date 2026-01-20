@@ -10,7 +10,7 @@
 				</div>
 				<div class="card-toolbar">
 					<div class="example-tools justify-content-center">
-						<button class="btn btn-info btn-sm" onclick="onSyncOAPI()"><i class="flaticon-refresh"></i> Sinkronkan OAPI</button>
+						<button class="btn btn-outline-info btn-sm" onclick="onSyncOAPI()"><i class="flaticon-refresh"></i> Sync API Reader</button>
 					</div>
 				</div>
 			</div>
@@ -71,6 +71,11 @@
 						<i class="fa fa-table text-primary"></i>
 					</span>
 					<h3 class="card-label">DETAIL AKUN OBJEK PAJAK</h3>
+				</div>
+				<div class="card-toolbar">
+					<div class="example-tools justify-content-center">
+						<button class="btn btn-outline-info btn-sm d-none" id="btn-sync-oapi-detail" onclick="onPosOapiSyncFromDetail()"><i class="flaticon-refresh"></i> Sync API Single</button>
+					</div>
 				</div>
 			</div>
 			<form action="javascript:save('form-wajibpajak')" method="post" id="form-wajibpajak" name="form-wajibpajak" autocomplete="off">

@@ -7,13 +7,11 @@ class Oapi extends Base_Controller
 {
 	public function __construct()
 	{
-
 		parent::__construct();
 		//Do your magic here
 		$this->load->model(array(
 			'OapiModel' 				=> 'OAPI',
-			'preset/presetModel' => 'preset',
-			// 'realisasipajak/TokoModel' 	=> 'pajakToko',
+			'preset/presetModel' 		=> 'preset',
 		));
 	}
 
@@ -61,13 +59,9 @@ class Oapi extends Base_Controller
 			$channel->basic_consume($_ENV['APP_NAME'] . "-posting_pajak_outer", '', false, true, false, false, function ($msg) {
 				file_put_contents(FCPATH . "assets/log/msg_variable.log", date("Y-m-d H:i:s") . " - " . json_encode($msg));
 				try {
-					//code...
 					$as = json_decode($msg->body);
 					$query_cek_waktu = $this->db->query("SELECT * FROM pajak_realisasi where cast(realisasi_created_at as date) = '" . $as->date . "'");
 					$cek_waktu 	= $query_cek_waktu->result_array();
-					// if (!empty($cek_waktu)) {
-					// 	echo " [x] Sent Data Failed\n";
-					// } else {
 					echo date('Y-m-d H:i:s') . " # Initial Sync Oapi \n";
 					$dcWP = $this->OAPI->getToko();
 					foreach ($dcWP as $key => $value) {
@@ -80,8 +74,6 @@ class Oapi extends Base_Controller
 					}
 					echo date('Y-m-d H:i:s') . " # End Sync Oapi \n";
 				} catch (Exception $e) {
-					//throw $th;
-					// Catat pengecualian apa pun yang terjadi dalam pemrosesan pesan
 					error_log('Error in message processing: ' . $e->getMessage());
 				}
 				// }
@@ -93,57 +85,10 @@ class Oapi extends Base_Controller
 			$channel->close();
 			$connection->close();
 		} catch (Exception $e) {
-			// Catat pengecualian apa pun yang terjadi dalam fungsi utama
 			error_log('Error in consumeData function: ' . $e->getMessage());
 		}
 	}
 
-	public function coba()
-	{
-		// print_r(base_url());
-
-		// print_r($_ENV['BASE_URL']);
-
-		$dcWP = $this->OAPI->getToko();
-		foreach ($dcWP as $key => $value) {
-			$insert = false;
-			if ($value["toko_wajibpajak_npwpd"] == "3244.62.102") {
-				$value["single_sync"] = true;
-				$insert = $this->syncPosOuter($value, "2024-11-01");
-			}
-			if ($insert) {
-				echo date('Y-m-d H:i:s') . " # {$value['toko_kode']} # Sent Data Success # " . json_encode($insert) . "\n";
-			} else {
-				echo date('Y-m-d H:i:s') . " # {$value['toko_kode']} # Theres No Data # " . json_encode($insert) . "\n";
-			}
-		}
-
-		// print_r($dataWP);
-		// file_put_contents(FCPATH . "assets/log/coba.log", date("Y-m-d H:i:s") . " coba" . PHP_EOL, FILE_APPEND);
-
-		// Array
-		// (
-		//     [toko_id] => 3c2eb97a75c7a998d8c42443465d04c2
-		//     [toko_kode] => f2vxs
-		//     [toko_nama] => D. PARAGON
-		//     [toko_wajibpajak_id] => ccad29cae7291e43a166e725a15d26b3
-		//     [toko_wajibpajak_npwpd] => 1680.62.221
-		//     [toko_logo] => 
-		//     [toko_register_id] => 
-		//     [toko_registered_at] => 2022-05-18 10:22:05
-		//     [toko_verified_at] => 2022-05-18 10:22:18
-		//     [toko_verified_by] => 5f2c8335208a3d4f79ec05cc3a898880
-		//     [toko_status] => 2
-		//     [toko_tipe_pos] => 2
-		//     [toko_api_penjualan] => http://192.168.0.248/crawler_etax/crawl?npwpd=1680.62.221&start_date={{startdate}}&end_date={{enddate}}
-		//     [toko_preset_id] => d9be32f7e5188f421066627bacc5afc8
-		//     [toko_is_oapi] => ACTIVE
-		//     [toko_is_pos] => 
-		//     [toko_jadwal_before] => 3
-		// )
-	}
-
-	//update 28-05-2024 single sinkron oapi
 	public function setQueueSingle()
 	{
 		$npwpd 		= $this->input->post("npwpd");
@@ -200,16 +145,13 @@ class Oapi extends Base_Controller
 			$channel->queue_declare($_ENV['APP_NAME'] . "-posting_pajak_outer_single", false, false, false, false);
 			echo " [*] V3Oapi Waiting for messages. To exit press CTRL+C" . PHP_EOL;
 
-			$channel->basic_consume($_ENV['APP_NAME'] . "-posting_pajak_outer_single", '', false, true, false, false, function ($msg) {
-				file_put_contents(FCPATH . "assets/log/msg_variable.log", date("Y-m-d H:i:s") . " - " . json_encode($msg));
+			$channel->basic_consume($_ENV['APP_NAME'] . "-posting_pajak_outer_single", '', false, false, false, false, function ($msg) {
+				file_put_contents(FCPATH . "assets/log/msg_variable.log", date("Y-m-d H:i:s") . " - " . json_encode($msg->body));
 				try {
 					//code...
 					$as = json_decode($msg->body);
 					$query_cek_waktu = $this->db->query("SELECT * FROM pajak_realisasi where cast(realisasi_created_at as date) = '" . $as->date . "'");
 					$cek_waktu 	= $query_cek_waktu->result_array();
-					// if (!empty($cek_waktu)) {
-					// 	echo " [x] Sent Data Failed\n";
-					// } else {
 					echo date('Y-m-d H:i:s') . " # Initial Sync Oapi \n";
 					$dcWP = $this->OAPI->getToko();
 					foreach ($dcWP as $key => $value) {
@@ -224,10 +166,12 @@ class Oapi extends Base_Controller
 							echo date('Y-m-d H:i:s') . " # {$value['toko_kode']} # Theres No Data # " . json_encode($insert) . "\n";
 						}
 					}
+					$msg->ack();
 					echo date('Y-m-d H:i:s') . " # End Sync Oapi \n";
 				} catch (Exception $e) {
 					//throw $th;
 					// Catat pengecualian apa pun yang terjadi dalam pemrosesan pesan
+					$msg->nack(true);
 					error_log('Error in message processing: ' . $e->getMessage());
 				}
 				// }
@@ -249,7 +193,7 @@ class Oapi extends Base_Controller
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'http://192.168.0.248/crawler_etax/crawl/logsyncoapireader',
+			CURLOPT_URL => $_ENV['OUTER_URL'] . '/crawl/logsyncoapireader',
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
@@ -290,8 +234,6 @@ class Oapi extends Base_Controller
 
 		if ($v1 == "S3n4b1m4pp0S") {
 			$dcWP = $this->OAPI->getToko();
-
-			// print_r('<pre>');print_r($dcWP);print_r('</pre>');exit;
 			foreach ($dcWP as $key => $value) {
 				$this->syncPosOuter($value, $tgl, false);
 			}
@@ -318,44 +260,20 @@ class Oapi extends Base_Controller
 		$preset = $this->preset->read($wp['toko_preset_id']);
 		$presetDetail = $this->db->get_where('pajak_preset_detail_api', ['preset_detail_parent_id' => $preset['preset_id']])->result_array();
 
-		// $data = [];
-		// if (strpos($wp['toko_api_penjualan'], '{{enddate}}') == false) {
-		// 	$date = $now;
-		// 	if (!empty($tgl)) {
-		// 		$date = $tgl;
-		// 	} else if (!empty($wp['toko_jadwal_before'])) {
-		// 		$date = date('Y-m-d', strtotime($now . "-" . $wp['toko_jadwal_before'] . " days"));
-		// 	}
-
-		// 	$dates = $this->getAllDatesInMonth($date);
-		// 	foreach ($dates as $date_key => $date_value) {
-		// 		$endpoint = str_replace("{{startdate}}", $date_value, $wp['toko_api_penjualan']);
-		// 		$data_curl = $this->get_oapi_curl($ch, $endpoint, $wp);
-		// 		foreach ($data_curl as $value_curl) {
-		// 			$data[] = $value_curl;
-		// 		}
-		// 	}
-		// } else {
-
-		// 	if (!empty($tgl)) {
-		// 		$startDate = $tgl['startDate'];
-		// 		$endDate = $tgl['endDate'];
-		// 	} else if (!empty($wp['toko_jadwal_before'])) {
-		// 		$startDate = date('Y-m-d', strtotime($now . "-" . $wp['toko_jadwal_before'] . " days"));
-		// 		$endDate = $now;
-		// 	}
-
-		// 	$endpoint = str_replace("{{startdate}}", $startDate, $wp['toko_api_penjualan']);
-		// 	$endpoint = str_replace("{{enddate}}", $endDate, $endpoint);
-		// 	$data = $this->get_oapi_curl($ch, $endpoint, $wp);
-		// }
-
 		$endpoint = str_replace("{{startdate}}", $now, $wp['toko_api_penjualan']);
 		$endpoint = str_replace("{{enddate}}", $now, $endpoint);
 
 		curl_setopt($ch, CURLOPT_URL, $endpoint);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$output = curl_exec($ch);
+
+		if ($output === false) {
+			file_put_contents(
+				FCPATH . "assets/log/curl_error.log",
+				curl_error($ch) . PHP_EOL,
+				FILE_APPEND
+			);
+		}
 		curl_close($ch);
 
 		file_put_contents(FCPATH . "assets/log/push_detail_cek.log", date("Y-m-d H:i:s") . " - " . $wp['toko_kode'] . " - " . $output . " - " . $endpoint . PHP_EOL, FILE_APPEND);
@@ -367,6 +285,15 @@ class Oapi extends Base_Controller
 			$data = $data[$ex[0]];
 		}
 
+		if (empty($output)) {
+			file_put_contents(
+				FCPATH . "assets/log/empty_response.log",
+				date("Y-m-d H:i:s") . " EMPTY RESPONSE " . $endpoint . PHP_EOL,
+				FILE_APPEND
+			);
+			return false;
+		}
+
 		$pos_penjualan_detail = [];
 		foreach ($data as $datakey => $dataval) {
 			$pos_penjualan[$datakey]['penjualan_id'] = gen_uuid('pos_penjualan');
@@ -375,25 +302,8 @@ class Oapi extends Base_Controller
 				if (count($exval) > 1) {
 					$val = $dataval;
 					for ($i = 1; $i < count($exval); $i++) {
-						if (str_contains($exval[$i], '[')) {
-							// print_r('<pre>');print_r($val);print_r('</pre>');exit;
-							// print_r('<pre>');print_r($i);print_r('</pre>');
-							// print_r('<pre>');print_r(empty($val) ? 'true' : 'false');print_r('</pre>');
-							// print_r('<pre>');print_r($val);print_r('</pre>');exit;
-							// $pattern = '/\[(.*?)\]/'; // Match everything between square brackets
-							// preg_match($pattern, $exval[$i], $matches);
-							// if (isset($matches[1])) {
-							// 	$strval = $matches[1];
-							// 	$openBracketPos = strpos($exval[$i], "[");
-							// 	if ($openBracketPos !== false) {
-							// 		$name = substr($exval[$i], 0, $openBracketPos);
-							// 		// print_r('<pre>');print_r($name);print_r('</pre>');exit;
-							// 		// print_r('<pre>');print_r($strval);print_r('</pre>');exit;
-							// 		$val = $val[$name];
-							// 	}
-							// }
-						} elseif (str_contains($exval[$i], 'count(')) {
-							$countpattern = '/count\((.*?)\)/'; // Match everything between parentheses after "count"
+						if (str_contains($exval[$i], 'count(')) {
+							$countpattern = '/count\((.*?)\)/';
 							preg_match($countpattern, $exval[$i], $matches);
 							if (isset($matches[1])) {
 								$countval = $matches[1];
@@ -472,13 +382,7 @@ class Oapi extends Base_Controller
 
 	private function get_oapi_curl($ch, $endpoint, $wp)
 	{
-		// curl_setopt($ch, CURLOPT_URL, $endpoint);
-		// curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		// $output = curl_exec($ch);
-		// curl_close($ch);
-
 		$curl = curl_init();
-
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => $endpoint,
 			CURLOPT_RETURNTRANSFER => true,

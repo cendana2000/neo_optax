@@ -204,8 +204,7 @@ class RekappajakModel extends Base_Model
 			}
 
 			$trx = $this->db->get()->row_array();
-		} else {
-
+		} elseif ($sumber_data === 'POS+UPLOAD' || $sumber_data === 'UPLOAD') {
 			$this->db->select('
 			pr.realisasi_id AS trx_id,
 			pr.realisasi_no AS trx_kode,
@@ -224,6 +223,32 @@ class RekappajakModel extends Base_Model
 				EXISTS(
 					SELECT 1 FROM pajak_wajibpajak pw
 					WHERE pw.wajibpajak_id = pr.realisasi_wajibpajak_id
+					AND pw.pemda_id = {$pemda_id}
+				)
+			", null, false);
+			}
+
+			$trx = $this->db->get()->row_array();
+		} else {
+			$this->db->select('
+				ppp.penjualan_id AS trx_id,
+				ppp.penjualan_kode AS trx_kode,
+				ppp.penjualan_tanggal AS trx_tgl,
+				ppp.penjualan_tanggal AS trx_time,
+				ppp.penjualan_sub_total AS trx_subtotal,
+				ppp.penjualan_jasa AS trx_jasa,
+				ppp.penjualan_diskon AS trx_diskon,
+				ppp.penjualan_total_grand AS trx_total
+			');
+			$this->db->from('pos_penjualan_pooling ppp');
+			$this->db->where('ppp.penjualan_id', $data['penjualan_id']);
+			$this->db->where('ppp.penjualan_deleted_at IS NULL', null, false);
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$this->db->where("
+				EXISTS(
+					SELECT 1 FROM pajak_wajibpajak pw
+					WHERE pw.wajibpajak_id = ppp.wajibpajak_id
 					AND pw.pemda_id = {$pemda_id}
 				)
 			", null, false);

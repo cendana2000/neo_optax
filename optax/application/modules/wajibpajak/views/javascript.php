@@ -17,6 +17,7 @@
 			store: BASE_URL + 'permohonan/store',
 			update: BASE_URL + 'permohonan/update',
 			destroy: BASE_URL + 'permohonan/destroy',
+			singleOapiConsume: BASE_URL + 'oapi/setQueueSingle',
 		}
 
 		HELPER.createCombo({
@@ -34,6 +35,8 @@
 			$(this).addClass("active");
 			loadTable();
 		});
+
+		let CURRENT_NPWPD = null;
 
 		loadTable();
 	});
@@ -138,11 +141,18 @@
 				wajibpajak_id: id
 			},
 			callback: function(res) {
+				CURRENT_NPWPD = res.wajibpajak_npwpd;
 				BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas
+				const imagePath = BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas;
 
 				$('#wajibpajak_usaha_nama').val(res.jenis_nama);
 				$('input[name=wajibpajak_nama]').val(res.wajibpajak_nama);
-				const imagePath = BASE_URL_NO_INDEX + 'assets/media/berkasnpwpd/' + res.wajibpajak_berkas;
+				$('input[name=wajibpajak_npwpd]').val(res.wajibpajak_npwpd);
+				if (res.toko_is_oapi === 'ACTIVE') {
+					$('#btn-sync-oapi-detail').removeClass('d-none');
+				} else {
+					$('#btn-sync-oapi-detail').addClass('d-none');
+				}
 				testImageLoad(imagePath, function(success) {
 					if (success) {
 						$('#wajibpajak_berkas_npwp').css({
@@ -349,5 +359,96 @@
 				}
 			}
 		})
+	}
+
+	function onPosOapiSyncFromDetail() {
+		if (!CURRENT_NPWPD) {
+			Swal.fire('Error', 'NPWPD tidak ditemukan', 'error');
+			return;
+		}
+		onPosOapiSync(CURRENT_NPWPD);
+	}
+
+	var is_proses_syncrone_done = true;
+
+	function onPosOapiSync(npwpd) {
+		HELPER.unblock();
+		Swal.fire({
+			title: 'Syncron OAPI',
+			text: 'Syncron OAPI untuk NPWPD ' + npwpd + '?',
+			html: '<label for="datepicker_sinkron"><b>Periode Sinkron</b></label><input type="text" id="datepicker_sinkron" class="swal2-input" value="<?= date("Y-m-d") ?>">',
+			didOpen: () => {
+				// Initialize jQuery UI Datepicker
+				$('#datepicker_sinkron').datepicker({
+					format: "yyyy-mm-dd",
+					showOn: 'focus',
+					autoclose: true
+				})
+			},
+			preConfirm: () => {
+				return $('#datepicker_sinkron').val();
+			},
+			icon: 'info',
+			showCancelButton: true,
+			buttonsStyling: false,
+			customClass: {
+				confirmButton: 'btn btn-info',
+				cancelButton: 'btn btn-secondary mx-2',
+			},
+			confirmButtonText: 'Proses Syncronisasi OAPI',
+			cancelButtonText: 'Batal',
+		}).then((result) => {
+			if (result.isConfirmed) {
+				if (is_proses_syncrone_done) {
+					is_proses_syncrone_done = false;
+					$.ajax({
+						url: HELPER.api.singleOapiConsume,
+						method: "post",
+						data: {
+							npwpd: npwpd,
+							periode: result.value
+						},
+						dataType: "json",
+						success: function(e) {
+							if (e.success) {
+								Swal.fire({
+									title: 'Berhasil!',
+									text: e.message,
+									icon: 'success',
+									confirmButtonText: 'Ok',
+									customClass: {
+										confirmButton: 'btn btn-success btn-lg'
+									},
+								});
+							} else {
+								Swal.fire({
+									title: 'Warning!',
+									text: e.message,
+									icon: 'warning',
+									confirmButtonText: 'Ok',
+									customClass: {
+										confirmButton: 'btn btn-warning btn-lg'
+									},
+								});
+							}
+							is_proses_syncrone_done = true;
+						},
+						complete: function(e) {
+							is_proses_syncrone_done = true;
+						}
+					});
+				} else {
+					Swal.fire({
+						title: 'Warning!',
+						text: 'Tunggu proses sinkronisasi data selesai!, dan coba lagi!',
+						icon: 'warning',
+						confirmButtonText: 'Ok',
+						customClass: {
+							confirmButton: 'btn btn-warning btn-lg'
+						},
+					});
+				}
+			}
+		});
 	}
 </script>

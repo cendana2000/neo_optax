@@ -16,6 +16,7 @@ class Rekappajak extends Base_Controller
 			'rekappajak/rekappajakdetailModel' 			=> 'rekappajakdetail',
 			'wajibpajak/WajibpajakModel' 				=> 'wajibpajak',
 			'transaksiwp/TransaksiwpPosModel' 			=> 'transaksiwppos',
+			'transaksiwp/TransaksiwpPoolingModel' 		=> 'transaksiwppooling',
 			'transaksiwp/TransaksiwpModel' 				=> 'transaksiwp',
 		));
 	}
@@ -171,6 +172,50 @@ class Rekappajak extends Base_Controller
 				->select("SUM(realisasi_total) AS total_nominal_penjualan")
 				->where($where)
 				->get('pajak_realisasi')
+				->row();
+			$opr['sumtotal'] = $get_total;
+		} else {
+			$where = [];
+			$where["penjualan_tanggal >= '{$startdate}' AND penjualan_tanggal <= '{$enddate}'"] = null;
+			$where['penjualan_deleted_at IS NULL'] = null;
+			$where['pos_penjualan_pooling.wajibpajak_id'] = $wajibpajak_id;
+
+			if ($pemda_id = $this->session->userdata('pemda_id')) {
+				$where["EXISTS(
+					SELECT 1 
+					FROM pajak_wajibpajak 
+					WHERE pajak_wajibpajak.wajibpajak_id = pos_penjualan.wajibpajak_id 
+					AND pemda_id = {$pemda_id}
+				)"] = null;
+			}
+			$opr = $this->select_dt(
+				varPost(),
+				'transaksiwppooling',
+				'table',
+				false,
+				$where
+			);
+			$opr['sumber_data'] = $sumber_data;
+			foreach ($opr['aaData'] as &$row) {
+				$row['trx_id']    = $row['penjualan_id'];
+				$row['trx_kode']  = $row['penjualan_kode'];
+				$row['trx_tgl']   = $row['penjualan_tanggal'];
+				$row['trx_time']  = $row['penjualan_tanggal'];
+				$row['trx_total'] = $row['penjualan_total_grand'];
+				$row['trx_jasa']  = $row['penjualan_jasa'] * $row['penjualan_sub_total'];
+				$row['trx_diskon'] = $row['penjualan_diskon'] * $row['penjualan_sub_total'];
+				$statuses = [];
+				if ($row['penjualan_deleted_at']) {
+					$statuses[] = 'batal';
+				} else {
+					$statuses[] = 'aktif';
+				}
+				$row['trx_status'] = $statuses;
+			}
+			$get_total = $this->db
+				->select("SUM(penjualan_total_grand) AS total_nominal_penjualan")
+				->where($where)
+				->get('pos_penjualan_pooling')
 				->row();
 			$opr['sumtotal'] = $get_total;
 		}
