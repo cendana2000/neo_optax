@@ -54,5 +54,7 @@ application/logs/*
 
 /.vscode
 
+# Firebase / Google credentials
 service-account.json
-private_key.pem
+*-firebase-adminsdk-*.json
+*.pem
