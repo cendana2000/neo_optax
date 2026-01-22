@@ -42,3 +42,6 @@ application/logs/*
 
 /assets/master/*
 /assets/laporan/*
+
+service-account.json
+private_key.pem

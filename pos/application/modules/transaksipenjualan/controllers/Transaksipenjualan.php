@@ -1122,8 +1122,8 @@ class Transaksipenjualan extends Base_Controller
 		$title 		= 'Transaksi Baru';
 		$message 	= "Transaksi baru oleh {$nama} pada {$waktu} dengan nomor {$nomor}";
 
-		// notify_to_pemda($title, $message);
-		// notify_to_stakeholders($title, $message);
+		notify_to_pemda($title, $message);
+		notify_to_stakeholders($title, $message);
 
 		$this->output->set_content_type('application/json');
 		$this->response($operation);
@@ -1248,6 +1248,15 @@ class Transaksipenjualan extends Base_Controller
 		$operation['error_log'] = $error;
 
 		if (isset($data['cetak']) && $data['cetak']) $operation['print'] = $this->tprint($operation['id']);
+		$nomor      = $operation['record']['penjualan_kode'];
+		$waktu		= $operation['record']['penjualan_tanggal'];
+		$waktu		= date('H:i', strtotime($waktu));
+		$nama		= $this->session->userdata('toko_nama');
+
+		$title 		= 'Transaksi Baru';
+		$message 	= "Transaksi baru oleh {$nama} pada {$waktu} dengan nomor {$nomor}";
+		notify_to_pemda($title, $message);
+		notify_to_stakeholders($title, $message);
 		$this->response($operation);
 	}
 
@@ -1399,281 +1408,6 @@ class Transaksipenjualan extends Base_Controller
 		$this->response($operation);
 	}
 
-	// public function update_old()
-	// {
-
-	// 	$data = varPost();
-
-	// 	unset($data['penjualan_tanggal']);
-	// 	if ($data['penjualan_metode'] !== 'K') {
-	// 		$data['penjualan_jatuh_tempo'] = null;
-	// 	}
-
-	// 	// Penyesuaian pembayaran
-	// 	if ($data['penjualan_metode'] == 'K') {
-	// 		$data['penjualan_total_kredit'] = $data['penjualan_total_bayar'];
-	// 		$data['penjualan_bayar_sisa'] = $data['penjualan_total_bayar'];
-	// 		$data['penjualan_total_bayar'] = 0;
-	// 	}
-
-	// 	// $operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function (&$res) use ($data) {
-	// 	$operation = $this->transaksipenjualan->update($data['penjualan_id'], $data, function ($res) use ($data) {
-	// 		$detail = $id_detail = [];
-	// 		$dt = $res['record'];
-
-	// 		$last_detail = $this->transaksipenjualandetail->select(array('filters_static' => array('penjualan_detail_parent' => $data['penjualan_id']), 'sort_static' => 'penjualan_detail_order asc'))['data'];
-	// 		$delete = $last_detail;
-	// 		foreach ($data['penjualan_detail_barang_id'] as $key => $value) {
-	// 			$detail = [
-	// 				'penjualan_detail_parent' 		=> $res['record']['penjualan_id'],
-	// 				'penjualan_detail_barang_id'	=> $value,
-	// 				'penjualan_detail_satuan' 		=> $data['penjualan_detail_satuan'][$key],
-	// 				'penjualan_detail_harga' 		=> $data['penjualan_detail_harga'][$key],
-	// 				'penjualan_detail_harga_beli' 	=> $data['penjualan_detail_harga_beli'][$key],
-	// 				'penjualan_detail_hpp' 			=> $data['penjualan_detail_hpp'][$key],
-	// 				'penjualan_detail_qty' 			=> $data['penjualan_detail_qty_barang'][$key],
-	// 				'penjualan_detail_qty_barang' 	=> $data['penjualan_detail_qty_barang'][$key],
-	// 				'penjualan_detail_subtotal' 	=> $data['penjualan_detail_subtotal'][$key],
-	// 				'penjualan_detail_tanggal' 		=> $dt['penjualan_tanggal'],
-	// 				'penjualan_detail_order' 		=> $key,
-	// 			];
-
-	// 			$kartu = [
-	// 				'kartu_id' 				=> $data['penjualan_detail_id'][$key],
-	// 				'kartu_tanggal' 		=> $dt['penjualan_tanggal'],
-	// 				'kartu_barang_id' 		=> $value,
-	// 				'kartu_satuan_id' 		=> $data['penjualan_detail_satuan'][$key],
-	// 				'kartu_stok_keluar' 	=> $data['penjualan_detail_qty_barang'][$key],
-	// 				'kartu_transaksi' 		=> 'Penjualan',
-	// 				//tambahan
-	// 				'kartu_harga'			=> $data['penjualan_detail_harga_beli'][$key],
-	// 				'kartu_harga_transaksi'	=> ($data['penjualan_detail_subtotal'][$key] / $data['penjualan_detail_qty_barang'][$key]),
-	// 				'kartu_nilai'			=> $data['penjualan_detail_subtotal'][$key],
-	// 				//end tambahan
-	// 				'kartu_transaksi_kode' 	=> $dt['penjualan_kode'],
-	// 				'kartu_user' 			=> $dt['penjualan_user'],
-	// 				'kartu_created_at' 		=> date('Y-m-d H:i:s'),
-	// 				'kartu_keterangan' 		=> 'On Updated',
-	// 			];
-
-	// 			foreach ($last_detail as $i => $v) {
-	// 				if ($v['penjualan_detail_id'] == $data['penjualan_detail_id'][$key]) unset($delete[$i]);
-	// 			}
-	// 			$res_detail = $this->transaksipenjualandetail->update($data['penjualan_detail_id'][$key], $detail);
-
-	// 			if (!$res_detail['success']) {
-	// 				$res_detail = $this->transaksipenjualandetail->insert(gen_uuid($this->transaksipenjualandetail->get_table()), $detail);
-	// 				if ($res_detail['success']) {
-	// 					$id_detail[] = $res_detail['id'];
-	// 					$kartu['kartu_id'] = $res_detail['id'];
-	// 					$kartu['kartu_stok_masuk'] = 0;
-	// 					$kartu['kartu_keterangan'] = 'Insert On Updated';
-	// 					$kartu = $this->stokkartu->insert_kartu($kartu, 'J');
-	// 				}
-	// 			} else {
-	// 				$id_detail[] = $res_detail['id'];
-	// 				$xkartu = $this->stokkartu->update_kartu($kartu, 'J');
-	// 			}
-
-	// 			if ($data['penjualan_total_bayar_voucher_khusus'] > 0) {
-	// 				$debit['111101'] = $data['penjualan_total_bayar_voucher_khusus'];
-
-	// 				$voucher_khusus = $this->kartusimpanan->update_kartu([
-	// 					'kartu_simpanan_anggota'		=> $res['record']['penjualan_anggota_id'],
-	// 					'kartu_simpanan_tanggal'		=> date("Y-m-d"),
-	// 					'kartu_simpanan_saldo_masuk'	=> 0,
-	// 					'kartu_simpanan_saldo_keluar'	=> $data['penjualan_total_bayar_voucher_khusus'],
-	// 					'kartu_simpanan_transaksi'		=> 'Voucher BHR',
-	// 					'kartu_simpanan_transaksi_kode'	=> $data['penjualan_kode'],
-	// 					'kartu_simpanan_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 					'kartu_simpanan_create_at' 		=> date('Y-m-d H:i:s'),
-	// 					'kartu_simpanan_keterangan'		=> 'On Update',
-	// 					'kartu_simpanan_referensi_id'	=> $res['record']['penjualan_id'],
-	// 				], 'BHR');
-	// 			}
-	// 			if ($data['penjualan_total_bayar_voucher'] > 0) {
-	// 				$voucher = $this->kartusimpanan->update_kartu([
-	// 					'kartu_simpanan_anggota'		=> $res['record']['penjualan_anggota_id'],
-	// 					'kartu_simpanan_tanggal'		=> date("Y-m-d"),
-	// 					'kartu_simpanan_saldo_masuk'	=> 0,
-	// 					'kartu_simpanan_saldo_keluar'	=> $data['penjualan_total_bayar_voucher'],
-	// 					'kartu_simpanan_transaksi'		=> 'Titipan Belanja',
-	// 					'kartu_simpanan_transaksi_kode'	=> $data['penjualan_kode'],
-	// 					'kartu_simpanan_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 					'kartu_simpanan_create_at' 		=> date('Y-m-d H:i:s'),
-	// 					'kartu_simpanan_keterangan'		=> 'On Update',
-	// 					'kartu_simpanan_referensi_id'	=> $res['record']['penjualan_id'],
-	// 				], 'V');
-	// 			}
-
-	// 			$id = implode(', ', $id_detail);
-	// 			$res['id_detail'] = $id;
-	// 		}
-
-	// 		foreach ($delete as $n => $value) {
-	// 			$del = $this->transaksipenjualandetail->delete($value['penjualan_detail_id']);
-	// 			if ($del['success']) {
-	// 				$kartu = [
-	// 					'kartu_id' 				=> $value['penjualan_detail_id'],
-	// 					'kartu_stok_keluar' 	=> 0,
-	// 					'kartu_transaksi' 		=> 'Penjualan',
-	// 					'kartu_keterangan' 		=> 'Deleted  On Updated',
-	// 				];
-	// 				$this->db->delete('pos_penjualan_detail', array('penjualan_detail_id' => $value['penjualan_detail_id']));
-	// 				$this->stokkartu->update_kartu($kartu, 'J');
-	// 			}
-	// 		}
-	// 	});
-
-	// 	if ($operation['success'] == true) {
-	// 		if ($data['penjualan_total_bayar_voucher_khusus'] > 0) {
-	// 			$debit['111101'] = $data['penjualan_total_bayar_voucher_khusus'];
-
-	// 			$voucher_khusus = $this->kartusimpanan->update_kartu([
-	// 				'kartu_simpanan_anggota'		=> $res['record']['penjualan_anggota_id'],
-	// 				'kartu_simpanan_tanggal'		=> date("Y-m-d"),
-	// 				'kartu_simpanan_saldo_masuk'	=> 0,
-	// 				'kartu_simpanan_saldo_keluar'	=> $data['penjualan_total_bayar_voucher_khusus'],
-	// 				'kartu_simpanan_transaksi'		=> 'Voucher BHR',
-	// 				'kartu_simpanan_transaksi_kode'	=> $data['penjualan_kode'],
-	// 				'kartu_simpanan_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 				'kartu_simpanan_create_at' 		=> date('Y-m-d H:i:s'),
-	// 				'kartu_simpanan_keterangan'		=> 'On Update',
-	// 				'kartu_simpanan_referensi_id'	=> $res['record']['penjualan_id'],
-	// 			], 'BHR');
-	// 		}
-	// 		if ($data['penjualan_total_bayar_voucher_lain'] > 0) {
-	// 			$voucher_khusus = $this->kartusimpanan->update_kartu([
-	// 				'kartu_simpanan_anggota'		=> $res['record']['penjualan_anggota_id'],
-	// 				'kartu_simpanan_tanggal'		=> date("Y-m-d"),
-	// 				'kartu_simpanan_saldo_masuk'	=> 0,
-	// 				'kartu_simpanan_saldo_keluar'	=> $data['penjualan_total_bayar_voucher_lain'],
-	// 				'kartu_simpanan_transaksi'		=> 'Voucher Giveaway',
-	// 				'kartu_simpanan_transaksi_kode'	=> $data['penjualan_kode'],
-	// 				'kartu_simpanan_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 				'kartu_simpanan_create_at' 		=> date('Y-m-d H:i:s'),
-	// 				'kartu_simpanan_keterangan'		=> 'On Update',
-	// 				'kartu_simpanan_referensi_id'	=> $res['record']['penjualan_id'],
-	// 			], 'VB');
-	// 		}
-	// 		if ($data['penjualan_total_bayar_voucher'] > 0) {
-	// 			$voucher = $this->kartusimpanan->update_kartu([
-	// 				'kartu_simpanan_anggota'		=> $res['record']['penjualan_anggota_id'],
-	// 				'kartu_simpanan_tanggal'		=> date("Y-m-d"),
-	// 				'kartu_simpanan_saldo_masuk'	=> 0,
-	// 				'kartu_simpanan_saldo_keluar'	=> $data['penjualan_total_bayar_voucher'],
-	// 				'kartu_simpanan_transaksi'		=> 'Titipan Belanja',
-	// 				'kartu_simpanan_transaksi_kode'	=> $data['penjualan_kode'],
-	// 				'kartu_simpanan_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 				'kartu_simpanan_create_at' 		=> date('Y-m-d H:i:s'),
-	// 				'kartu_simpanan_keterangan'		=> 'On Update',
-	// 				'kartu_simpanan_referensi_id'	=> $res['record']['penjualan_id'],
-	// 			], 'V');
-	// 		}
-	// 	}
-	// 	// if ($operation['success'] == true && $data['penjualan_metode'] == 'K') {
-	// 	// 	$d_current = date('d', strtotime($data['penjualan_tanggal']));
-	// 	// 	if ($d_current >= 20) {
-	// 	// 		$bulan_tertagih = date("Y-m", strtotime("+2 months", strtotime($data['penjualan_tanggal'])));
-	// 	// 	} else {
-	// 	// 		$bulan_tertagih = date("Y-m", strtotime("+1 months", strtotime($data['penjualan_tanggal'])));
-	// 	// 	}
-
-	// 	// 	$ada_pinjaman = $this->pengajuan->read(['pengajuan_no_pinjam' => $data['penjualan_kode'], 'pengajuan_penjualan_id' => $operation['id']]);
-
-	// 	// if (!$ada_pinjaman) {
-	// 	// 	$id_pinjam = gen_uuid($this->pengajuan->get_table());
-	// 	// 	$kode_pinjam = $this->pengajuan->gen_kode();
-
-	// 	// 	$d_current = date('d', strtotime($data['penjualan_tanggal']));
-	// 	// 	if ($d_current >= 20) {
-	// 	// 		$bulan_tertagih = date("Y-m", strtotime("+2 months", strtotime($data['penjualan_tanggal'])));
-	// 	// 	} else {
-	// 	// 		$bulan_tertagih = date("Y-m", strtotime("+1 months", strtotime($data['penjualan_tanggal'])));
-	// 	// 	}
-	// 	// 	$pinjam = $this->pengajuan->insert($id_pinjam, array(
-	// 	// 		'pengajuan_tgl' 			=> $operation['record']['penjualan_tanggal'],
-	// 	// 		'pengajuan_tgl_realisasi'   => $operation['record']['penjualan_tanggal'],
-	// 	// 		'pengajuan_no' 				=> $kode_pinjam,
-	// 	// 		'pengajuan_no_pinjam'		=> $data['penjualan_kode'],
-	// 	// 		'pengajuan_anggota' 		=> $operation['record']['penjualan_anggota_id'],
-	// 	// 		'pengajuan_jumlah_pinjaman' => $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_tenor' 			=> $data['penjualan_total_cicilan_qty'],
-	// 	// 		'pengajuan_jasa' 			=> $data['penjualan_total_jasa'], //test again
-	// 	// 		'pengajuan_pokok' 			=> $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_penjualan_id' 	=> $operation['id'],
-	// 	// 		'pengajuan_jenis' 			=> 'B',
-	// 	// 		'pengajuan_tag_jenis' 		=> $data['penjualan_jenis_potongan'],
-	// 	// 		'pengajuan_tag_bulan'		=> $bulan_tertagih,
-	// 	// 		'pengajuan_status' 			=> 2,
-	// 	// 		'pengajuan_proteksi' 		=> 0,
-	// 	// 		'pengajuan_proteksi_nilai'	=> 0,
-	// 	// 		'pengajuan_tag_awal'		=> $data['penjualan_kredit_awal'],
-	// 	// 		'pengajuan_jatuh_tempo'		=> $data['penjualan_jatuh_tempo'],
-	// 	// 		'pengajuan_create_at'		=> date('Y-m-d H:i:s'),
-	// 	// 		'pengajuan_create_by'		=> $this->session->userdata('pegawai_id'),
-	// 	// 		'pengajuan_aktif'			=> 1,
-	// 	// 		'pengajuan_pokok_bulanan'	=> $data['penjualan_total_cicilan'],
-	// 	// 		'pengajuan_jasa_bulanan'	=> $data['penjualan_total_jasa_nilai'],
-	// 	// 		'pengajuan_sisa_angsuran'	=> $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_tunggakan_jasa'	=> $data['penjualan_total_jasa'],
-
-	// 	// 	));
-	// 	// } else {
-	// 	// 	$pinjam = $this->pengajuan->update(['pengajuan_penjualan_id' => $operation['id']], array(
-	// 	// 		'pengajuan_tgl' 			=> $operation['record']['penjualan_tanggal'],
-	// 	// 		'pengajuan_tgl_realisasi'   => $operation['record']['penjualan_tanggal'],
-	// 	// 		'pengajuan_no' 				=> $kode_pinjam,
-	// 	// 		'pengajuan_no_pinjam'		=> $data['penjualan_kode'],
-	// 	// 		'pengajuan_anggota' 		=> $operation['record']['penjualan_anggota_id'],
-	// 	// 		'pengajuan_jumlah_pinjaman' => $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_tenor' 			=> $data['penjualan_total_cicilan_qty'],
-	// 	// 		'pengajuan_jasa' 			=> $data['penjualan_total_jasa'], //test again
-	// 	// 		'pengajuan_pokok' 			=> $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_jenis' 			=> 'B',
-	// 	// 		'pengajuan_tag_jenis' 		=> $data['penjualan_jenis_potongan'],
-	// 	// 		'pengajuan_tag_bulan'		=> $bulan_tertagih,
-	// 	// 		'pengajuan_status' 			=> 2,
-	// 	// 		'pengajuan_proteksi' 		=> 0,
-	// 	// 		'pengajuan_proteksi_nilai'	=> 0,
-	// 	// 		'pengajuan_tag_awal'		=> $data['penjualan_kredit_awal'],
-	// 	// 		'pengajuan_jatuh_tempo'		=> $data['penjualan_jatuh_tempo'],
-	// 	// 		'pengajuan_create_at'		=> date('Y-m-d H:i:s'),
-	// 	// 		'pengajuan_create_by'		=> $this->session->userdata('pegawai_id'),
-	// 	// 		'pengajuan_aktif'			=> 1,
-	// 	// 		'pengajuan_pokok_bulanan'	=> $data['penjualan_total_cicilan'],
-	// 	// 		'pengajuan_jasa_bulanan'	=> $data['penjualan_total_jasa_nilai'],
-	// 	// 		'pengajuan_sisa_angsuran'	=> $data['penjualan_total_kredit'],
-	// 	// 		'pengajuan_tunggakan_jasa'	=> $data['penjualan_total_jasa'],
-	// 	// 	));
-	// 	// }
-
-	// 	// $pinjaman = $this->kartupinjaman->update_kartu([
-	// 	// 	'kartu_pinjaman_anggota'		=> $operation['record']['penjualan_anggota_id'],
-	// 	// 	'kartu_pinjaman_tanggal'		=> $operation['record']['penjualan_tanggal'],
-	// 	// 	'kartu_pinjaman_id' 			=> $pinjam['record']['pengajuan_id'],
-	// 	// 	'kartu_pinjaman_saldo_pinjam'	=> $data['pengajuan_jumlah_pinjaman'],
-	// 	// 	'kartu_pinjaman_transaksi'		=> 'Pencairan Pinjaman Barang',
-	// 	// 	'kartu_pinjaman_transaksi_kode'	=> $data['penjualan_kode'],
-	// 	// 	'kartu_pinjaman_create_by' 		=> $this->session->userdata('pegawai_id'),
-	// 	// 	'kartu_pinjaman_create_at' 		=> date('Y-m-d H:i:s'),
-	// 	// 	'kartu_pinjaman_referensi_id'	=> $operation['id']
-	// 	// ], 'B');
-	// 	// $debit['1131'] = $data['penjualan_total_kredit'];
-	// 	// } else {
-	// 	// 	$kartu_pinjam = $this->kartupinjaman->read(array(
-	// 	// 		'kartu_pinjaman_transaksi_id' => $operation['id'],
-	// 	// 		'kartu_pinjaman_transaksi_kode' => $data['penjualan_kode']
-	// 	// 	));
-	// 	// 	$pengajuan_pinjaman = $this->pengajuan->read(['pengajuan_no_pinjam' => $data['penjualan_kode'], 'pengajuan_penjualan_id' => $operation['id']]);
-	// 	// 	if ($kartu_pinjam && $pengajuan_pinjaman) {
-	// 	// 		$this->kartupinjaman->delete($kartu_pinjam['kartu_pinjaman_id']);
-	// 	// 		$this->pengajuan->delete($pengajuan_pinjaman['pengajuan_id']);
-	// 	// 	}
-	// 	// }
-	// 	if (isset($data['cetak']) && $data['cetak']) $operation['print'] = $this->tprint($operation['id']);
-	// 	$this->response($operation);
-	// }
 
 	/*
 	 * id string

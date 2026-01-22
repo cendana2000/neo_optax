@@ -4,46 +4,78 @@ use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\Middleware\AuthTokenMiddleware;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 
 if (!function_exists('send_fcm_notification_v1')) {
     function send_fcm_notification_v1($token, $title, $body, $data = [])
     {
-        $CI                     = &get_instance();
+        try {
+            $CI = &get_instance();
 
-        $conf                   = $CI->db->get_where('pajak_config', ['conf_code' => 'fcm_project_id'])->row();
-        $project_id             = $conf->conf_value;
-        $service_account_path   = FCPATH . 'service-account.json';
-        $credentials            = new ServiceAccountCredentials(
-            'https://www.googleapis.com/auth/cloud-platform',
-            $service_account_path
-        );
-        $middleware     = new AuthTokenMiddleware($credentials);
-        $stack          = HandlerStack::create();
-        $stack->push($middleware);
+            $conf       = $CI->db->get_where(
+                'pajak_config',
+                ['conf_code' => 'fcm_project_id']
+            )->row();
 
-        $client         = new Client(['handler' => $stack]);
-        $url            = "https://fcm.googleapis.com/v1/projects/$project_id/messages:send";
-        $response       = $client->post($url, [
-            'headers'       => [
-                'Authorization' => 'Bearer ' . $credentials->fetchAuthToken()['access_token'],
-                'Content-Type'  => 'application/json',
-            ],
-            'json'          => [
-                'message'   => [
-                    'token'         => $token,
-                    'android'       => [
-                        'priority'  => 'high'
-                    ],
-                    'notification'  => [
-                        'title' => $title,
-                        'body'  => $body
-                    ],
-                    'data'  => $data
+            if (!$conf) {
+                log_message('error', 'FCM project_id tidak ditemukan di config');
+                return false;
+            }
+
+            $project_id = $conf->conf_value;
+
+            $service_account_path = FCPATH . 'service-account.json';
+
+            $credentials = new ServiceAccountCredentials(
+                'https://www.googleapis.com/auth/firebase.messaging',
+                $service_account_path
+            );
+
+            $middleware = new AuthTokenMiddleware($credentials);
+            $stack      = HandlerStack::create();
+            $stack->push($middleware);
+
+            $client = new Client(['handler' => $stack]);
+
+            $url = "https://fcm.googleapis.com/v1/projects/$project_id/messages:send";
+
+            $accessToken = $credentials->fetchAuthToken()['access_token'];
+
+            $response = $client->post($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => [
+                    'message' => [
+                        'token' => $token,
+                        'notification' => [
+                            'title' => $title,
+                            'body'  => $body,
+                        ],
+                        'android' => [
+                            'priority' => 'high'
+                        ],
+                        'data' => $data
+                    ]
                 ]
-            ]
-        ]);
+            ]);
 
-        return json_decode($response->getBody(), true);
+            return json_decode($response->getBody(), true);
+        } catch (ClientException $e) {
+            // Error 4xx dari Google (404, 401, dll)
+            log_message('error', 'FCM ClientException: ' . $e->getMessage());
+            return false;
+        } catch (RequestException $e) {
+            // Error jaringan / timeout
+            log_message('error', 'FCM RequestException: ' . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            // Error lain
+            log_message('error', 'FCM General Exception: ' . $e->getMessage());
+            return false;
+        }
     }
 }
 
