@@ -64,9 +64,14 @@ if (!function_exists('send_fcm_notification_v1')) {
 
             return json_decode($response->getBody(), true);
         } catch (ClientException $e) {
-            // Error 4xx dari Google (404, 401, dll)
-            log_message('error', 'FCM ClientException: ' . $e->getMessage());
-            return false;
+            $response = $e->getResponse();
+            $body = $response ? $response->getBody()->getContents() : 'no response';
+
+            log_message('error', 'FCM ClientException');
+            log_message('error', 'Status: ' . $e->getCode());
+            log_message('error', 'Response: ' . $body);
+
+            return true;
         } catch (RequestException $e) {
             // Error jaringan / timeout
             log_message('error', 'FCM RequestException: ' . $e->getMessage());

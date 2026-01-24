@@ -88,18 +88,10 @@
 
     $('#wizard-pemerintah_daerah .user_email, #wizard-pemerintah_daerah .user_password')
         .on('keyup', function(e) {
-            if (e.key === 'Enter') doLoginPemda('pemda');
+            if (e.key !== 'Enter') return;
+            submitLoginAuto();
         });
 
-    $('#wizard-bank_jatim .user_email, #wizard-bank_jatim .user_password')
-        .on('keyup', function(e) {
-            if (e.key === 'Enter') doLoginPemda('bankjatim');
-        });
-
-    $('#wizard-kpk .user_email, #wizard-kpk .user_password')
-        .on('keyup', function(e) {
-            if (e.key === 'Enter') doLoginPemda('kpk');
-        });
 
 
     // $("#user_email, #user_password").keyup(function(e) {
@@ -269,13 +261,8 @@
 
     function doLoginPemda(role) {
         HELPER.block();
-
-        var wizard =
-            role === 'pemda' ? '#wizard-pemerintah_daerah' :
-            role === 'bankjatim' ? '#wizard-bank_jatim' :
-            '#wizard-kpk';
-
-        var email = $(wizard + ' .user_email').val().trim();
+        var wizard = '#wizard-pemerintah_daerah';
+        var email = $(wizard + ' .user_email').val()?.trim();
         var password = $(wizard + ' .user_password').val();
 
         console.log('DEBUG LOGIN:', {
@@ -287,6 +274,7 @@
         $.ajax({
             type: "POST",
             url: BASE_URL + "login/doLoginPemda",
+            dataType: "json",
             data: {
                 email: email,
                 password: password,
@@ -302,9 +290,17 @@
                         message: response.message
                     });
                 }
+            },
+            error: function() {
+                HELPER.unblock();
+                HELPER.showMessage({
+                    success: false,
+                    message: 'Terjadi kesalahan server'
+                });
             }
         });
     }
+
 
 
     function doSignup(e) {
@@ -402,37 +398,52 @@
         );
     }
 
-    // function reqPermission() {
-    //     FCM.reqPermission({
-    //         callback: function(response) {
+    function detectRoleByEmail(email, callback) {
+        $.ajax({
+            type: "POST",
+            url: BASE_URL + "login/getUser",
+            dataType: "json",
+            data: {
+                email: email
+            },
+            success: function(res) {
+                if (!res.success || !res.data) {
+                    return callback(null);
+                }
+                callback(res.data.role_access_kode);
+            },
+            error: function() {
+                callback(null);
+            }
+        });
+    }
 
-    //             if (response) {
 
-    //                 FCM.getToken({
-    //                     callback: function(result) {
-    //                         if (result.success) {
-    //                             $('#token2').val(result.token)
-    //                             window.localStorage.setItem('fcm_token', result.token)
-    //                         }
-    //                     }
-    //                 });
+    function submitLoginAuto() {
+        const email = $('#wizard-pemerintah_daerah .user_email').val().trim();
+        const password = $('#wizard-pemerintah_daerah .user_password').val();
 
-    //             } else {
+        if (!email || !password) {
+            HELPER.showMessage({
+                success: false,
+                message: 'Email dan password wajib diisi'
+            });
+            return;
+        }
 
-    //                 HELPER.confirm({
-    //                     success: 'warning',
-    //                     title: 'Peringatan',
-    //                     message: 'Anda tidak dapat menerima notifikasi. Klik "Ya" dan pilih "Izinkan" jika Anda ingin menerima notifikasi.',
-    //                     callback: function(result) {
-    //                         if (result) {
-    //                             FCM.reqPermission()
-    //                         }
-    //                     }
-    //                 })
+        HELPER.block();
 
-    //             }
-    //             HELPER.unblock(100)
-    //         }
-    //     });
-    // }
+        detectRoleByEmail(email, function(role) {
+            if (!role) {
+                HELPER.unblock();
+                HELPER.showMessage({
+                    success: false,
+                    message: 'Email tidak terdaftar'
+                });
+                return;
+            }
+
+            doLoginPemda(role);
+        });
+    }
 </script>

@@ -115,56 +115,6 @@ License: You must have a valid license purchased only from themeforest(the above
 									</a>
 								</div>
 							</div>
-							<div class="wizard-nav pt-5">
-								<div class="wizard-steps d-flex flex-column flex-sm-row">
-									<a href="javascript:;" onclick=" getLogin(this)" data-id="bank_jatim" class="button wizard-step flex-grow-1 flex-basis-0 p-10 mr-10" style="border: 1px solid #fefefe;border-radius: 5px;box-shadow: 0px 5px 20px 0px rgb(82 63 105 / 8%);">
-										<div class="wizard-wrapper pr-7">
-											<div class="wizard-icon">
-												<i class="wizard-check ki ki-check"></i>
-												<span class="wizard-number">3</span>
-											</div>
-											<div class="wizard-label">
-												<h3 class="wizard-title">Bank Jatim </h3>
-												<div class="wizard-desc">Click For Details</div>
-											</div>
-											<span class="svg-icon pl-6" style="margin-left: auto;">
-												<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-													<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-														<polygon points="0 0 24 0 24 24 0 24" />
-														<rect fill="#000000" opacity="0.3" transform="translate(8.500000, 12.000000) rotate(-90.000000) translate(-8.500000, -12.000000)" x="7.5" y="7.5" width="2" height="9" rx="1" />
-														<path d="M9.70710318,15.7071045 C9.31657888,16.0976288 8.68341391,16.0976288 8.29288961,15.7071045 C7.90236532,15.3165802 7.90236532,14.6834152 8.29288961,14.2928909 L14.2928896,8.29289093 C14.6714686,7.914312 15.281055,7.90106637 15.675721,8.26284357 L21.675721,13.7628436 C22.08284,14.136036 22.1103429,14.7686034 21.7371505,15.1757223 C21.3639581,15.5828413 20.7313908,15.6103443 20.3242718,15.2371519 L15.0300721,10.3841355 L9.70710318,15.7071045 Z" fill="#000000" fill-rule="nonzero" transform="translate(14.999999, 11.999997) scale(1, -1) rotate(90.000000) translate(-14.999999, -11.999997)" />
-													</g>
-												</svg>
-											</span>
-										</div>
-									</a>
-								</div>
-							</div>
-							<div class="wizard-nav pt-5">
-								<div class="wizard-steps d-flex flex-column flex-sm-row">
-									<a href="javascript:;" onclick=" getLogin(this)" data-id="kpk" class="button wizard-step flex-grow-1 flex-basis-0 p-10 mr-10" style="border: 1px solid #fefefe;border-radius: 5px;box-shadow: 0px 5px 20px 0px rgb(82 63 105 / 8%);">
-										<div class="wizard-wrapper pr-7">
-											<div class="wizard-icon">
-												<i class="wizard-check ki ki-check"></i>
-												<span class="wizard-number">4</span>
-											</div>
-											<div class="wizard-label">
-												<h3 class="wizard-title">KPK </h3>
-												<div class="wizard-desc">Click For Details</div>
-											</div>
-											<span class="svg-icon pl-6" style="margin-left: auto;">
-												<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-													<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-														<polygon points="0 0 24 0 24 24 0 24" />
-														<rect fill="#000000" opacity="0.3" transform="translate(8.500000, 12.000000) rotate(-90.000000) translate(-8.500000, -12.000000)" x="7.5" y="7.5" width="2" height="9" rx="1" />
-														<path d="M9.70710318,15.7071045 C9.31657888,16.0976288 8.68341391,16.0976288 8.29288961,15.7071045 C7.90236532,15.3165802 7.90236532,14.6834152 8.29288961,14.2928909 L14.2928896,8.29289093 C14.6714686,7.914312 15.281055,7.90106637 15.675721,8.26284357 L21.675721,13.7628436 C22.08284,14.136036 22.1103429,14.7686034 21.7371505,15.1757223 C21.3639581,15.5828413 20.7313908,15.6103443 20.3242718,15.2371519 L15.0300721,10.3841355 L9.70710318,15.7071045 Z" fill="#000000" fill-rule="nonzero" transform="translate(14.999999, 11.999997) scale(1, -1) rotate(90.000000) translate(-14.999999, -11.999997)" />
-													</g>
-												</svg>
-											</span>
-										</div>
-									</a>
-								</div>
-							</div>
 						</div>
 						<div class="alert alert-custom alert-outline-2x alert-outline-warning fade" role="alert">
 							<div class="alert-icon"><i class="flaticon-warning"></i></div>
@@ -359,7 +309,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											<label class="font-size-h6 font-weight-bolder text-dark pt-5">Password</label>
 										</div>
 										<div class="input-icon input-icon-right">
-											<input type="password" class="user_password form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" name="user_password" placeholder="Type your password" required />
+											<input type="password" class="user_password form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" name="user_password" id="user_password" placeholder="Type your password" required />
 											<span id="btn-show-user-password" onclick="passwordShow()"><i class="hover-icon far fa-eye icon-md"></i></span>
 										</div>
 									</div>
@@ -375,73 +325,7 @@ License: You must have a valid license purchased only from themeforest(the above
 												</svg>
 											</span>
 										</button>
-										<button type="button" id="kt_login_signin" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3 flex-grow-1" onclick="doLoginPemda('pemda')">Sign In</button>
-									</div>
-								</form>
-							</div>
-						</div>
-						<div id="wizard-bank_jatim" class="wizard-opt" style="display: none;">
-							<div class="login-form login-signin login-signin">
-								<form class="form" novalidate="novalidate" id="kt_login_signin_form">
-									<div class="form-group">
-										<label class="font-size-h6 font-weight-bolder text-dark">Email</label>
-										<input class="user_email form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" type="text" name="user_email" autocomplete="off" />
-									</div>
-									<div class="form-group">
-										<div class="d-flex justify-content-between mt-5">
-											<label class="font-size-h6 font-weight-bolder text-dark pt-5">Password</label>
-										</div>
-										<div class="input-icon input-icon-right">
-											<input type="password" class="user_password form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" name="user_password" placeholder="Type your password" required />
-											<span id="btn-show-user-password" onclick="passwordShow()"><i class="hover-icon far fa-eye icon-md"></i></span>
-										</div>
-									</div>
-									<div class="d-flex justify-content-center pb-lg-0 pb-5">
-										<button type="button" class="btn btn-outline-primary font-size-h6 font-weight-bolder mr-3 my-3 pr-4 pr-8 py-4" onclick="backLogin()">
-											<span class="svg-icon svg-icon-md ml-1">
-												<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-													<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-														<polygon points="0 0 24 0 24 24 0 24"></polygon>
-														<path d="M5.29288961,6.70710318 C4.90236532,6.31657888 4.90236532,5.68341391 5.29288961,5.29288961 C5.68341391,4.90236532 6.31657888,4.90236532 6.70710318,5.29288961 L12.7071032,11.2928896 C13.0856821,11.6714686 13.0989277,12.281055 12.7371505,12.675721 L7.23715054,18.675721 C6.86395813,19.08284 6.23139076,19.1103429 5.82427177,18.7371505 C5.41715278,18.3639581 5.38964985,17.7313908 5.76284226,17.3242718 L10.6158586,12.0300721 L5.29288961,6.70710318 Z" fill="#000000" fill-rule="nonzero" transform="translate(8.999997, 11.999999) scale(-1, 1) translate(-8.999997, -11.999999) "></path>
-														<path d="M10.7071009,15.7071068 C10.3165766,16.0976311 9.68341162,16.0976311 9.29288733,15.7071068 C8.90236304,15.3165825 8.90236304,14.6834175 9.29288733,14.2928932 L15.2928873,8.29289322 C15.6714663,7.91431428 16.2810527,7.90106866 16.6757187,8.26284586 L22.6757187,13.7628459 C23.0828377,14.1360383 23.1103407,14.7686056 22.7371482,15.1757246 C22.3639558,15.5828436 21.7313885,15.6103465 21.3242695,15.2371541 L16.0300699,10.3841378 L10.7071009,15.7071068 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" transform="translate(15.999997, 11.999999) scale(-1, 1) rotate(-270.000000) translate(-15.999997, -11.999999) "></path>
-													</g>
-												</svg>
-											</span>
-										</button>
-										<button type="button" id="kt_login_signin" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3 flex-grow-1" onclick="doLoginPemda('bankjatim')">Sign In</button>
-									</div>
-								</form>
-							</div>
-						</div>
-						<div id="wizard-kpk" class="wizard-opt" style="display: none;">
-							<div class="login-form login-signin login-signin">
-								<form class="form" novalidate="novalidate" id="kt_login_signin_form">
-									<div class="form-group">
-										<label class="font-size-h6 font-weight-bolder text-dark">Email</label>
-										<input class="user_email form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" type="text" name="user_email" autocomplete="off" />
-									</div>
-									<div class="form-group">
-										<div class="d-flex justify-content-between mt-5">
-											<label class="font-size-h6 font-weight-bolder text-dark pt-5">Password</label>
-										</div>
-										<div class="input-icon input-icon-right">
-											<input type="password" class="user_password form-control form-control-solid h-auto py-5 px-6 border-0 rounded-lg font-size-h6" name="user_password" placeholder="Type your password" required />
-											<span id="btn-show-user-password" onclick="passwordShow()"><i class="hover-icon far fa-eye icon-md"></i></span>
-										</div>
-									</div>
-									<div class="d-flex justify-content-center pb-lg-0 pb-5">
-										<button type="button" class="btn btn-outline-primary font-size-h6 font-weight-bolder mr-3 my-3 pr-4 pr-8 py-4" onclick="backLogin()">
-											<span class="svg-icon svg-icon-md ml-1">
-												<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-													<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-														<polygon points="0 0 24 0 24 24 0 24"></polygon>
-														<path d="M5.29288961,6.70710318 C4.90236532,6.31657888 4.90236532,5.68341391 5.29288961,5.29288961 C5.68341391,4.90236532 6.31657888,4.90236532 6.70710318,5.29288961 L12.7071032,11.2928896 C13.0856821,11.6714686 13.0989277,12.281055 12.7371505,12.675721 L7.23715054,18.675721 C6.86395813,19.08284 6.23139076,19.1103429 5.82427177,18.7371505 C5.41715278,18.3639581 5.38964985,17.7313908 5.76284226,17.3242718 L10.6158586,12.0300721 L5.29288961,6.70710318 Z" fill="#000000" fill-rule="nonzero" transform="translate(8.999997, 11.999999) scale(-1, 1) translate(-8.999997, -11.999999) "></path>
-														<path d="M10.7071009,15.7071068 C10.3165766,16.0976311 9.68341162,16.0976311 9.29288733,15.7071068 C8.90236304,15.3165825 8.90236304,14.6834175 9.29288733,14.2928932 L15.2928873,8.29289322 C15.6714663,7.91431428 16.2810527,7.90106866 16.6757187,8.26284586 L22.6757187,13.7628459 C23.0828377,14.1360383 23.1103407,14.7686056 22.7371482,15.1757246 C22.3639558,15.5828436 21.7313885,15.6103465 21.3242695,15.2371541 L16.0300699,10.3841378 L10.7071009,15.7071068 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" transform="translate(15.999997, 11.999999) scale(-1, 1) rotate(-270.000000) translate(-15.999997, -11.999999) "></path>
-													</g>
-												</svg>
-											</span>
-										</button>
-										<button type="button" id="kt_login_signin" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3 flex-grow-1" onclick="doLoginPemda('kpk')">Sign In</button>
+										<button type="button" id="kt_login_signin" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3 flex-grow-1" onclick="submitLoginAuto()">Sign In</button>
 									</div>
 								</form>
 							</div>

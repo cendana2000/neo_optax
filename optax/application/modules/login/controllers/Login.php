@@ -10,12 +10,13 @@ class Login extends BASE_Controller
     {
         parent::__construct();
         $this->load->model(array(
-            "pegawai/PegawaiModel"          => 'pegawai',
-            "hakakses/RoleAccessModel"      => 'RoleAccess',
-            "user/UserModel"                => 'User',
-            'wajibpajak/WajibpajakModel'    => 'Wajibpajak',
             'conf/UserLoginModel'           => 'userlogin',
+            "hakakses/RoleAccessModel"      => 'RoleAccess',
             'managementuser/RoleAccessModel' => 'managementuser',
+            "pegawai/PegawaiModel"          => 'pegawai',
+            "user/UserModel"                => 'User',
+            'user/UserPegawaiModel'         => 'userrole',
+            'wajibpajak/WajibpajakModel'    => 'Wajibpajak',
         ));
     }
 
@@ -29,6 +30,43 @@ class Login extends BASE_Controller
             $this->main($id);
         }
     }
+
+    public function getUser()
+    {
+        $data = varPost();
+
+        if (empty($data['email'])) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Email wajib diisi',
+                'data' => []
+            ]);
+        }
+
+        $user = $this->db
+            ->select('pegawai_id, pegawai_email, role_access_kode')
+            ->from('v_pajak_pegawai')
+            ->where('LOWER(pegawai_email)', strtolower($data['email']))
+            ->where('pegawai_status', '1')
+            ->limit(1)
+            ->get()
+            ->row_array();
+
+        if (empty($user)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'User tidak ditemukan',
+                'data' => []
+            ]);
+        }
+
+        return $this->response([
+            'success' => true,
+            'data' => $user
+        ]);
+    }
+
+
     public function doauth()
     {
         include_once APPPATH . "../vendor/autoload.php";
@@ -153,7 +191,7 @@ class Login extends BASE_Controller
         } else {
             $this->response(array(
                 'success' => false,
-                'message' => 'User not found. Please check your email and password.',
+                'message' => 'User tidak ditemukan. Periksa kembali email dan password Anda.',
                 'data' => $data
             ));
         }
@@ -163,64 +201,46 @@ class Login extends BASE_Controller
     {
         $data = varPost();
 
-        if (empty($data['role'])) {
+        if (empty($data['email']) || empty($data['password'])) {
             return $this->response([
                 'success' => false,
-                'message' => 'Role login tidak valid'
+                'message' => 'Email dan password wajib diisi'
             ]);
         }
 
-        $roleAccess = $this->db
-            ->select('role_access_id')
-            ->from('pajak_role_access')
-            ->where('role_access_kode', strtolower($data['role']))
-            ->where('role_access_status', '1')
+        $pegawai = $this->db
+            ->select('p.*, r.role_access_kode')
+            ->from('pajak_pegawai p')
+            ->join('pajak_role_access r', 'r.role_access_id = p.pegawai_role_access_id')
+            ->where('LOWER(p.pegawai_email)', strtolower($data['email']))
+            ->where('p.pegawai_password', $this->password($data['password']))
+            ->where('p.pegawai_status', '1')
             ->get()
             ->row_array();
 
-        if (empty($roleAccess)) {
+        if (empty($pegawai)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Role tidak terdaftar'
+                'message' => 'Email atau password salah'
             ]);
         }
-        $roleAccessId = $roleAccess['role_access_id'];
-        $superAdminRoleId = '123';
 
-        $filter = [
-            'pegawai_email' => strtolower($data['email']),
-            'pegawai_password' => $this->password($data['password']),
-            'pegawai_status' => '1',
-            'pegawai_role_access_id' => $roleAccessId
-        ];
-        $pegawai = $this->pegawai->read($filter);
-
-        if (empty($pegawai)) {
-            $pegawai = $this->pegawai->read([
-                'pegawai_email' => strtolower($data['email']),
-                'pegawai_password' => $this->password($data['password']),
-                'pegawai_status' => '1',
-                'pegawai_role_access_id' => $superAdminRoleId
+        if (!empty($data['role']) && strtolower($data['role']) !== strtolower($pegawai['role_access_kode'])) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Role tidak sesuai dengan akun'
             ]);
-            if (empty($pegawai)) {
-                return $this->response([
-                    'success' => false,
-                    'message' => 'Email / password salah atau role tidak sesuai'
-                ]);
-            }
         }
 
-        $session = [
+        $this->session->set_userdata([
             'login_status'    => true,
-            'login_access'    => $data['role'],
+            'login_access'    => $pegawai['role_access_kode'],
             'user_pegawai_id' => $pegawai['pegawai_id'],
             'pegawai_nama'    => $pegawai['pegawai_nama'],
             'pegawai_email'   => $pegawai['pegawai_email'],
             'pemda_id'        => $pegawai['pemda_id'],
             'pegawai_role_access_id' => $pegawai['pegawai_role_access_id']
-        ];
-
-        $this->session->set_userdata($session);
+        ]);
 
         if (!empty($data['token'])) {
             $this->userlogin->insert(gen_uuid(), [
